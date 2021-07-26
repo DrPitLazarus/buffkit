@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spanner", "Spanner\Spanner.csproj", "{A17238AC-168B-4D32-A463-2172CCBBB221}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuffKit", "BuffKit\BuffKit.csproj", "{9B682448-5D43-42D5-A028-30F2B29E69C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A17238AC-168B-4D32-A463-2172CCBBB221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A17238AC-168B-4D32-A463-2172CCBBB221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A17238AC-168B-4D32-A463-2172CCBBB221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A17238AC-168B-4D32-A463-2172CCBBB221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B682448-5D43-42D5-A028-30F2B29E69C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B682448-5D43-42D5-A028-30F2B29E69C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B682448-5D43-42D5-A028-30F2B29E69C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B682448-5D43-42D5-A028-30F2B29E69C3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
