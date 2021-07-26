@@ -70,8 +70,6 @@ namespace BuffKit
                     if (_pausesLeft > 0)
                         buttons.Add(
                             new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }});
-
-                    ;
                     buttons.Add(
                         new Button {Label = "START OVERTIME", Action = delegate { Transition(State.Overtime); }});
                     break;
@@ -84,7 +82,6 @@ namespace BuffKit
                     if (_pausesLeft > 0)
                         buttons.Add(
                             new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }});
-
                     break;
                 case State.OvertimeLoadoutSetup:
                     if (_pausesLeft > 0)
@@ -161,8 +158,9 @@ namespace BuffKit
                     "match");
             }
 
-            //LoadoutSetupEnd -> Overtime
-            if (_currentState is State.LoadoutSetupEnd && newState is State.Overtime)
+            //LoadoutSetupEnd || LoadoutSetup -> Overtime
+            if (_currentState is State.LoadoutSetupEnd ||
+                _currentState is State.LoadoutSetup && newState is State.Overtime)
             {
                 _currentState = newState;
                 _secondsLeft = OvertimeDuration;
@@ -189,9 +187,7 @@ namespace BuffKit
             //OvertimeLoadoutSetup -> End
             if (_currentState == State.OvertimeLoadoutSetup && newState is State.End)
             {
-                MuseLog.Info("Setting state to END");
                 _currentState = newState;
-                MuseLog.Info("Set state to END");
                 TrySendMessage(
                     TimerStrings.OvertimeLoadoutSetupEnd,
                     "match");
@@ -242,7 +238,12 @@ namespace BuffKit
                         //Don't announce anything during loadout setups
                         case State.LoadoutSetup:
                             break;
+                        case State.LoadoutSetupEnd:
+                            yield return new WaitUntil(() => _currentState != State.LoadoutSetupEnd);
+                            break;
                         case State.OvertimeLoadoutSetup:
+                            break;
+                        case State.End:
                             break;
                         //Don't announce the remaining time when first entering a state
                         case State.Main when _secondsLeft == MainDuration:
@@ -291,7 +292,6 @@ namespace BuffKit
                 switch (_currentState)
                 {
                     case State.Main:
-                        MuseLog.Info("Calling transition to main");
                         Transition(State.LoadoutSetup);
                         continue;
                     case State.LoadoutSetup:

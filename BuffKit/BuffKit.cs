@@ -39,7 +39,6 @@ namespace BuffKit
 
         public static bool PaintFooterButtons()
         {
-            MuseLog.Info("PFB called");
             var mlv = MatchLobbyView.Instance;
             if (mlv == null || NetworkedPlayer.Local == null) return false;
 
@@ -52,17 +51,13 @@ namespace BuffKit
 
             if (lobbyTimer == null)
             {
-                MuseLog.Info("Creating lobby timer");
                 lobbyTimer = mlv.gameObject.AddComponent<LobbyTimer>();
-                MuseLog.Info("Calling lobbyTimer.Act");
                 lobbyTimer.Act(delegate { PaintFooterButtons(); });
                 return false;
             }
 
-            MuseLog.Info("Calling foreach");
             foreach (var button in lobbyTimer.Buttons)
             {
-                MuseLog.Info($"Painted button {button.Label}");
                 footer.AddButton(button.Label, button.Action);
             }
 
