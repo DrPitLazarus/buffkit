@@ -6,7 +6,7 @@
             <data name="Startup">
                 TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends
             </data>
-            <data name="LoadoutSetup">
+            <data name="LoadoutSetupStart">
                 TIMER: Ships are locked, you have {0} seconds to set up your loadouts or request overtime
             </data>
             <data name="LoadoutSetupEnd">
@@ -15,13 +15,13 @@
             <data name="OvertimeStart">
                 TIMER: Overtime starting, {0} remaining, you will have {1} seconds to set up your loadouts after the timer ends
             </data>
-            <data name="OvertimeLoadoutSetup">
+            <data name="OvertimeLoadoutSetupStart">
                 TIMER: Ships are locked, you have {0} seconds to set up your loadouts
             </data>
             <data name="OvertimeLoadoutSetupEnd">
                 TIMER: Setup time is over, the referee can force start the game now, please ready up
             </data>
-            <data name="Pause">
+            <data name="PauseStart">
                 PAUSE: Timer paused, {0} remaining, starting a new {1} countdown to unpause
             </data>
             <data name="PauseExtended">
@@ -36,8 +36,11 @@
             <data name="TimerAnnouncement">
                 TIMER: {0} remaining
             </data>
-            <data name="TimeResumed">
+            <data name="TimerResumed">
                 TIMER: Timer resumed, {0} remaining
+            </data>
+            <data name="RefPauseStart">
+                PAUSE: The ref has stopped the timer indefinitely
             </data>
         </xsd:element>
     </xsd:schema>

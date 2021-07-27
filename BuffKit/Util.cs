@@ -10,8 +10,8 @@ namespace BuffKit
             return mlv.Moderated && NetworkedPlayer.Local.Privilege >= UserPrivilege.Referee ||
                    NetworkedPlayer.Local.Privilege.IsModerator();
         }
-
-        public static void TrySendMessage(string message, string channel)
+        
+        public static void TrySendMessage(string message, string channel = "match")
         {
             MuseWorldClient.Instance.ChatHandler.TrySendMessage(message, channel);
         }

@@ -70,7 +70,7 @@ namespace BuffKit
                             {
                                 _needRepaint = true;
                                 MatchActions.PauseCountdown();
-                                MuseWorldClient.Instance.ChatHandler.TrySendMessage("REF: GAME PAUSED", "match");
+                                TrySendMessage("REF: GAME PAUSED");
                                 UIManager.TransitionToState(state);
                             });
                         else
@@ -78,7 +78,7 @@ namespace BuffKit
                             {
                                 _needRepaint = true;
                                 MatchActions.ExtendCountdown(0);
-                                TrySendMessage("REF: GAME RESTARTED", "match");
+                                TrySendMessage("REF: GAME RESTARTED");
                                 UIManager.TransitionToState(state);
                             });
 
@@ -97,7 +97,7 @@ namespace BuffKit
                             {
                                 _needRepaint = true;
                                 MatchActions.StartCountdown(TimerDuration);
-                                MuseWorldClient.Instance.ChatHandler.TrySendMessage("REF: TIMER STARTED", "match");
+                                TrySendMessage("REF: TIMER STARTED");
                                 UIManager.TransitionToState(state);
                             });
                         dm.AddButton("Start overtime", string.Empty, UIMenuItem.Size.Small, false, false,
@@ -105,7 +105,7 @@ namespace BuffKit
                             {
                                 _needRepaint = true;
                                 MatchActions.StartCountdown(OvertimeDuration);
-                                MuseWorldClient.Instance.ChatHandler.TrySendMessage("REF: OVERTIME STARTED", "match");
+                                TrySendMessage("REF: OVERTIME STARTED");
                                 UIManager.TransitionToState(state);
                             });
                     }

@@ -16,13 +16,16 @@ namespace BuffKit
         private const int LockAnnouncementTime = 0;
         private const int PauseDuration = 120;
 
+        private State _previousState;
         private State _currentState;
+        
         private int _pausesLeft = 2;
-        private int _prePauseSecondsLeft;
-        private State _prePauseState;
+
         private Action _repaint;
 
         private int _secondsLeft = MainDuration;
+        private int _prePauseSecondsLeft;
+        
         public List<Button> Buttons;
 
         private static string FormatSeconds(int seconds)
@@ -43,6 +46,15 @@ namespace BuffKit
             _repaint();
         }
 
+        private void AddPauseButtons(List<Button> buttons)
+        {
+            buttons.Add(
+                _pausesLeft > 0
+                    ? new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }}
+                    : new Button {Label = "START REF PAUSE", Action = delegate { Transition(State.RefPause); }}
+            );
+        }
+
         private List<Button> UpdateButtons()
         {
             var buttons = new List<Button>();
@@ -60,16 +72,10 @@ namespace BuffKit
                     });
                     break;
                 case State.Main:
-                    if (_pausesLeft > 0)
-                        buttons.Add(
-                            new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }}
-                        );
-
+                    AddPauseButtons(buttons);
                     break;
                 case State.LoadoutSetup:
-                    if (_pausesLeft > 0)
-                        buttons.Add(
-                            new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }});
+                    AddPauseButtons(buttons);
                     buttons.Add(
                         new Button {Label = "START OVERTIME", Action = delegate { Transition(State.Overtime); }});
                     break;
@@ -79,23 +85,19 @@ namespace BuffKit
                         new Button {Label = "START OVERTIME", Action = delegate { Transition(State.Overtime); }});
                     break;
                 case State.Overtime:
-                    if (_pausesLeft > 0)
-                        buttons.Add(
-                            new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }});
+                    AddPauseButtons(buttons);
                     break;
                 case State.OvertimeLoadoutSetup:
-                    if (_pausesLeft > 0)
-                        buttons.Add(
-                            new Button {Label = "PAUSE TIMER", Action = delegate { Transition(State.Pause); }});
-
+                    AddPauseButtons(buttons);
                     buttons.Add(new Button {Label = "FORCE START", Action = LobbyActions.ForceStart});
                     break;
                 case State.End:
                     buttons.Add(new Button {Label = "FORCE START", Action = LobbyActions.ForceStart});
                     break;
                 case State.Pause:
-                    buttons.Add(new Button {Label = "RESUME TIMER", Action = delegate { Transition(_prePauseState); }});
+                    buttons.Add(new Button {Label = "RESUME TIMER", Action = delegate { Transition(_previousState); }});
                     if (_pausesLeft > 0)
+                    {
                         buttons.Add(new Button
                         {
                             Label = "EXTEND PAUSE", Action = delegate
@@ -103,12 +105,27 @@ namespace BuffKit
                                 _pausesLeft--;
                                 _secondsLeft += PauseDuration;
                                 TrySendMessage(
-                                    string.Format(TimerStrings.PauseExtended, FormatSeconds(_secondsLeft)),
-                                    "match");
+                                    string.Format(TimerStrings.PauseExtended, FormatSeconds(_secondsLeft)));
                                 Repaint();
                             }
                         });
+                    }
+                    else
+                    {
+                        buttons.Add(new Button
+                        {
+                            Label = "START REF PAUSE", Action = delegate { Transition(State.RefPause);}
+                        });
+                    }
 
+                    break;
+                case State.RefPause:
+                    buttons.Add(new Button {Label = "RESUME TIMER", Action = delegate
+                    {
+                        MuseLog.Info("RESUME TIMER CLICKED FROM REF PAUSE");
+                        MuseLog.Info($"TRANSITIONING TO {_previousState}");
+                        Transition(_previousState);
+                    }});
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -124,102 +141,94 @@ namespace BuffKit
 
         private void Transition(State newState)
         {
-            //Startup -> Main, initial startup
-            if (_currentState is State.Startup && newState is State.Main)
+            switch (newState)
             {
-                _currentState = newState;
-                _secondsLeft = MainDuration;
+                //Startup -> Main, initial startup
+                case State.Main when _currentState is State.Startup:
+                    _secondsLeft = MainDuration;
 
-                TrySendMessage(string.Format(
-                    TimerStrings.Startup,
-                    FormatSeconds(_secondsLeft),
-                    LoadoutSetupDuration.ToString()
-                ), "match");
+                    TrySendMessage(string.Format(
+                        TimerStrings.Startup,
+                        FormatSeconds(_secondsLeft),
+                        LoadoutSetupDuration.ToString()
+                    ));
+                    break;
+                //Main -> LoadoutSetup
+                case State.LoadoutSetup when _currentState is State.Main:
+                    _secondsLeft = LoadoutSetupDuration;
+
+                    TrySendMessage(string.Format(
+                        TimerStrings.LoadoutSetupStart,
+                        LoadoutSetupDuration.ToString()
+                    ));
+                    break;
+                //LoadoutSetup -> LoadoutSetupEnd
+                case State.LoadoutSetupEnd when _currentState is State.LoadoutSetup:
+                    TrySendMessage(
+                        TimerStrings.LoadoutSetupEnd);
+                    break;
+                //LoadoutSetupEnd -> Overtime
+                case State.Overtime when _currentState is State.LoadoutSetupEnd:
+                    _secondsLeft = OvertimeDuration;
+
+                    TrySendMessage(string.Format(
+                        TimerStrings.OvertimeStart,
+                        FormatSeconds(_secondsLeft),
+                        LoadoutSetupDuration.ToString()
+                    ));
+                    break;
+                //Overtime -> OvertimeLoadoutSetup
+                case State.OvertimeLoadoutSetup when _currentState is State.Overtime:
+                    _secondsLeft = LoadoutSetupDuration;
+
+                    TrySendMessage(string.Format(
+                        TimerStrings.OvertimeLoadoutSetupStart,
+                        LoadoutSetupDuration.ToString()
+                    ));
+                    break;
+                //OvertimeLoadoutSetup -> End
+                case State.End when _currentState == State.OvertimeLoadoutSetup:
+                    TrySendMessage(
+                        TimerStrings.OvertimeLoadoutSetupEnd);
+                    break;
+                //Any -> Pause
+                case State.Pause:
+                    _pausesLeft--;
+                    _prePauseSecondsLeft = _secondsLeft;
+                    _secondsLeft = PauseDuration;
+
+                    TrySendMessage(
+                        string.Format(TimerStrings.PauseStart,
+                            FormatSeconds(_prePauseSecondsLeft),
+                            FormatSeconds(PauseDuration)
+                        ));
+                    break;
+                //Pause -> RefPause
+                case State.RefPause when _currentState == State.Pause:
+                    TrySendMessage(TimerStrings.RefPauseStart);
+                    //Make sure we return to pre-pause state instead of pause
+                    _currentState = newState;
+                    Repaint();
+                    return;
+                //Any -> RefPause
+                case State.RefPause:
+                    TrySendMessage(TimerStrings.RefPauseStart);
+                    break;
+                default:
+                {
+                    if (_currentState == State.Pause || _currentState == State.RefPause)
+                    {
+                        _secondsLeft = _prePauseSecondsLeft;
+                        TrySendMessage(
+                            string.Format(TimerStrings.TimerResumed, FormatSeconds(_secondsLeft)));
+                    }
+                    break;
+                }
             }
-
-            //Main -> LoadoutSetup
-            if (_currentState is State.Main && newState is State.LoadoutSetup)
-            {
-                _currentState = newState;
-                _secondsLeft = LoadoutSetupDuration;
-
-                TrySendMessage(string.Format(
-                    TimerStrings.LoadoutSetup,
-                    LoadoutSetupDuration.ToString()
-                ), "match");
-            }
-
-            //LoadoutSetup -> LoadoutSetupEnd
-            if (_currentState is State.LoadoutSetup && newState is State.LoadoutSetupEnd)
-            {
-                _currentState = newState;
-                TrySendMessage(
-                    TimerStrings.LoadoutSetupEnd,
-                    "match");
-            }
-
-            //LoadoutSetupEnd || LoadoutSetup -> Overtime
-            if (_currentState is State.LoadoutSetupEnd ||
-                _currentState is State.LoadoutSetup && newState is State.Overtime)
-            {
-                _currentState = newState;
-                _secondsLeft = OvertimeDuration;
-
-                TrySendMessage(string.Format(
-                    TimerStrings.OvertimeStart,
-                    FormatSeconds(_secondsLeft),
-                    LoadoutSetupDuration.ToString()
-                ), "match");
-            }
-
-            //Overtime -> OvertimeLoadoutSetup
-            if (_currentState is State.Overtime && newState is State.OvertimeLoadoutSetup)
-            {
-                _currentState = newState;
-                _secondsLeft = LoadoutSetupDuration;
-
-                TrySendMessage(string.Format(
-                    TimerStrings.OvertimeLoadoutSetup,
-                    LoadoutSetupDuration.ToString()
-                ), "match");
-            }
-
-            //OvertimeLoadoutSetup -> End
-            if (_currentState == State.OvertimeLoadoutSetup && newState is State.End)
-            {
-                _currentState = newState;
-                TrySendMessage(
-                    TimerStrings.OvertimeLoadoutSetupEnd,
-                    "match");
-            }
-
-            //Any -> Pause
-            if (newState is State.Pause)
-            {
-                _prePauseState = _currentState;
-                _currentState = newState;
-                _pausesLeft--;
-                _prePauseSecondsLeft = _secondsLeft;
-                _secondsLeft = PauseDuration;
-
-                TrySendMessage(
-                    string.Format(TimerStrings.Pause,
-                        FormatSeconds(_prePauseSecondsLeft),
-                        FormatSeconds(PauseDuration)
-                    ),
-                    "match");
-            }
-
-            //Pause -> Any
-            if (newState != State.Pause && _currentState == State.Pause)
-            {
-                _currentState = newState;
-                _secondsLeft = _prePauseSecondsLeft;
-                TrySendMessage(
-                    string.Format(TimerStrings.TimeResumed, FormatSeconds(_secondsLeft)),
-                    "match");
-            }
-
+            
+            _previousState = _currentState;
+            _currentState = newState;
+            
             Repaint();
         }
 
@@ -258,9 +267,11 @@ namespace BuffKit
                                 TrySendMessage(
                                     string.Format(
                                         TimerStrings.PauseAnnouncement,
-                                        FormatSeconds(_secondsLeft)),
-                                    "match");
+                                        FormatSeconds(_secondsLeft)));
 
+                            break;
+                        case State.RefPause:
+                            yield return new WaitUntil(() => _currentState != State.RefPause);
                             break;
                         default:
                             if (_secondsLeft == PreLockAnnouncementTime)
@@ -269,14 +280,12 @@ namespace BuffKit
                                         TimerStrings.PreLockAnnouncement,
                                         FormatSeconds(_secondsLeft),
                                         (PreLockAnnouncementTime - LockAnnouncementTime).ToString()
-                                    ),
-                                    "match");
+                                    ));
                             else if (_secondsLeft % Interval == 0)
                                 TrySendMessage(
                                     string.Format(
                                         TimerStrings.TimerAnnouncement,
-                                        FormatSeconds(_secondsLeft)),
-                                    "match");
+                                        FormatSeconds(_secondsLeft)));
 
                             break;
                     }
@@ -287,8 +296,6 @@ namespace BuffKit
                 }
 
                 // Timer hits zero, what do?
-                MuseLog.Info(_currentState.ToString());
-                MuseLog.Info("Entering switch");
                 switch (_currentState)
                 {
                     case State.Main:
@@ -308,7 +315,11 @@ namespace BuffKit
                         continue;
                     case State.Pause:
                         _secondsLeft = _prePauseSecondsLeft;
-                        Transition(_prePauseState);
+                        Transition(_previousState);
+                        continue;
+                    case State.RefPause:
+                        _secondsLeft = _prePauseSecondsLeft;
+                        Transition(_previousState);
                         continue;
                     case State.End:
                         yield break;
@@ -325,7 +336,8 @@ namespace BuffKit
             Overtime,
             OvertimeLoadoutSetup,
             End,
-            Pause
+            Pause,
+            RefPause
         }
 
         public struct Button
