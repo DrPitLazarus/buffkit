@@ -2,7 +2,7 @@
 using MuseBase.Multiplayer.Unity;
 using static BuffKit.Util;
 
-namespace BuffKit
+namespace BuffKit.MatchModMenu
 {
     public class UIModMenuState : UIManager.UINewHeaderState
     {
