@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace BuffKit.LobbyTimer.Patchers
 {
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
-    public class UIMatchLobbyAwake
+    public class UIMatchLobby_Awake
     {
         public static void Postfix()
         {

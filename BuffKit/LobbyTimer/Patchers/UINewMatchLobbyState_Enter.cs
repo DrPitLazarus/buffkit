@@ -3,7 +3,7 @@
 namespace BuffKit.LobbyTimer.Patchers
 {
     [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
-    public class UINewMatchLobbyStateEnter
+    public class UINewMatchLobbyState_Enter
     {
         public static void Postfix()
         {
