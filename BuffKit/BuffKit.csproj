@@ -238,7 +238,10 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BuffKit.cs" />
-        <Compile Include="LobbyTimer.cs" />
+        <Compile Include="LobbyTimer\Patchers\UIMatchLobbyAwake.cs" />
+        <Compile Include="LobbyTimer\Patchers\UINewMatchLobbyStateEnter.cs" />
+        <Compile Include="LobbyTimer\Timer.cs" />
+        <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
         <Compile Include="MapPicker.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="TimerStrings.Designer.cs">

@@ -27,7 +27,8 @@ namespace BuffKit
             var paintButtonsOriginal = mlsType.GetMethods().First(m => m.Name.Equals("PaintFooterButtons"));
             var paintButtonsPatch = typeof(BuffKit).GetMethods().First(m => m.Name.Equals("PaintFooterButtons"));
             harmony.Patch(paintButtonsOriginal, new HarmonyMethod(paintButtonsPatch));
-
+            
+            harmony.PatchAll();
             log.LogInfo("Buff applied!");
         }
 
@@ -41,25 +42,10 @@ namespace BuffKit
         {
             var mlv = MatchLobbyView.Instance;
             if (mlv == null || NetworkedPlayer.Local == null) return false;
-
             var footer = UIPageFrame.Instance.footer;
             footer.ClearButtons();
 
             if (!HasModPrivilege(mlv)) return false;
-
-            var lobbyTimer = mlv.gameObject.GetComponent<LobbyTimer>();
-
-            if (lobbyTimer == null)
-            {
-                lobbyTimer = mlv.gameObject.AddComponent<LobbyTimer>();
-                lobbyTimer.Act(delegate { PaintFooterButtons(); });
-                return false;
-            }
-
-            foreach (var button in lobbyTimer.Buttons)
-            {
-                footer.AddButton(button.Label, button.Action);
-            }
 
             footer.AddButton("CHANGE MAP", delegate { MapPicker.Paint(); });
             footer.AddButton("MOD MATCH", delegate { UINewMatchLobbyState.instance.ModFeatures(); });
