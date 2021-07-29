@@ -242,14 +242,16 @@
         <Compile Include="LobbyTimer\Patchers\UINewMatchLobbyState_Enter.cs" />
         <Compile Include="LobbyTimer\Timer.cs" />
         <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
-        <Compile Include="MapPicker.cs" />
+        <Compile Include="MapPicker\MapPicker.cs" />
+        <Compile Include="MapPicker\Patchers\UINewMatchLobbyState_PaintFooterButtons.cs" />
+        <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
+        <Compile Include="MatchModMenu\UIModMenuState.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="TimerStrings.Designer.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>TimerStrings.resx</DependentUpon>
         </Compile>
-        <Compile Include="UIModMenuState.cs" />
         <Compile Include="Util.cs" />
     </ItemGroup>
     <ItemGroup>

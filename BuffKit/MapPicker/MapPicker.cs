@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using Muse.Common;
 using Muse.Goi2.Entity;
+using static BuffKit.Util;
 
-namespace BuffKit
+namespace BuffKit.MapPicker
 {
     public static class MapPicker
     {
@@ -37,5 +38,6 @@ namespace BuffKit
 
             return false;
         }
+        
     }
 }
