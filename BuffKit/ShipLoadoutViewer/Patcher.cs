@@ -14,9 +14,9 @@ namespace BuffKit.ShipLoadoutViewer
         {
             ShipLoadoutViewer.LobbyUIPreBuild(__instance);
         }
-        private static void Postfix(UIMatchLobby __instance, List<List<UILobbyCrew>> ___crewElements)
+        private static void Postfix(List<List<UILobbyCrew>> ___crewElements)
         {
-            ShipLoadoutViewer.LobbyUIPostBuild(__instance, ___crewElements);
+            ShipLoadoutViewer.LobbyUIPostBuild(___crewElements);
         }
     }
 
@@ -34,7 +34,7 @@ namespace BuffKit.ShipLoadoutViewer
     {
         private static void Postfix()
         {
-            ShipLoadoutViewer.EnsureDataIsLoaded();
+            ShipLoadoutViewer.LoadShipAndGunData();
         }
     }
 }

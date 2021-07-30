@@ -1,6 +1,7 @@
 ﻿using Muse.Common;
 using MuseBase.Multiplayer.Unity;
 using UnityEngine;
+using Muse.Goi2.Entity.Vo;
 
 namespace BuffKit
 {
@@ -26,6 +27,13 @@ namespace BuffKit
                 s = t.name + "/" + s;
             }
             return s;
+        }
+
+        public static ShipViewObject GetShipVO(this MatchLobbyView mlv, string crewId)
+        {
+            foreach (var csvo in mlv.CrewShips)
+                if (csvo.CrewId == crewId) return ShipPreview.GetShipVO(csvo);
+            return null;
         }
     }
 }

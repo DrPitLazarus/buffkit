@@ -13,8 +13,6 @@ namespace BuffKit.ShipLoadoutViewer
     class UILobbyShipLoadoutBar : MonoBehaviour
     {
 
-        BepInEx.Logging.ManualLogSource log;
-
         private void Awake()
         {
         }
@@ -25,12 +23,10 @@ namespace BuffKit.ShipLoadoutViewer
         Image headerImg;
         Color baseBGCol;
 
-        public void Build(BepInEx.Logging.ManualLogSource log)
+        public void Build()
         {
-            this.log = log;
             gameObject.transform.SetSiblingIndex(1);                                              // Make it just below the ship header
             gameObject.transform.localPosition = new Vector3(0, 0, 0);
-            log.LogInfo("Added loadoutPanel : " + gameObject.transform.GetHierarchyPath());
             var hlg = gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 1;
             hlg.padding = new RectOffset(1, 1, 1, 1);
@@ -112,7 +108,7 @@ namespace BuffKit.ShipLoadoutViewer
 
             public bool Equals(ShipLoadoutData other)
             {
-                if (other == null) return false;
+                // if (other == null) return false;
                 if (other.shipClass != shipClass) return false;
                 for (int i = 0; i < availableSlots; i++)
                     if (other.shipGuns[i] != shipGuns[i]) return false;
@@ -120,7 +116,7 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
-        ShipLoadoutData lastShip = null;
+        ShipLoadoutData lastShip = new ShipLoadoutData(null);
         public void DisplayShip(ShipViewObject svo)
         {
             baseBGCol = headerImg.color;

@@ -26,17 +26,19 @@ namespace BuffKit.ShipLoadoutViewer
 
         public static void LobbyUIPreBuild(UIMatchLobby uiml)
         {
+            // Edit the "Sample Crew" object to have a loadout panel
+
             var crewUI = uiml.sampleCrew;
             crewUI.GetComponent<LayoutElement>().preferredHeight = 145;
             var loadoutPanel = new GameObject("Loadout Panel");
             loadoutPanel.transform.parent = crewUI.transform;
 
-            var bar = loadoutPanel.AddComponent<UILobbyShipLoadoutBar>();
+            loadoutPanel.AddComponent<UILobbyShipLoadoutBar>();
         }
 
         static List<List<UILobbyShipLoadoutBar>> loadoutBars;                       // Access by [column][row]
         static Dictionary<UILobbyCrew, UILobbyShipLoadoutBar> crewToLoadoutBar;
-        public static void LobbyUIPostBuild(UIMatchLobby uiml, List<List<UILobbyCrew>> uimlCrewElements)
+        public static void LobbyUIPostBuild(List<List<UILobbyCrew>> uimlCrewElements)
         {
             loadoutBars = new List<List<UILobbyShipLoadoutBar>>();
             crewToLoadoutBar = new Dictionary<UILobbyCrew, UILobbyShipLoadoutBar>();
@@ -45,10 +47,10 @@ namespace BuffKit.ShipLoadoutViewer
             foreach (var column in uimlCrewElements)
             {
                 var currentCol = new List<UILobbyShipLoadoutBar>();
-                foreach(var crew in column)
+                foreach (var crew in column)
                 {
                     var bar = crew.gameObject.transform.GetComponentInChildren<UILobbyShipLoadoutBar>();
-                    bar.Build(log);
+                    bar.Build();
                     currentCol.Add(bar);
                     crewToLoadoutBar.Add(crew, bar);
                 }
@@ -58,62 +60,67 @@ namespace BuffKit.ShipLoadoutViewer
 
         public static void PaintLoadoutBars(MatchLobbyView mlv)
         {
-            EnsureDataIsLoaded();
+            log.LogInfo($"Displaying loadout bars, active state: {loadoutBars[0][0].gameObject.activeInHierarchy}");
             // Update all UILobbyShipLoadoutBar in loadoutBars with ship data
-            // Loop logic came from UIMatchLobby.PaintCrews - check there if this breaks
+            // Loop logic came from UIMatchLobby.PaintCrews
             int[] array = new int[loadoutBars.Count];
-            for(int i = 0; i < mlv.Crews.Count; i++)
+            for (int i = 0; i < mlv.Crews.Count; i++)
             {
                 List<CrewEntity> list = mlv.Crews[i];
                 int num = i % loadoutBars.Count;
-                for(int j = 0; j < list.Count; j++)
+                for (int j = 0; j < list.Count; j++)
                 {
                     CrewEntity crewData = list[j];
-                    if(array[num] < loadoutBars[num].Count)
+                    if (array[num] < loadoutBars[num].Count)
                     {
-                        loadoutBars[num][array[num]].DisplayShip(crewData.HasCaptain ? GetShipVOFromCrewId(mlv, crewData.Id) : null);
+                        loadoutBars[num][array[num]].DisplayShip(crewData.HasCaptain ? mlv.GetShipVO(crewData.Id) : null);
                         array[num]++;
                     }
                 }
             }
         }
-        /* Util functions */
 
-        public static Dictionary<int, Dictionary<string, int>> shipAndGunSlotToIndex = new Dictionary<int, Dictionary<string, int>>();
-        public static Dictionary<int, Texture2D> gunIcons = new Dictionary<int, Texture2D>();
-        public static bool dataLoaded = false;
-        public static void EnsureDataIsLoaded()
+        public static Dictionary<int, Dictionary<string, int>> shipAndGunSlotToIndex;
+        public static Dictionary<int, Texture2D> gunIcons;
+        static List<GunItem> allGunItems;
+        static bool dataLoaded = false;
+        public static void LoadShipAndGunData()
         {
-            dataLoaded = gunIcons.Count > 0;
+            /*
+             * This method has 3 tasks
+             *  1. Fill out shipAndGunSlotToIndex for sorting guns into the correct slot
+             *  2. Fill out allGunItems for loading gun icon textures
+             *  3. Load all gun textures
+             * Task 1 & 2 are performed once.
+             * Task 3 is performed every time the game connects to the lobby (UILoadingLobbyState.Exit)
+             * TODO: Find a method that's only called once, but where SubDataActions can be used to load data.
+             */
             if (!dataLoaded)
             {
-                log.LogInfo("Trying to load data");
+                // Fill out shipAndGunSlotToIndex and allGunItems once
+
+                gunIcons = new Dictionary<int, Texture2D>();
+                shipAndGunSlotToIndex = new Dictionary<int, Dictionary<string, int>>();
+                allGunItems = new List<GunItem>();
+
                 SubDataActions.GetShipAndGuns(delegate (LitJson.JsonData data)
                 {
-                    var allGunsData = data["allguns"];
-                    var allGuns = new HashSet<int>();
-                    for (int i = 0; i < allGunsData.Count; i++) allGuns.Add((int)allGunsData[i]);
-                    var allGunItems = new List<GunItem>();
-                    foreach (var g in allGuns) allGunItems.Add(CachedRepository.Instance.Get<GunItem>(g));
+                    // Fill allGunItems list with each GunItem available to the player
+                    var allGunsJsonData = data["allguns"];
+                    var allGunIdSet = new HashSet<int>();
+                    for (int i = 0; i < allGunsJsonData.Count; i++) allGunIdSet.Add((int)allGunsJsonData[i]);
+                    foreach (var g in allGunIdSet) allGunItems.Add(CachedRepository.Instance.Get<GunItem>(g));
+                    // Load the gun icon textures
+                    LoadGunTextures();
 
-                    var str = "allGuns:";
-                    foreach (var g in allGunItems)
-                    {
-                        str += $"\n  {g.Id} : {g.Name}|{g.NameText.En}";
-                        MuseBundleStore.Instance.LoadObject<Texture2D>(g.GetIcon(), delegate (Texture2D t)
-                        {
-                            gunIcons[g.Id] = t;
-                            log.LogInfo($"Loaded icon for {g.NameText.En}");
-                        }, 0, false);
-                    }
-                    log.LogInfo(str);
-
-                    var allShipsData = data["allships"];
-                    var allShips = new HashSet<int>();
-                    for (int i = 0; i < allShipsData.Count; i++) allShips.Add((int)allShipsData[i]);
+                    // Fill allShipModels list with each ShipModel available to the player
+                    var allShipsJsonData = data["allships"];
+                    var allShipIdSet = new HashSet<int>();
+                    for (int i = 0; i < allShipsJsonData.Count; i++) allShipIdSet.Add((int)allShipsJsonData[i]);
                     var allShipModels = new List<ShipModel>();
-                    foreach (var s in allShips) allShipModels.Add(CachedRepository.Instance.Get<ShipModel>(s));
-                    foreach(var ship in allShipModels)
+                    foreach (var s in allShipIdSet) allShipModels.Add(CachedRepository.Instance.Get<ShipModel>(s));
+                    // For each ShipModel create a dictionary from each gun slot name to its corresponding index in the ship loadout order
+                    foreach (var ship in allShipModels)
                     {
                         // Logic from UINewShipState.MainMode
                         var gunSlots = new List<ShipSlotViewObject>();
@@ -144,18 +151,24 @@ namespace BuffKit.ShipLoadoutViewer
 
                         shipAndGunSlotToIndex[ship.Id] = shipDict;
                     }
-
-                    str = "allShips:";
-                    foreach (var s in allShipModels) str += $"\n  {s.Id} : {s.NameText.En}";
-                    log.LogInfo(str);
+                    dataLoaded = true;
                 });
             }
+            else
+                LoadGunTextures();
         }
-        static ShipViewObject GetShipVOFromCrewId(MatchLobbyView mlv, string crewId)
+        static void LoadGunTextures()
         {
-            foreach (var csvo in mlv.CrewShips)
-                if (csvo.CrewId == crewId) return ShipPreview.GetShipVO(csvo);
-            return null;
+            // Load the actual icons
+            log.LogInfo("Loading gun icon textures");
+            foreach (var g in allGunItems)
+            {
+                MuseBundleStore.Instance.LoadObject<Texture2D>(g.GetIcon(), delegate (Texture2D t)
+                {
+                    gunIcons[g.Id] = t;
+                    log.LogInfo($"  Loaded icon texture for {g.NameText.En}");
+                }, 0, false);
+            }
         }
     }
 }
