@@ -6,6 +6,10 @@ namespace BuffKit.ShipLoadoutViewer
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
     public class UIMatchLobby_Awake
     {
+        private static void Prepare()
+        {
+            ShipLoadoutViewer.CreateLog();
+        }
         private static void Prefix(UIMatchLobby __instance)
         {
             ShipLoadoutViewer.LobbyUIPreBuild(__instance);
@@ -16,20 +20,12 @@ namespace BuffKit.ShipLoadoutViewer
         }
     }
 
-    [HarmonyPatch(typeof(MatchLobbyView), "Awake")]
-    public class MatchLobbyView_Awake
+    [HarmonyPatch(typeof(UIMatchLobby), "SetData")]
+    public class UIMatchLobby_PaintCrews
     {
-        private static void Prepare()
+        private static void Postfix(UIMatchLobby __instance, MatchLobbyView ___mlv)
         {
-            ShipLoadoutViewer.CreateLog();
-        }
-        private static void Postfix(MatchLobbyView __instance)
-        {
-
-            __instance.lobbyDataChanged += delegate
-            {
-                ShipLoadoutViewer.LobbyDataChanged(__instance);
-            };
+            ShipLoadoutViewer.PaintLoadoutBars(___mlv);
         }
     }
 

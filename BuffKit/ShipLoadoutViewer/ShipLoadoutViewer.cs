@@ -34,13 +34,15 @@ namespace BuffKit.ShipLoadoutViewer
             var bar = loadoutPanel.AddComponent<UILobbyShipLoadoutBar>();
         }
 
-        static List<List<UILobbyShipLoadoutBar>> loadoutBars;       // Access by [column][row]
+        static List<List<UILobbyShipLoadoutBar>> loadoutBars;                       // Access by [column][row]
+        static Dictionary<UILobbyCrew, UILobbyShipLoadoutBar> crewToLoadoutBar;
         public static void LobbyUIPostBuild(UIMatchLobby uiml, List<List<UILobbyCrew>> uimlCrewElements)
         {
             loadoutBars = new List<List<UILobbyShipLoadoutBar>>();
+            crewToLoadoutBar = new Dictionary<UILobbyCrew, UILobbyShipLoadoutBar>();
             // crewElements is a 2-wide, 4-tall list
             // For each crew element, find the loadout bar and add to loadoutBars in the same order
-            foreach(var column in uimlCrewElements)
+            foreach (var column in uimlCrewElements)
             {
                 var currentCol = new List<UILobbyShipLoadoutBar>();
                 foreach(var crew in column)
@@ -48,12 +50,13 @@ namespace BuffKit.ShipLoadoutViewer
                     var bar = crew.gameObject.transform.GetComponentInChildren<UILobbyShipLoadoutBar>();
                     bar.Build(log);
                     currentCol.Add(bar);
+                    crewToLoadoutBar.Add(crew, bar);
                 }
                 loadoutBars.Add(currentCol);
             }
         }
 
-        public static void LobbyDataChanged(MatchLobbyView mlv)
+        public static void PaintLoadoutBars(MatchLobbyView mlv)
         {
             EnsureDataIsLoaded();
             // Update all UILobbyShipLoadoutBar in loadoutBars with ship data
