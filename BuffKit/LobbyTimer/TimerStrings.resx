@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+
+    <data name="Startup">
+        <value>TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends
+        </value>
+    </data>
+    <data name="LoadoutSetupStart">
+        <value>TIMER: Ships are locked, you have {0} seconds to set up your loadouts or request overtime</value>
+    </data>
+    <data name="LoadoutSetupEnd">
+        <value>TIMER: Setup time is over, the referee will either start the game or add overtime now</value>
+    </data>
+    <data name="OvertimeStart">
+        <value>TIMER: Overtime starting, {0} remaining, you will have {1} seconds to set up your loadouts after the timer ends</value>
+    </data>
+    <data name="OvertimeLoadoutSetupStart">
+        <value>TIMER: Ships are locked, you have {0} seconds to set up your loadouts</value>
+    </data>
+    <data name="OvertimeLoadoutSetupEnd">
+        <value>TIMER: Setup time is over, the referee can force start the game now, please ready up</value>
+    </data>
+    <data name="PauseStart">
+        <value>PAUSE: Timer paused, {0} remaining, starting a new {1} countdown to unpause</value>
+    </data>
+    <data name="PauseExtended">
+        <value>PAUSE: Pause extended, {0} remaining</value>
+    </data>
+    <data name="PauseAnnouncement">
+        <value>PAUSE: {0} remaining</value>
+    </data>
+    <data name="PreLockAnnouncement">
+        <value>TIMER: {0} remaining, ships will be locked in {1} seconds</value>
+    </data>
+    <data name="TimerAnnouncement">
+        <value>TIMER: {0} remaining</value>
+    </data>
+    <data name="TimerResumed">
+        <value>TIMER: Timer resumed, {0} remaining</value>
+    </data>
+    <data name="RefPauseStart">
+        <value>PAUSE: The ref has stopped the timer indefinitely</value>
+    </data>
+</root>
