@@ -27,6 +27,7 @@ namespace BuffKit.ShipLoadoutViewer
         public static void LobbyUIPreBuild(UIMatchLobby uiml)
         {
             var crewUI = uiml.sampleCrew;
+            crewUI.GetComponent<LayoutElement>().preferredHeight = 145;
             var loadoutPanel = new GameObject("Loadout Panel");
             loadoutPanel.transform.parent = crewUI.transform;
 
