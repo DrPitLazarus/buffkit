@@ -251,6 +251,9 @@
         <Compile Include="MapPicker\Patchers\UINewMatchLobbyState_PaintFooterButtons.cs" />
         <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
         <Compile Include="MatchModMenu\UIModMenuState.cs" />
+        <Compile Include="ShipLoadoutViewer\Patcher.cs" />
+        <Compile Include="ShipLoadoutViewer\ShipLoadoutViewer.cs" />
+        <Compile Include="ShipLoadoutViewer\UILobbyShipLoadoutBar.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Util.cs" />
     </ItemGroup>

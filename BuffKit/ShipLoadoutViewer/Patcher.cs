@@ -32,4 +32,13 @@ namespace BuffKit.ShipLoadoutViewer
             };
         }
     }
+
+    [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
+    public class UILoadingLobbyState_Exit
+    {
+        private static void Postfix()
+        {
+            ShipLoadoutViewer.EnsureDataIsLoaded();
+        }
+    }
 }
