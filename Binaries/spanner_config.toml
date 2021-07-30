@@ -1,5 +1,7 @@
 game_path = ''
 
 classes_to_patch = [
-  "UIManager"
+  "UIManager",
+  "UICreateMatchPanel",
+  "UIMatchLobby"
 ]

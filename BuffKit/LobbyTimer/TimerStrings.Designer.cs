@@ -39,7 +39,7 @@ namespace BuffKit {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BuffKit.TimerStrings", typeof(TimerStrings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BuffKit.LobbyTimer.TimerStrings", typeof(TimerStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,15 +61,6 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: Ships are locked, you have {0} seconds to set up your loadouts or request overtime.
-        /// </summary>
-        internal static string LoadoutSetup {
-            get {
-                return ResourceManager.GetString("LoadoutSetup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to TIMER: Setup time is over, the referee will either start the game or add overtime now.
         /// </summary>
         internal static string LoadoutSetupEnd {
@@ -79,11 +70,11 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: Ships are locked, you have {0} seconds to set up your loadouts.
+        ///   Looks up a localized string similar to TIMER: Ships are locked, you have {0} seconds to set up your loadouts or request overtime.
         /// </summary>
-        internal static string OvertimeLoadoutSetup {
+        internal static string LoadoutSetupStart {
             get {
-                return ResourceManager.GetString("OvertimeLoadoutSetup", resourceCulture);
+                return ResourceManager.GetString("LoadoutSetupStart", resourceCulture);
             }
         }
         
@@ -97,20 +88,20 @@ namespace BuffKit {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TIMER: Ships are locked, you have {0} seconds to set up your loadouts.
+        /// </summary>
+        internal static string OvertimeLoadoutSetupStart {
+            get {
+                return ResourceManager.GetString("OvertimeLoadoutSetupStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TIMER: Overtime starting, {0} remaining, you will have {1} seconds to set up your loadouts after the timer ends.
         /// </summary>
         internal static string OvertimeStart {
             get {
                 return ResourceManager.GetString("OvertimeStart", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to PAUSE: Timer paused, {0} remaining, starting a new {1} countdown to unpause.
-        /// </summary>
-        internal static string Pause {
-            get {
-                return ResourceManager.GetString("Pause", resourceCulture);
             }
         }
         
@@ -133,6 +124,15 @@ namespace BuffKit {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to PAUSE: Timer paused, {0} remaining, starting a new {1} countdown to unpause.
+        /// </summary>
+        internal static string PauseStart {
+            get {
+                return ResourceManager.GetString("PauseStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TIMER: {0} remaining, ships will be locked in {1} seconds.
         /// </summary>
         internal static string PreLockAnnouncement {
@@ -142,7 +142,17 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends.
+        ///   Looks up a localized string similar to PAUSE: The ref has stopped the timer indefinitely.
+        /// </summary>
+        internal static string RefPauseStart {
+            get {
+                return ResourceManager.GetString("RefPauseStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends
+        ///        .
         /// </summary>
         internal static string Startup {
             get {
@@ -162,9 +172,9 @@ namespace BuffKit {
         /// <summary>
         ///   Looks up a localized string similar to TIMER: Timer resumed, {0} remaining.
         /// </summary>
-        internal static string TimeResumed {
+        internal static string TimerResumed {
             get {
-                return ResourceManager.GetString("TimeResumed", resourceCulture);
+                return ResourceManager.GetString("TimerResumed", resourceCulture);
             }
         }
     }
