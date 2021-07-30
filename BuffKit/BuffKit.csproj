@@ -286,7 +286,7 @@
         <Message Text="Copied the DLL to the plugins folder" />
 
         <Message Text="Copying the assets to the plugins folder" />
-        <Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets" />
+        <Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets\%(RecursiveDir)" />
         <Message Text="Copied the assets to the plugins folder" />
     </Target>
     

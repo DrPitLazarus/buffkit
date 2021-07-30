@@ -39,7 +39,7 @@ namespace BuffKit {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BuffKit.TimerStrings", typeof(TimerStrings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BuffKit.LobbyTimer.TimerStrings", typeof(TimerStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -151,7 +151,8 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends.
+        ///   Looks up a localized string similar to TIMER: Timer starting, {0} remaining, you will have {1} seconds to set up your loadouts or request overtime after the timer ends
+        ///        .
         /// </summary>
         internal static string Startup {
             get {

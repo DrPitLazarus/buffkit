@@ -1,4 +1,7 @@
-﻿using HarmonyLib;
+﻿using System.IO;
+using HarmonyLib;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BuffKit.LobbyTimer.Patchers
 {
@@ -10,12 +13,7 @@ namespace BuffKit.LobbyTimer.Patchers
             MuseLog.Info("UINewMatchLobbyState entered");
             var lobby = UIMatchLobby.Instance;
             MuseLog.Info(lobby.ToString());
-            lobby.engineerButton.gameObject.SetActive(false);
-            lobby.gunnerButton.gameObject.SetActive(false);
-            lobby.pilotButton.gameObject.SetActive(false);
-            lobby.shipCustomizationButton.gameObject.SetActive(false);
-            lobby.charCustomizationButton.gameObject.SetActive(false);
-            
+
             var mlv = MatchLobbyView.Instance;
             var tbc = TimerButtonContainer.Instance;
             tbc.gameObject.SetActive(true);

@@ -48,11 +48,8 @@ namespace BuffKit.LobbyTimer
 
         private void AddPauseButtons(List<Button> buttons)
         {
-            buttons.Add(
-                _pausesLeft > 0
-                    ? new Button {Kind = ButtonKind.PauseTimer, Action = delegate { Transition(State.Pause); }}
-                    : new Button {Kind = ButtonKind.RefPauseTimer, Action = delegate { Transition(State.RefPause); }}
-            );
+            buttons.Add( new Button {Kind = ButtonKind.PauseTimer, Action = delegate { Transition(State.Pause); }});
+            buttons.Add(new Button {Kind = ButtonKind.RefPauseTimer, Action = delegate { Transition(State.RefPause); }});
         }
 
         private List<Button> UpdateButtons()
@@ -77,25 +74,22 @@ namespace BuffKit.LobbyTimer
                 case State.LoadoutSetup:
                     AddPauseButtons(buttons);
                     buttons.Add(
-                        new Button {Kind = ButtonKind.StartOvertime, Action = delegate { Transition(State.Overtime); }});
+                        new Button {Kind = ButtonKind.StartTimer, Action = delegate { Transition(State.Overtime); }});
                     break;
                 case State.LoadoutSetupEnd:
-                    // buttons.Add(new Button {Label = "FORCE START", Action = LobbyActions.ForceStart});
                     buttons.Add(
-                        new Button {Kind = ButtonKind.StartOvertime, Action = delegate { Transition(State.Overtime); }});
+                        new Button {Kind = ButtonKind.StartTimer, Action = delegate { Transition(State.Overtime); }});
                     break;
                 case State.Overtime:
                     AddPauseButtons(buttons);
                     break;
                 case State.OvertimeLoadoutSetup:
                     AddPauseButtons(buttons);
-                    // buttons.Add(new Button {Label = "FORCE START", Action = LobbyActions.ForceStart});
                     break;
                 case State.End:
-                    // buttons.Add(new Button {Label = "FORCE START", Action = LobbyActions.ForceStart});
                     break;
                 case State.Pause:
-                    buttons.Add(new Button {Kind = ButtonKind.ResumeTimer, Action = delegate { Transition(_previousState); }});
+                    buttons.Add(new Button {Kind = ButtonKind.StartTimer, Action = delegate { Transition(_previousState); }});
                     if (_pausesLeft > 0)
                     {
                         buttons.Add(new Button
@@ -120,7 +114,7 @@ namespace BuffKit.LobbyTimer
 
                     break;
                 case State.RefPause:
-                    buttons.Add(new Button {Kind = ButtonKind.ResumeTimer, Action = delegate
+                    buttons.Add(new Button {Kind = ButtonKind.StartTimer, Action = delegate
                     {
                         MuseLog.Info("RESUME TIMER CLICKED FROM REF PAUSE");
                         MuseLog.Info($"TRANSITIONING TO {_previousState}");
@@ -212,6 +206,7 @@ namespace BuffKit.LobbyTimer
                     return;
                 //Any -> RefPause
                 case State.RefPause:
+                    _prePauseSecondsLeft = SecondsLeft;
                     TrySendMessage(TimerStrings.RefPauseStart);
                     break;
                 default:
@@ -226,7 +221,9 @@ namespace BuffKit.LobbyTimer
                 }
             }
             
+            MuseLog.Info($"SETTING PREVIOUS STATE TO {_currentState}");
             _previousState = _currentState;
+            MuseLog.Info($"SETTING CURRENT STATE TO {newState}");
             _currentState = newState;
             
             Repaint();
@@ -342,11 +339,9 @@ namespace BuffKit.LobbyTimer
         public enum ButtonKind
         {
             StartTimer,
-            StartOvertime,
             PauseTimer,
             RefPauseTimer,
             ExtendPause,
-            ResumeTimer
         }
 
         public struct Button

@@ -7,28 +7,34 @@ namespace BuffKit.LobbyTimer
 {
     public class TimerButtonContainer : MonoBehaviour
     {
+        public HorizontalLayoutGroup LayoutGroup;
+        public LayoutElement LayoutElement;
         public Button StartTimerButton;
-        public Button StartOvertimeButton;
         public Button PauseTimerButton;
         public Button RefPauseTimerButton;
-        public Button ResumeTimerButton;
         public Button ExtendPauseButton;
-        public static TimerButtonContainer Instance { get; private set; }
+        public static TimerButtonContainer Instance { get; set; }
 
         public void ClearButtons()
         {
             MuseLog.Info("Clear buttons started");
-            StartTimerButton?.gameObject?.SetActive(false);
-            StartOvertimeButton?.gameObject?.SetActive(false);
-            PauseTimerButton?.gameObject?.SetActive(false);
-            RefPauseTimerButton?.gameObject?.SetActive(false);
-            ResumeTimerButton?.gameObject?.SetActive(false);
-            ExtendPauseButton?.gameObject?.SetActive(false);
+            StartTimerButton.interactable = false;
+            PauseTimerButton.interactable = false;
+            RefPauseTimerButton.interactable = false;
+            ExtendPauseButton.interactable = false;
         }
 
         public void Awake()
         {
             Instance = this;
+        }
+
+        public void OnEnable()
+        {
+            StartTimerButton?.gameObject?.SetActive(true);
+            PauseTimerButton?.gameObject?.SetActive(true);
+            RefPauseTimerButton?.gameObject?.SetActive(true);
+            ExtendPauseButton?.gameObject?.SetActive(true);
         }
 
         public void Repaint()
@@ -48,34 +54,29 @@ namespace BuffKit.LobbyTimer
                 switch (button.Kind)
                 {
                     case Timer.ButtonKind.StartTimer:
+                        StartTimerButton.onClick.RemoveAllListeners();
                         StartTimerButton.onClick.AddListener(() => button.Action());
-                        StartTimerButton.gameObject.SetActive(true);
-                        break;
-                    case Timer.ButtonKind.StartOvertime:
-                        StartOvertimeButton.onClick.AddListener(() => button.Action());
-                        StartOvertimeButton.gameObject.SetActive(true);
+                        StartTimerButton.interactable = true;
                         break;
                     case Timer.ButtonKind.PauseTimer:
+                        PauseTimerButton.onClick.RemoveAllListeners();
                         PauseTimerButton.onClick.AddListener(() => button.Action());
-                        PauseTimerButton.gameObject.SetActive(true);
-                        break;
-                    case Timer.ButtonKind.ResumeTimer:
-                        ResumeTimerButton.onClick.AddListener(() => button.Action());
-                        ResumeTimerButton.gameObject.SetActive(true);
+                        PauseTimerButton.interactable = true;
                         break;
                     case Timer.ButtonKind.ExtendPause:
+                        ExtendPauseButton.onClick.RemoveAllListeners();
                         ExtendPauseButton.onClick.AddListener(() => button.Action());
-                        ExtendPauseButton.gameObject.SetActive(true);
+                        ExtendPauseButton.interactable = true;
                         break;
                     case Timer.ButtonKind.RefPauseTimer:
+                        RefPauseTimerButton.onClick.RemoveAllListeners();
                         RefPauseTimerButton.onClick.AddListener(() => button.Action());
-                        RefPauseTimerButton.gameObject.SetActive(true);
+                        RefPauseTimerButton.interactable = true;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
         }
-        
     }
 }
