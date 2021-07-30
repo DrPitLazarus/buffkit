@@ -34,7 +34,7 @@ namespace BuffKit.ShipLoadoutViewer
             var leSample = gameObject.transform.parent.GetChild(0).GetComponent<LayoutElement>(); // LayoutElement from ship header
             var le = gameObject.AddComponent<LayoutElement>();
             le.preferredWidth = leSample.preferredWidth;
-            le.preferredHeight = leSample.preferredHeight;
+            le.preferredHeight = 30;
 
             slotImages = new List<RawImage>();
             foreach (var i in Enumerable.Range(0, 6))
@@ -54,41 +54,34 @@ namespace BuffKit.ShipLoadoutViewer
             if (svo == null)
             {
                 log.LogInfo("Displaying ship : [no ship]");
-                foreach(var i in slotImages)
+                foreach (var i in slotImages)
                     i.gameObject.SetActive(false);
             }
             else
             {
                 log.LogInfo($"Displaying ship : {svo.Name}");
-                // Logic from UINewShipState.MainMode
-                /*
-                var guns = new List<ShipSlotViewObject>();
-                foreach (string text in
-                    from p in svo.Model.Slots
-                    where p.Value.SlotType == Muse.Goi2.Entity.ShipPartSlotType.GUN
-                    select p.Key)
+
+                var guns = svo.Presets[0].Guns;
+                for (int i = 0; i < svo.Model.GunSlots; i++)
                 {
-                    var gi = svo.Model.GetDefaultGuns(NetworkedPlayer.Local.GameType, svo.CurrentPresetIndex).NullSafeGet(text, null);
-                    ShipSlotViewObject item = new ShipSlotViewObject
-                    {
-                        Name = text,
-                        Size = svo.Model.Slots[text].SlotSize,
-                        GunId = (gi == null) ? 0 : gi.Id
-                    };
-                    guns.Add(item);
-                }
-                var sortedSlots = svo.Model.GetSortedSlots(svo.Presets[0].Guns);
-                */
-                var sortedSlots = svo.Model.GetSortedSlots(svo.Presets[0].Guns);
-                var sortedGunsIds = (from slot in sortedSlots select slot.Gun.Id).ToList();
-                for(int i = 0; i < sortedGunsIds.Count; i++)
-                {
-                    slotImages[i].texture = ShipLoadoutViewer.gunIcons[sortedGunsIds[i]];
                     slotImages[i].gameObject.SetActive(true);
+                    slotImages[i].texture = UIManager.IconForNullOrEmpty;
                 }
-                for(int i = sortedGunsIds.Count; i < 6; i++)
-                {
+                for (int i = svo.Model.GunSlots; i < 6; i++)
                     slotImages[i].gameObject.SetActive(false);
+
+                foreach (var slot in guns)
+                {
+                    if (!ShipLoadoutViewer.dataLoaded) continue;
+                    var slotName = slot.Name;
+                    var definiteModelId = svo.Model.Id;
+                    var modelId = svo.ModelId;
+                    var dict = ShipLoadoutViewer.shipAndGunSlotToIndex[modelId];
+                    var slotIndex = dict[slotName];
+                    log.LogInfo($"  {slotName} {definiteModelId} {modelId} {slotIndex}");
+                    if (!dict.ContainsKey(slotName)) log.LogError("Slot name not in dict!");
+                    else
+                        slotImages[slotIndex].texture = ShipLoadoutViewer.gunIcons[slot.GunId];
                 }
             }
         }
