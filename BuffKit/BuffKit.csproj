@@ -238,6 +238,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BuffKit.cs" />
+        <Compile Include="LobbyStateMachine\StateMachine.cs" />
         <Compile Include="LobbyTimer\Patchers\UIMatchLobby_Awake.cs" />
         <Compile Include="LobbyTimer\Patchers\UINewMatchLobbyState_Enter.cs" />
         <Compile Include="LobbyTimer\Timer.cs" />
