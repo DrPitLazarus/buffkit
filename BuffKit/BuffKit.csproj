@@ -289,5 +289,4 @@
         <Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets\%(RecursiveDir)" />
         <Message Text="Copied the assets to the plugins folder" />
     </Target>
-    
 </Project>
