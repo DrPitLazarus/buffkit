@@ -76,7 +76,7 @@ namespace BuffKit.LobbyTimer.Patchers
             tbc.PauseTimerButton.name = "Pause Timer Button";
             
             tt = tbc.PauseTimerButton.gameObject.GetComponent<UIHoverTooltipTarget>();
-            tt.tooltip = "Pause the timer";
+            tt.tooltip = "Pause the timer, uses one of the 2 available 2 minute long pauses";
             
             iconGo = tbc.PauseTimerButton.transform.Find("Icon").gameObject;
             image = iconGo.GetComponent<Image>();
@@ -88,7 +88,7 @@ namespace BuffKit.LobbyTimer.Patchers
             tbc.ExtendPauseButton.name = "Extend Pause Button";
             
             tt = tbc.ExtendPauseButton.gameObject.GetComponent<UIHoverTooltipTarget>();
-            tt.tooltip = "Extend the pause by 2 minutes, only available once";
+            tt.tooltip = "Extend the pause, uses one of the 2 available 2 minute long pauses";
             
             iconGo = tbc.ExtendPauseButton.transform.Find("Icon").gameObject;
             image = iconGo.GetComponent<Image>();
