@@ -238,36 +238,56 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BuffKit.cs" />
-        <Compile Include="LobbyTimer.cs" />
+        <Compile Include="LobbyTimer\Patchers\UIMatchLobby_Awake.cs" />
+        <Compile Include="LobbyTimer\Patchers\UINewMatchLobbyState_Enter.cs" />
+        <Compile Include="LobbyTimer\Timer.cs" />
+        <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
+        <Compile Include="LobbyTimer\TimerStrings.Designer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>TimerStrings.resx</DependentUpon>
+        </Compile>
         <Compile Include="MapPicker\MapPicker.cs" />
         <Compile Include="MapPicker\Patchers\UINewMatchLobbyState_PaintFooterButtons.cs" />
         <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
         <Compile Include="MatchModMenu\UIModMenuState.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="TimerStrings.Designer.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>TimerStrings.resx</DependentUpon>
-        </Compile>
         <Compile Include="Util.cs" />
     </ItemGroup>
     <ItemGroup>
-      <EmbeddedResource Include="TimerStrings.resx">
+      <EmbeddedResource Include="LobbyTimer\TimerStrings.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>TimerStrings.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="Assets\Timer\extend.png" />
+      <Content Include="Assets\Timer\halt.png" />
+      <Content Include="Assets\Timer\pause.png" />
+      <Content Include="Assets\Timer\start.png" />
+      <Content Include="GamePath.txt" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
-    </Target>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
 
+        <ItemGroup>
+            <Assets Include="$(ProjectDir)\Assets\**\*.*" />
+        </ItemGroup>
+
+        <ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
+            <Output TaskParameter="Lines" PropertyName="GamePath" />
+        </ReadLinesFromFile>
+        
+        <Message Text="Copying the DLL to the plugins folder" />
+        <Delete Files="$(GamePath)\BepInEx\plugins\$(ProjectName).dll " />
+        <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" />
+        <Message Text="Copied the DLL to the plugins folder" />
+
+        <Message Text="Copying the assets to the plugins folder" />
+        <Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets" />
+        <Message Text="Copied the assets to the plugins folder" />
+    </Target>
+    
 </Project>
