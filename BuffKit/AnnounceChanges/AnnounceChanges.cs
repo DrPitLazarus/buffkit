@@ -156,7 +156,7 @@ namespace BuffKit.AnnounceChanges
                 
                 if (!(timer is null) && timer.IsActive)
                 {
-                    Util.TrySendMessage(msg);
+                    Util.ForceSendMessage(msg);
                 }
             }
 

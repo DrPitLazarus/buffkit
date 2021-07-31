@@ -133,7 +133,7 @@ namespace BuffKit.LobbyTimer
                         {
                             PausesLeft--;
                             SecondsLeft += PauseDuration;
-                            TrySendMessage(
+                            ForceSendMessage(
                                 string.Format(TimerStrings.PauseExtended, FormatSeconds(SecondsLeft)));
                             Repaint();
                         });
@@ -178,7 +178,7 @@ namespace BuffKit.LobbyTimer
                     SecondsLeft = MainDuration;
                     StartCoroutine(Tick());
 
-                    TrySendMessage(string.Format(
+                    ForceSendMessage(string.Format(
                         TimerStrings.Startup,
                         FormatSeconds(SecondsLeft),
                         LoadoutSetupDuration.ToString()
@@ -188,14 +188,14 @@ namespace BuffKit.LobbyTimer
                 case State.LoadoutSetup when CurrentState is State.Main:
                     SecondsLeft = LoadoutSetupDuration;
 
-                    TrySendMessage(string.Format(
+                    ForceSendMessage(string.Format(
                         TimerStrings.LoadoutSetupStart,
                         LoadoutSetupDuration.ToString()
                     ));
                     break;
                 //LoadoutSetup -> LoadoutSetupEnd
                 case State.LoadoutSetupEnd when CurrentState is State.LoadoutSetup:
-                    TrySendMessage(
+                    ForceSendMessage(
                         TimerStrings.LoadoutSetupEnd);
                     break;
                 //LoadoutSetup, LoadoutSetupEnd -> Overtime
@@ -203,7 +203,7 @@ namespace BuffKit.LobbyTimer
                 case State.Overtime when CurrentState is State.LoadoutSetupEnd:
                     SecondsLeft = OvertimeDuration;
 
-                    TrySendMessage(string.Format(
+                    ForceSendMessage(string.Format(
                         TimerStrings.OvertimeStart,
                         FormatSeconds(SecondsLeft),
                         LoadoutSetupDuration.ToString()
@@ -213,14 +213,14 @@ namespace BuffKit.LobbyTimer
                 case State.OvertimeLoadoutSetup when CurrentState is State.Overtime:
                     SecondsLeft = LoadoutSetupDuration;
 
-                    TrySendMessage(string.Format(
+                    ForceSendMessage(string.Format(
                         TimerStrings.OvertimeLoadoutSetupStart,
                         LoadoutSetupDuration.ToString()
                     ));
                     break;
                 //OvertimeLoadoutSetup -> End
                 case State.End when CurrentState == State.OvertimeLoadoutSetup:
-                    TrySendMessage(
+                    ForceSendMessage(
                         TimerStrings.OvertimeLoadoutSetupEnd);
                     break;
                 //Any -> Pause
@@ -232,7 +232,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
 
-                    TrySendMessage(
+                    ForceSendMessage(
                         string.Format(TimerStrings.PauseStart,
                             FormatSeconds(PrePauseSecondsLeft),
                             FormatSeconds(PauseDuration)
@@ -240,7 +240,7 @@ namespace BuffKit.LobbyTimer
                     break;
                 //Pause -> RefPause
                 case State.RefPause when CurrentState == State.Pause:
-                    TrySendMessage(TimerStrings.RefPauseStart);
+                    ForceSendMessage(TimerStrings.RefPauseStart);
                     //Make sure we return to pre-pause state instead of pause
                     CurrentState = newState;
                     
@@ -254,7 +254,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
                     
-                    TrySendMessage(TimerStrings.RefPauseStart);
+                    ForceSendMessage(TimerStrings.RefPauseStart);
                     break;
                 default:
                 {
@@ -264,7 +264,7 @@ namespace BuffKit.LobbyTimer
                         _tbc.StartButton.onClick.RemoveAllListeners();
                         _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
                         
-                        TrySendMessage(
+                        ForceSendMessage(
                             string.Format(TimerStrings.TimerResumed, FormatSeconds(SecondsLeft)));
                     }
                     break;
@@ -309,7 +309,7 @@ namespace BuffKit.LobbyTimer
                             break;
                         case State.Pause:
                             if (SecondsLeft % Interval == 0)
-                                TrySendMessage(
+                                ForceSendMessage(
                                     string.Format(
                                         TimerStrings.PauseAnnouncement,
                                         FormatSeconds(SecondsLeft)));
@@ -320,13 +320,13 @@ namespace BuffKit.LobbyTimer
                             break;
                         default:
                             if (SecondsLeft == PreLockAnnouncementTime)
-                                TrySendMessage(
+                                ForceSendMessage(
                                     string.Format(
                                         TimerStrings.PreLockAnnouncement,
                                         FormatSeconds(SecondsLeft)
                                         ));
                             else if (SecondsLeft % Interval == 0)
-                                TrySendMessage(
+                                ForceSendMessage(
                                     string.Format(
                                         TimerStrings.TimerAnnouncement,
                                         FormatSeconds(SecondsLeft)));

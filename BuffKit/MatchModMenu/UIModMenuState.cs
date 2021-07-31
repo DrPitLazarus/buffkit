@@ -70,7 +70,7 @@ namespace BuffKit.MatchModMenu
                             {
                                 _needRepaint = true;
                                 MatchActions.PauseCountdown();
-                                TrySendMessage("REF: GAME PAUSED");
+                                ForceSendMessage("REF: GAME PAUSED");
                                 UIManager.TransitionToState(state);
                             });
                         else
@@ -78,7 +78,7 @@ namespace BuffKit.MatchModMenu
                             {
                                 _needRepaint = true;
                                 MatchActions.ExtendCountdown(0);
-                                TrySendMessage("REF: GAME RESTARTED");
+                                ForceSendMessage("REF: GAME RESTARTED");
                                 UIManager.TransitionToState(state);
                             });
 
@@ -97,7 +97,7 @@ namespace BuffKit.MatchModMenu
                             {
                                 _needRepaint = true;
                                 MatchActions.StartCountdown(TimerDuration);
-                                TrySendMessage("REF: TIMER STARTED");
+                                ForceSendMessage("REF: TIMER STARTED");
                                 UIManager.TransitionToState(state);
                             });
                         dm.AddButton("Start overtime", string.Empty, UIMenuItem.Size.Small, false, false,
@@ -105,7 +105,7 @@ namespace BuffKit.MatchModMenu
                             {
                                 _needRepaint = true;
                                 MatchActions.StartCountdown(OvertimeDuration);
-                                TrySendMessage("REF: OVERTIME STARTED");
+                                ForceSendMessage("REF: OVERTIME STARTED");
                                 UIManager.TransitionToState(state);
                             });
                     }

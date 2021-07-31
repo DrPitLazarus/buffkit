@@ -2,6 +2,8 @@
 using MuseBase.Multiplayer.Unity;
 using UnityEngine;
 using Muse.Goi2.Entity.Vo;
+using MuseBase.Multiplayer;
+using MuseBase.Multiplayer.Photon;
 
 namespace BuffKit
 {
@@ -18,7 +20,17 @@ namespace BuffKit
             MuseWorldClient.Instance.ChatHandler.TrySendMessage(message, channel);
         }
 
-        public static string GetHierarchyPath(this Transform t)
+		public static void ForceSendMessage(string msg, string channel = "match")
+		{
+            // Note: This might break for PMs
+			if (string.IsNullOrEmpty(msg))
+			{
+				return;
+			}
+            MuseWorldClient.Instance.Client.SendChatMessage(msg, channel);
+		}
+
+		public static string GetHierarchyPath(this Transform t)
         {
             string s = t.name;
             while (t.parent != null)
