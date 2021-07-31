@@ -6,30 +6,26 @@ namespace BuffKit.ShipLoadoutViewer
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
     public class UIMatchLobby_Awake
     {
-        private static void Prefix(UIMatchLobby __instance)
-        {
-            ShipLoadoutViewer.LobbyUIPreBuild(__instance);
-        }
-        private static void Postfix(UIMatchLobby __instance, List<List<UILobbyCrew>> ___crewElements)
-        {
-            ShipLoadoutViewer.LobbyUIPostBuild(__instance, ___crewElements);
-        }
-    }
-
-    [HarmonyPatch(typeof(MatchLobbyView), "Awake")]
-    public class MatchLobbyView_Awake
-    {
         private static void Prepare()
         {
             ShipLoadoutViewer.CreateLog();
         }
-        private static void Postfix(MatchLobbyView __instance)
+        private static void Prefix(UIMatchLobby __instance)
         {
+            ShipLoadoutViewer.LobbyUIPreBuild(__instance);
+        }
+        private static void Postfix(List<List<UILobbyCrew>> ___crewElements)
+        {
+            ShipLoadoutViewer.LobbyUIPostBuild(___crewElements);
+        }
+    }
 
-            __instance.lobbyDataChanged += delegate
-            {
-                ShipLoadoutViewer.LobbyDataChanged(__instance);
-            };
+    [HarmonyPatch(typeof(UIMatchLobby), "SetData")]
+    public class UIMatchLobby_PaintCrews
+    {
+        private static void Postfix(UIMatchLobby __instance, MatchLobbyView ___mlv)
+        {
+            ShipLoadoutViewer.PaintLoadoutBars(___mlv);
         }
     }
 
@@ -38,7 +34,7 @@ namespace BuffKit.ShipLoadoutViewer
     {
         private static void Postfix()
         {
-            ShipLoadoutViewer.EnsureDataIsLoaded();
+            ShipLoadoutViewer.LoadShipAndGunData();
         }
     }
 }

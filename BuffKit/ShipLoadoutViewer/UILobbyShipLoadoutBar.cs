@@ -13,28 +13,31 @@ namespace BuffKit.ShipLoadoutViewer
     class UILobbyShipLoadoutBar : MonoBehaviour
     {
 
-        BepInEx.Logging.ManualLogSource log;
-
         private void Awake()
         {
         }
 
         List<RawImage> slotImages;
 
-        public void Build(BepInEx.Logging.ManualLogSource log)
+        Image backgroundImg;
+        Image headerImg;
+        Color baseBGCol;
+
+        public void Build()
         {
-            this.log = log;
             gameObject.transform.SetSiblingIndex(1);                                              // Make it just below the ship header
             gameObject.transform.localPosition = new Vector3(0, 0, 0);
-            log.LogInfo("Added loadoutPanel : " + gameObject.transform.GetHierarchyPath());
             var hlg = gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 1;
+            hlg.padding = new RectOffset(1, 1, 1, 1);
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
             var leSample = gameObject.transform.parent.GetChild(0).GetComponent<LayoutElement>(); // LayoutElement from ship header
             var le = gameObject.AddComponent<LayoutElement>();
             le.preferredWidth = leSample.preferredWidth;
-            le.preferredHeight = 30;
+            le.preferredHeight = leSample.preferredHeight + 2;
+            backgroundImg = gameObject.AddComponent<Image>();
+            headerImg = gameObject.transform.parent.GetChild(0).GetComponent<Image>();
 
             slotImages = new List<RawImage>();
             foreach (var i in Enumerable.Range(0, 6))
@@ -49,41 +52,89 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
+        float currentFadeOut = 0f;
+        float timeToFadeOut = 3f;
+        void DisplayChanged()
+        {
+            currentFadeOut = timeToFadeOut;
+        }
+
+        void Update()
+        {
+            currentFadeOut = Mathf.Clamp(currentFadeOut - Time.deltaTime, 0, Mathf.Infinity);
+            backgroundImg.color = Color.Lerp(baseBGCol, Color.white, currentFadeOut / timeToFadeOut);
+        }
+
+        class ShipLoadoutData : IEquatable<ShipLoadoutData>
+        {
+            int shipClass = -1;
+            int[] shipGuns;
+            int availableSlots = 0;
+            public ShipLoadoutData(ShipViewObject svo)
+            {
+                if (svo != null)
+                {
+                    shipGuns = new int[6];
+                    for (int i = 0; i < 6; i++) shipGuns[i] = -1;
+                    shipClass = svo.ModelId;
+                    var gunSlots = svo.Presets[0].Guns;
+                    foreach (var slot in gunSlots)
+                    {
+                        var slotIndex = ShipLoadoutViewer.shipAndGunSlotToIndex[shipClass][slot.Name];
+                        shipGuns[slotIndex] = slot.GunId;
+                    }
+                    availableSlots = svo.Model.GunSlots;
+                }
+            }
+
+            public override string ToString()
+            {
+                string str = $"Class: {shipClass}, Guns:";
+                for (int i = 0; i < availableSlots; i++) str += $" {shipGuns[i]}";
+                return str;
+            }
+
+            public int GetVisibleSlots()
+            {
+                return availableSlots;
+            }
+
+            public Texture GetSlotTexture(int slot)
+            {
+                int gunId = shipGuns[slot];
+                if (gunId == -1) return UIManager.IconForNullOrEmpty;
+                return ShipLoadoutViewer.gunIcons[gunId];
+            }
+
+            public bool Equals(ShipLoadoutData other)
+            {
+                // if (other == null) return false;
+                if (other.shipClass != shipClass) return false;
+                for (int i = 0; i < availableSlots; i++)
+                    if (other.shipGuns[i] != shipGuns[i]) return false;
+                return true;
+            }
+        }
+
+        ShipLoadoutData lastShip = new ShipLoadoutData(null);
         public void DisplayShip(ShipViewObject svo)
         {
-            if (svo == null)
-            {
-                log.LogInfo("Displaying ship : [no ship]");
-                foreach (var i in slotImages)
-                    i.gameObject.SetActive(false);
-            }
-            else
-            {
-                log.LogInfo($"Displaying ship : {svo.Name}");
+            baseBGCol = headerImg.color;
+            baseBGCol.a = 0.5f;
 
-                var guns = svo.Presets[0].Guns;
-                for (int i = 0; i < svo.Model.GunSlots; i++)
-                {
-                    slotImages[i].gameObject.SetActive(true);
-                    slotImages[i].texture = UIManager.IconForNullOrEmpty;
-                }
-                for (int i = svo.Model.GunSlots; i < 6; i++)
-                    slotImages[i].gameObject.SetActive(false);
-
-                foreach (var slot in guns)
-                {
-                    if (!ShipLoadoutViewer.dataLoaded) continue;
-                    var slotName = slot.Name;
-                    var definiteModelId = svo.Model.Id;
-                    var modelId = svo.ModelId;
-                    var dict = ShipLoadoutViewer.shipAndGunSlotToIndex[modelId];
-                    var slotIndex = dict[slotName];
-                    log.LogInfo($"  {slotName} {definiteModelId} {modelId} {slotIndex}");
-                    if (!dict.ContainsKey(slotName)) log.LogError("Slot name not in dict!");
-                    else
-                        slotImages[slotIndex].texture = ShipLoadoutViewer.gunIcons[slot.GunId];
-                }
+            var newShip = new ShipLoadoutData(svo);
+            for (int i = 0; i < newShip.GetVisibleSlots(); i++)
+            {
+                slotImages[i].texture = newShip.GetSlotTexture(i);
+                slotImages[i].gameObject.SetActive(true);
             }
+            for (int i = newShip.GetVisibleSlots(); i < 6; i++)
+                slotImages[i].gameObject.SetActive(false);
+
+            if (!newShip.Equals(lastShip))
+                DisplayChanged();
+
+            lastShip = newShip;
         }
     }
 }
