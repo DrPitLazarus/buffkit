@@ -79,7 +79,7 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: Setup time is over, the referee can force start the game now, please ready up.
+        ///   Looks up a localized string similar to TIMER: Lobby time is over, the referee can force start the game now, please ready up.
         /// </summary>
         internal static string OvertimeLoadoutSetupEnd {
             get {
@@ -133,7 +133,7 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: {0} remaining, ships will be locked in {1} seconds.
+        ///   Looks up a localized string similar to TIMER: {0} remaining, ship lock after the timer runs out.
         /// </summary>
         internal static string PreLockAnnouncement {
             get {

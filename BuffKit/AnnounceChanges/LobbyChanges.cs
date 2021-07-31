@@ -22,7 +22,7 @@ namespace BuffKit.AnnounceChanges
         }
         public static string TeamShipToStringShort(int teamIndex, int shipIndex)
         {
-            return $"{TeamToString(teamIndex).First()}{shipIndex + 1}";
+            return $"{TeamToString(teamIndex)} {shipIndex + 1}";
         }
         public static string GunStringListToString(List<string> gunList)
         {
@@ -94,11 +94,11 @@ namespace BuffKit.AnnounceChanges
         }
         public static string ClassAndGunsToString(string shipClass, List<string> gunList)
         {
-            return $"{shipClass}({GunStringListToString(gunList)})";
+            return $"{shipClass} ({GunStringListToString(gunList)})";
         }
         public static string ClassAndGunsToStringShort(string shipClass, List<string> gunList)
         {
-            return $"{shipClass}:{GunStringListToStringShort(gunList)}";
+            return $"{shipClass} - {GunStringListToStringShort(gunList)}";
         }
     }
 
@@ -140,11 +140,11 @@ namespace BuffKit.AnnounceChanges
         }
         public string GetDetails()
         {
-            return $"{AnnounceChangesUtil.TeamShipToString(team, ship)} changed ship from {prevClass} to {AnnounceChangesUtil.ClassAndGunsToString(newClass, newGuns)}";
+            return $"CHANGE: {AnnounceChangesUtil.TeamShipToString(team, ship)} changed ship from {prevClass} to {AnnounceChangesUtil.ClassAndGunsToString(newClass, newGuns)}";
         }
         public string GetDetailsShort()
         {
-            return $"{AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed ship to {AnnounceChangesUtil.ClassAndGunsToStringShort(newClass, newGuns)}";
+            return $"CHANGE: {AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed ship from {prevClass} to {newClass}";
         }
         public override string ToString()
         {
@@ -173,11 +173,11 @@ namespace BuffKit.AnnounceChanges
                 strFrom += (i > 0 ? ", " : "") + (dirtyIndices[i] + 1);
                 strTo += (i > 0 ? ", " : "") + newGuns[dirtyIndices[i]];
             }
-            return $"{AnnounceChangesUtil.TeamShipToString(team, ship)} changed {strFrom} to {strTo}";
+            return $"CHANGE: {AnnounceChangesUtil.TeamShipToString(team, ship)} changed {strFrom} to {strTo}";
         }
         public string GetDetailsShort()
         {
-            return $"{AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed guns to {AnnounceChangesUtil.GunStringListToStringShort(newGuns)}";
+            return $"CHANGE: {AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed guns";
         }
         public override string ToString()
         {

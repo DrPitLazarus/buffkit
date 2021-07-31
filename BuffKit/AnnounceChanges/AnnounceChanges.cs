@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using BuffKit.LobbyTimer;
 using Muse.Goi2.Entity.Vo;
 
 namespace BuffKit.AnnounceChanges
 {
 
-    public class CallOutChanges
+    public class AnnounceChanges
     {
-
         static BepInEx.Logging.ManualLogSource log;
         public static void CreateLog()
         {
             if (log == null)
             {
-                log = BepInEx.Logging.Logger.CreateLogSource("calloutchanges");
+                log = BepInEx.Logging.Logger.CreateLogSource("AnnounceChanges");
             }
         }
 
@@ -27,6 +28,7 @@ namespace BuffKit.AnnounceChanges
             public string shipName;                             // null if !hasCaptain (probably)
             public string shipClass;                            // null if !hasCaptain (probably)
             public List<string> guns = new List<string>();      // Names of guns on ship
+            
             public ShipData(MatchLobbyView mlv, Muse.Goi2.Entity.CrewEntity crewEntity, int indexInTeam, int overallIndex)
             {
                 teamIndex = crewEntity.Team;
@@ -45,30 +47,30 @@ namespace BuffKit.AnnounceChanges
                     //       (Look at ship customisation state entry to see exactly how that does it)
                     svo = GetShipVOFromCrewId(mlv, crewEntity.CrewId);
                     var sortedGunSlots = svo.Model.GetSortedSlots(svo.Presets[0].Guns);
-                    var sortedguns = (from slot in sortedGunSlots select GunItemInfo.FromGunItem(slot.Gun)).ToList();
-                    foreach (var g in sortedguns) guns.Add(g.name);
+                    var sortedGuns = (from slot in sortedGunSlots select GunItemInfo.FromGunItem(slot.Gun)).ToList();
+                    foreach (var g in sortedGuns) guns.Add(g.name);
                 }
             }
             public override string ToString()
             {
-                string s = "";
+                var s = new StringBuilder();
                 if (!hasCaptain)
-                    s += "  [No captain]";
+                    s.Append("  [No captain]");
                 else
                 {
-                    s += "  " + shipName + " (" + shipClass + ") :";
-                    for (int i = 0; i < guns.Count; i++)
+                    s.Append($"  {shipName} ({shipClass}) :");
+                    for (var i = 0; i < guns.Count; i++)
                     {
-                        s += "\n   " + (i + 1) + ":" + guns[i];
+                        s.Append($"\n   {i+1}: {guns[i]}");
                     }
                 }
-                return s;
+                return s.ToString();
             }
             public bool HasSameLoadout(ShipData other)
             {
                 if (shipClass != other.shipClass) return false;
                 if (guns.Count != other.guns.Count) return false;       // May occur if ship is missing guns
-                for (int i = 0; i < guns.Count; i++)
+                for (var i = 0; i < guns.Count; i++)
                     if (!guns[i].Equals(other.guns[i])) return false;
                 return true;
             }
@@ -78,7 +80,7 @@ namespace BuffKit.AnnounceChanges
                 if (captainName == null) return true;
                 return captainName.Equals(other.captainName);
             }
-            public bool HasSameShipname(ShipData other) { return shipName.Equals(other.shipName); }
+            public bool HasSameShipName(ShipData other) { return shipName.Equals(other.shipName); }
         }
         class MatchData
         {
@@ -89,11 +91,11 @@ namespace BuffKit.AnnounceChanges
             {
                 ships = new List<List<ShipData>>();
                 flatShips = new List<ShipData>();
-                int overallIndex = 0;
+                var overallIndex = 0;
                 foreach(var team in mlv.Crews)
                 {
                     List<ShipData> currentTeam = new List<ShipData>();
-                    int indexInTeam = 0;
+                    var indexInTeam = 0;
                     foreach(var crew in team)
                     {
                         ShipData currentShip = new ShipData(mlv, crew, indexInTeam, overallIndex);
@@ -111,7 +113,7 @@ namespace BuffKit.AnnounceChanges
             }
         }
 
-        static MatchData matchDataLast;
+        private static MatchData _matchDataLast;
 
         public static ShipViewObject GetShipVOFromCrewId(MatchLobbyView mlv, string crewId)
         {
@@ -125,19 +127,24 @@ namespace BuffKit.AnnounceChanges
             if (mlv.Running) return;             // Skip if match running
 
             MatchData matchDataNew = new MatchData(mlv);
-
+            var timer = mlv.GetComponent<LobbyTimer.Timer>();
             // log.LogInfo(matchDataNew);
 
-            if (matchDataLast != null)
+            if (_matchDataLast != null)
             {
                 // Check for any changes
-                var changeList = DetermineChanges(matchDataLast, matchDataNew);
+                var changeList = DetermineChanges(_matchDataLast, matchDataNew);
                 if (changeList.Count != 0)
                     log.LogInfo("Changes occured");
                 string msg = "";
                 bool first = true;
                 foreach (var c in changeList)
                 {
+                    if (c is ChangeCaptainJoined
+                    || c is ChangeCaptainLeft
+                    || c is ChangeCaptainMoved
+                    || c is ChangeShipName) continue;
+
                     if (first)
                         first = false;
                     else
@@ -145,10 +152,14 @@ namespace BuffKit.AnnounceChanges
                     msg += c.GetDetailsShort();
                     // log.LogInfo(c.ToString());
                 }
-                Util.TrySendMessage(msg, "match");
+
+                if (timer.IsActive)
+                {
+                    Util.TrySendMessage(msg);
+                }
             }
 
-            matchDataLast = matchDataNew;
+            _matchDataLast = matchDataNew;
         }
 
         static List<Change> DetermineChanges(MatchData before, MatchData after)

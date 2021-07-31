@@ -16,12 +16,14 @@ namespace BuffKit.LobbyTimer
         private const int PauseDuration = 120;
 
         public State PreviousState;
-        public State CurrentState;
+        public State CurrentState = State.Startup;
         
         public int PausesLeft = 2;
         
         public int SecondsLeft = MainDuration;
         public int PrePauseSecondsLeft;
+
+        public bool IsActive => CurrentState == State.Main || CurrentState == State.Overtime;
 
         private TimerButtonContainer _tbc;
         
@@ -42,7 +44,7 @@ namespace BuffKit.LobbyTimer
             switch (CurrentState)
             {
                 case State.Startup:
-                    _tbc.SetStatus("WAITING FOR TIMER START");
+                    _tbc.SetStatus("WAITING FOR THE TIMER TO START");
                     _tbc.SetCountdown("-:--");
                         
                     _tbc.StartButton.interactable = true;
@@ -72,6 +74,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.interactable = true;
                     _tbc.ExtendButton.onClick.RemoveAllListeners();
                     _tbc.ExtendButton.onClick.AddListener(() => Transition(State.Overtime));
+                    _tbc.ExtendButton.SetHoverTooltip("Start overtime");
                     _tbc.RefPauseButton.interactable = true;
                     break;
                 case State.LoadoutSetupEnd:
@@ -83,6 +86,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.interactable = true;
                     _tbc.ExtendButton.onClick.RemoveAllListeners();
                     _tbc.ExtendButton.onClick.AddListener(() => Transition(State.Overtime));
+                    _tbc.ExtendButton.SetHoverTooltip("Start overtime");
                     _tbc.RefPauseButton.interactable = false;                    
                     break;
                 case State.Overtime:
@@ -119,6 +123,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
                     _tbc.PauseButton.interactable = false;
                     _tbc.ExtendButton.interactable = PausesLeft > 0;
+                    _tbc.ExtendButton.SetHoverTooltip("Extend pause");
                     _tbc.RefPauseButton.interactable = true;
                     
                     if (PausesLeft > 0)
@@ -318,9 +323,8 @@ namespace BuffKit.LobbyTimer
                                 TrySendMessage(
                                     string.Format(
                                         TimerStrings.PreLockAnnouncement,
-                                        FormatSeconds(SecondsLeft),
-                                        (PreLockAnnouncementTime - LockAnnouncementTime).ToString()
-                                    ));
+                                        FormatSeconds(SecondsLeft)
+                                        ));
                             else if (SecondsLeft % Interval == 0)
                                 TrySendMessage(
                                     string.Format(

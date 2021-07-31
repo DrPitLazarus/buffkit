@@ -35,7 +35,7 @@
         <value>TIMER: Ships are locked, you have {0} seconds to set up your loadouts</value>
     </data>
     <data name="OvertimeLoadoutSetupEnd">
-        <value>TIMER: Setup time is over, the referee can force start the game now, please ready up</value>
+        <value>TIMER: Lobby time is over, the referee can force start the game now, please ready up</value>
     </data>
     <data name="PauseStart">
         <value>PAUSE: Timer paused, {0} remaining, starting a new {1} countdown to unpause</value>
@@ -47,7 +47,7 @@
         <value>PAUSE: {0} remaining</value>
     </data>
     <data name="PreLockAnnouncement">
-        <value>TIMER: {0} remaining, ships will be locked in {1} seconds</value>
+        <value>TIMER: {0} remaining, ship lock after the timer runs out</value>
     </data>
     <data name="TimerAnnouncement">
         <value>TIMER: {0} remaining</value>

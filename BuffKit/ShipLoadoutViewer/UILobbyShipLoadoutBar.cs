@@ -36,6 +36,7 @@ namespace BuffKit.ShipLoadoutViewer
             var le = gameObject.AddComponent<LayoutElement>();
             le.preferredWidth = leSample.preferredWidth;
             le.preferredHeight = leSample.preferredHeight + 2;
+            leSample.preferredWidth = le.preferredHeight;
             backgroundImg = gameObject.AddComponent<Image>();
             headerImg = gameObject.transform.parent.GetChild(0).GetComponent<Image>();
 

@@ -8,15 +8,24 @@ namespace BuffKit.AnnounceChanges
     {
         private static void Prepare()
         {
-            CallOutChanges.CreateLog();
+            AnnounceChanges.CreateLog();
         }
         private static void Postfix(MatchLobbyView __instance)
         {
-
             __instance.lobbyDataChanged += delegate
             {
-                CallOutChanges.LobbyDataChanged(__instance);
+                AnnounceChanges.LobbyDataChanged(__instance);
             };
+        }
+    }
+
+    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    public class UINewMatchLobbyState_Enter
+    {
+        private static void Postfix()
+        {
+            var mlv = MatchLobbyView.Instance;
+            
         }
     }
 }
