@@ -8,7 +8,6 @@ namespace BuffKit.MapPicker.Patchers
     {
         private static bool Prefix()
         {
-                MuseLog.Info("PFB called");
                 var mlv = MatchLobbyView.Instance;
                 if (mlv == null || NetworkedPlayer.Local == null) return false;
 

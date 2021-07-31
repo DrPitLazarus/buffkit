@@ -17,6 +17,13 @@ namespace BuffKit.LobbyTimer.Patchers
             imagePrototypeButton.transform.name = "Image Prototype Button";
             imagePrototypeButton.gameObject.SetActive(false);
 
+            var le = lobby.transform.FindChild("Lobby Main Panel").gameObject.GetComponent<HorizontalLayoutGroup>();
+            le.childForceExpandWidth = false;
+
+            var le2 = le.transform.FindChild("Map Panel").gameObject.GetComponent<LayoutElement>();
+            le2.preferredWidth = 375;
+            
+            
             //An empty layout element that takes up all the extra space available
             //Pushes the timer container to the right
             var spacerGo = new GameObject("Spacer");

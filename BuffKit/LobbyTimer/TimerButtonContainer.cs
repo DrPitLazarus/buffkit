@@ -2,29 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
-using static BuffKit.Util;
+
 namespace BuffKit.LobbyTimer
 {
     public class TimerButtonContainer : MonoBehaviour
     {
         public HorizontalLayoutGroup LayoutGroup;
         public LayoutElement LayoutElement;
-        public Button StartTimerButton;
-        public Button PauseTimerButton;
-        public Button RefPauseTimerButton;
-        public Button ExtendPauseButton;
+        public Button StartButton;
+        public Button PauseButton;
+        public Button RefPauseButton;
+        public Button ExtendButton;
+        public Text StatusLabel;
+        public Text CountdownLabel;
         public static TimerButtonContainer Instance { get; set; }
-
-        public void ClearButtons()
-        {
-            MuseLog.Info("Clear buttons started");
-            StartTimerButton.interactable = false;
-            PauseTimerButton.interactable = false;
-            RefPauseTimerButton.interactable = false;
-            ExtendPauseButton.interactable = false;
-        }
 
         public void Awake()
         {
@@ -35,31 +27,38 @@ namespace BuffKit.LobbyTimer
         {
             LayoutGroup = gameObject.AddComponent<HorizontalLayoutGroup>();
             LayoutElement = gameObject.AddComponent<LayoutElement>();
-
+            
             LayoutGroup.spacing = 5f;
             LayoutGroup.childForceExpandHeight = false;
             LayoutGroup.childForceExpandWidth = false;
+            
             
             var statusGo = new GameObject("Status Label");
             statusGo.transform.parent = gameObject.transform;
             statusGo.SetActive(false);
             
-            MuseLog.Info(statusGo.ToString());
             var statusLe = statusGo.AddComponent<LayoutElement>();
             statusLe.minHeight = 30;
             statusLe.preferredHeight = 30;
-            
-            
+
             StatusLabel = statusGo.AddComponent<Text>();
-            StatusLabel.alignment = TextAnchor.MiddleCenter;
+            StatusLabel.alignment = TextAnchor.MiddleRight;
             StatusLabel.text = "Waiting for start";
             StatusLabel.fontSize = 16;
             StatusLabel.font = font;
             
             var countdownGo = Instantiate(statusGo, gameObject.transform);
+            CountdownLabel = countdownGo.GetComponent<Text>();
             countdownGo.name = "Countdown Label";
-            countdownGo.GetComponent<Text>().text = "";
+            CountdownLabel.text = "-:--";
+            CountdownLabel.alignment = TextAnchor.MiddleCenter;
             
+            var countdownLe = countdownGo.GetComponent<LayoutElement>();
+            countdownLe.minHeight = 30;
+            countdownLe.preferredHeight = 30;
+            countdownLe.minWidth = 36;
+            countdownLe.preferredWidth = 36;
+
             //TODO: figure out how to do this better
             var icons = new Dictionary<string, Texture2D>();
             var assetPath = @"BepInEx\plugins\BuffKit\Assets\Timer";
@@ -111,52 +110,22 @@ namespace BuffKit.LobbyTimer
 
         public void OnEnable()
         {
-            StartTimerButton?.gameObject?.SetActive(true);
-            PauseTimerButton?.gameObject?.SetActive(true);
-            RefPauseTimerButton?.gameObject?.SetActive(true);
-            ExtendPauseButton?.gameObject?.SetActive(true);
+            StatusLabel?.gameObject?.SetActive(true);
+            CountdownLabel?.gameObject?.SetActive(true);
+            StartButton?.gameObject?.SetActive(true);
+            PauseButton?.gameObject?.SetActive(true);
+            RefPauseButton?.gameObject?.SetActive(true);
+            ExtendButton?.gameObject?.SetActive(true);
+        }
+        
+        public void SetStatus(string status)
+        {
+            StatusLabel.text = status;
         }
 
-        public void Repaint()
+        public void SetCountdown(string timer)
         {
-            MuseLog.Info("Repaint started");
-            var mlv = MatchLobbyView.Instance;
-            if (mlv == null || NetworkedPlayer.Local == null) return;
-
-            if (!HasModPrivilege(mlv)) return;
-            
-            ClearButtons();
-            
-            var lobbyTimer = mlv.gameObject.GetComponent<Timer>();
-            MuseLog.Info($"{lobbyTimer.Buttons.Count} buttons to paint");
-            foreach (var button in lobbyTimer.Buttons)
-            {
-                switch (button.Kind)
-                {
-                    case Timer.ButtonKind.StartTimer:
-                        StartTimerButton.onClick.RemoveAllListeners();
-                        StartTimerButton.onClick.AddListener(() => button.Action());
-                        StartTimerButton.interactable = true;
-                        break;
-                    case Timer.ButtonKind.PauseTimer:
-                        PauseTimerButton.onClick.RemoveAllListeners();
-                        PauseTimerButton.onClick.AddListener(() => button.Action());
-                        PauseTimerButton.interactable = true;
-                        break;
-                    case Timer.ButtonKind.ExtendPause:
-                        ExtendPauseButton.onClick.RemoveAllListeners();
-                        ExtendPauseButton.onClick.AddListener(() => button.Action());
-                        ExtendPauseButton.interactable = true;
-                        break;
-                    case Timer.ButtonKind.RefPauseTimer:
-                        RefPauseTimerButton.onClick.RemoveAllListeners();
-                        RefPauseTimerButton.onClick.AddListener(() => button.Action());
-                        RefPauseTimerButton.interactable = true;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
+            CountdownLabel.text = timer;
         }
     }
 }
