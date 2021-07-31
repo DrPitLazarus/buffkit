@@ -128,6 +128,7 @@ namespace BuffKit.AnnounceChanges
 
             MatchData matchDataNew = new MatchData(mlv);
             var timer = mlv.GetComponent<LobbyTimer.Timer>();
+            
             // log.LogInfo(matchDataNew);
 
             if (_matchDataLast != null)
@@ -152,8 +153,8 @@ namespace BuffKit.AnnounceChanges
                     msg += c.GetDetailsShort();
                     // log.LogInfo(c.ToString());
                 }
-
-                if (timer.IsActive)
+                
+                if (!(timer is null) && timer.IsActive)
                 {
                     Util.TrySendMessage(msg);
                 }
