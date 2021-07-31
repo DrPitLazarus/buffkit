@@ -1,7 +1,5 @@
-﻿using System.IO;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using HarmonyLib;
+using static BuffKit.Util;
 
 namespace BuffKit.LobbyTimer.Patchers
 {
@@ -10,19 +8,18 @@ namespace BuffKit.LobbyTimer.Patchers
     {
         public static void Postfix()
         {
-            MuseLog.Info("UINewMatchLobbyState entered");
-            var lobby = UIMatchLobby.Instance;
-            MuseLog.Info(lobby.ToString());
-
             var mlv = MatchLobbyView.Instance;
+            if (!HasModPrivilege(mlv)) return;
+            
             var tbc = TimerButtonContainer.Instance;
             tbc.gameObject.SetActive(true);
-            
+
             var lobbyTimer = mlv.gameObject.GetComponent<Timer>();
             if (lobbyTimer == null)
             {
                 lobbyTimer = mlv.gameObject.AddComponent<Timer>();
-                lobbyTimer.Act(tbc.Repaint);
+                lobbyTimer.gameObject.SetActive(true);
+                lobbyTimer.Initialize(tbc);
             }
         }
     }
