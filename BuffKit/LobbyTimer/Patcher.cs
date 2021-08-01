@@ -26,7 +26,7 @@ namespace BuffKit.LobbyTimer
             var mlv = MatchLobbyView.Instance;
             if (!HasModPrivilege(mlv)) return;
             var tbc = TimerButtonContainer.Instance;
-
+    
             var lobbyTimer = mlv.gameObject.AddComponent<Timer>();
             lobbyTimer.gameObject.SetActive(true);
             lobbyTimer.MatchId = mlv.MatchId;
@@ -40,7 +40,7 @@ namespace BuffKit.LobbyTimer
         public static void Prefix(MatchLobbyView __instance)
         {
             var lobbyTimer = __instance?.gameObject?.GetComponent<Timer>();
-            if (lobbyTimer.Equals(null)) return;
+            if (lobbyTimer == null) return;
             Object.Destroy(lobbyTimer);
         }
     }
