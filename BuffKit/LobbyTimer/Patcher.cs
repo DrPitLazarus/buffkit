@@ -11,9 +11,13 @@ namespace BuffKit.LobbyTimer
         public static void Postfix()
         {
             var mlv = MatchLobbyView.Instance;
-            if (!HasModPrivilege(mlv)) return;
-            
             var tbc = TimerButtonContainer.Instance;
+            if (!HasModPrivilege(mlv))
+            {
+                tbc.gameObject.SetActive(false);
+                return;
+            }
+            
             tbc.gameObject.SetActive(true);
         }
     }
@@ -24,9 +28,14 @@ namespace BuffKit.LobbyTimer
         public static void Postfix()
         {
             var mlv = MatchLobbyView.Instance;
-            if (!HasModPrivilege(mlv)) return;
             var tbc = TimerButtonContainer.Instance;
+            if (!HasModPrivilege(mlv))
+            {
+                tbc.gameObject.SetActive(false);
+                return;
+            }
 
+            tbc.gameObject.SetActive(true);
             var lobbyTimer = mlv.gameObject.AddComponent<Timer>();
             lobbyTimer.gameObject.SetActive(true);
             lobbyTimer.MatchId = mlv.MatchId;
@@ -40,7 +49,7 @@ namespace BuffKit.LobbyTimer
         public static void Prefix(MatchLobbyView __instance)
         {
             var lobbyTimer = __instance?.gameObject?.GetComponent<Timer>();
-            if (lobbyTimer.Equals(null)) return;
+            if (lobbyTimer == null) return;
             Object.Destroy(lobbyTimer);
         }
     }

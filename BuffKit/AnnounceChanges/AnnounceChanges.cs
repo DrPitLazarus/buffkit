@@ -166,6 +166,7 @@ namespace BuffKit.AnnounceChanges
         static List<Change> DetermineChanges(MatchData before, MatchData after)
         {
             List<Change> changes = new List<Change>();
+            if (before.flatShips.Count != after.flatShips.Count) return changes;
 
             // Create map of old ships to new ships
             var allOldShips = before.flatShips;

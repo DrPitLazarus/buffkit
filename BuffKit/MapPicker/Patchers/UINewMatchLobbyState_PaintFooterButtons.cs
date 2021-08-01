@@ -6,7 +6,7 @@ namespace BuffKit.MapPicker.Patchers
     [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "PaintFooterButtons")]
     public class UINewMatchLobbyState_PaintFooterButtons
     {
-        private static bool Prefix()
+        public static bool Prefix()
         {
                 var mlv = MatchLobbyView.Instance;
                 if (mlv == null || NetworkedPlayer.Local == null) return false;
