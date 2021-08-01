@@ -22,6 +22,7 @@ namespace BuffKit.LobbyTimer
         
         public int SecondsLeft = MainDuration;
         public int PrePauseSecondsLeft;
+        public string MatchId;
 
         public bool IsActive => CurrentState == State.Main || CurrentState == State.Overtime;
 

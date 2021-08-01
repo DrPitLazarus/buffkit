@@ -17,14 +17,4 @@ namespace BuffKit.AnnounceChanges
             };
         }
     }
-
-    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
-    public class UINewMatchLobbyState_Enter
-    {
-        private static void Postfix()
-        {
-            var mlv = MatchLobbyView.Instance;
-            
-        }
-    }
 }
