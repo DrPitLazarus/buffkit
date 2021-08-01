@@ -6,10 +6,15 @@ namespace BuffKit.ShipLoadoutViewer
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
     public class UIMatchLobby_Awake
     {
+        private static bool _firstPrepare = true;
         private static void Prepare()
         {
-            ShipLoadoutViewer.CreateLog();
-            Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
+            if (_firstPrepare)
+            {
+                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
+                ShipLoadoutViewer.CreateLog();
+                _firstPrepare = false;
+            }
         }
         private static void Prefix(UIMatchLobby __instance)
         {
