@@ -99,6 +99,7 @@ namespace BuffKit.ShipLoadoutViewer
             {
                 int gunId = shipGuns[slot];
                 if (gunId == -1) return UIManager.IconForNullOrEmpty;
+                if (!ShipLoadoutViewer.gunIcons.ContainsKey(gunId)) return UIManager.IconForNullOrEmpty;
                 return ShipLoadoutViewer.gunIcons[gunId];
             }
 

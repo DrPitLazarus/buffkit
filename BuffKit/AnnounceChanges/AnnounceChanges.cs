@@ -30,7 +30,7 @@ namespace BuffKit.AnnounceChanges
             public string shipClass;                            // null if !hasCaptain (probably)
             public List<string> guns = new List<string>();      // Names of guns on ship
             
-            public ShipData(MatchLobbyView mlv, Muse.Goi2.Entity.CrewEntity crewEntity, int indexInTeam, int overallIndex)
+            public ShipData(MatchLobbyView mlv, CrewEntity crewEntity, int indexInTeam, int overallIndex)
             {
                 teamIndex = crewEntity.Team;
                 shipIndex = indexInTeam;
