@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
 using static BuffKit.Util.Util;
 
@@ -40,15 +41,15 @@ namespace BuffKit.AnnounceChanges
                 shipName = crewEntity.ShipName;
                 shipClass = crewEntity.ShipClass;
 
-                var svo = GetShipVOFromCrewId(mlv, crewEntity.CrewId);
                 if (crewEntity.HasCaptain)
                 {
-                    // TODO: Find a solution to get sorted guns that doesn't skip empty gun slots
-                    //       (Look at ship customisation state entry to see exactly how that does it)
-                    svo = GetShipVOFromCrewId(mlv, crewEntity.CrewId);
-                    var sortedGunSlots = svo.Model.GetSortedSlots(svo.Presets[0].Guns);
-                    var sortedGuns = (from slot in sortedGunSlots select GunItemInfo.FromGunItem(slot.Gun)).ToList();
-                    foreach (var g in sortedGuns) guns.Add(g.name);
+                    var svo = GetShipVOFromCrewId(mlv, crewEntity.CrewId);
+                    var sortedGunIds = GetSortedGunIds(svo.Model, svo.Presets[0].Guns);
+                    foreach (var g in sortedGunIds)
+                        if (g != -1)
+                            guns.Add(CachedRepository.Instance.Get<GunItem>(g).NameText.En);
+                        else
+                            guns.Add("Empty");
                 }
             }
             public override string ToString()

@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-using Muse.Common;
-using MuseBase.Multiplayer.Unity;
 using UnityEngine;
-using Muse.Goi2.Entity.Vo;
-using MuseBase.Multiplayer.Photon;
+using Muse.Common;
 using Muse.Goi2.Entity;
+using Muse.Goi2.Entity.Vo;
+using MuseBase.Multiplayer.Unity;
+using MuseBase.Multiplayer.Photon;
 
 namespace BuffKit.Util
 {
@@ -57,9 +57,21 @@ namespace BuffKit.Util
         public static HashSet<int> ShipIds { get; private set; }
         public static HashSet<int> GunIds { get; private set; }
         private static Dictionary<int, Dictionary<string, int>> _shipGunSlotLookup;
-        public static int GetGunSlotIndex(int shipModel, string gunSlotName)
+        public static int GetGunSlotIndex(int shipClass, string gunSlotName)
         {
-            return _shipGunSlotLookup[shipModel][gunSlotName];
+            return _shipGunSlotLookup[shipClass][gunSlotName];
+        }
+        public static int[] GetSortedGunIds(ShipModel shipModel, IList<ShipSlotViewObject> gunSlots)
+        {
+            var shipGunIds = new int[shipModel.GunSlots];
+            for (var i = 0; i < shipModel.GunSlots; i++) shipGunIds[i] = -1;
+            var shipClass = shipModel.Id;
+            foreach (var slot in gunSlots)
+            {
+                var slotIndex = GetGunSlotIndex(shipClass, slot.Name);
+                shipGunIds[slotIndex] = slot.GunId;
+            }
+            return shipGunIds;//.ToList();
         }
 
         public static void _OnLobbyLoadTrigger() { OnLobbyLoad?.Invoke(); }

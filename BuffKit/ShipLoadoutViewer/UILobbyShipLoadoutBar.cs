@@ -77,16 +77,9 @@ namespace BuffKit.ShipLoadoutViewer
             {
                 if (svo != null)
                 {
-                    shipGuns = new int[6];
-                    for (int i = 0; i < 6; i++) shipGuns[i] = -1;
                     shipClass = svo.ModelId;
-                    var gunSlots = svo.Presets[0].Guns;
-                    foreach (var slot in gunSlots)
-                    {
-                        var slotIndex = Util.Util.GetGunSlotIndex(shipClass, slot.Name);
-                        shipGuns[slotIndex] = slot.GunId;
-                    }
                     availableSlots = svo.Model.GunSlots;
+                    shipGuns = Util.Util.GetSortedGunIds(svo.Model, svo.Presets[0].Guns);
                 }
             }
 
