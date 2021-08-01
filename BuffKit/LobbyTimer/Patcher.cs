@@ -1,10 +1,50 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
+using static BuffKit.Util.Util;
 
-namespace BuffKit.LobbyTimer.Patchers
+namespace BuffKit.LobbyTimer
 {
+    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    public class UINewMatchLobbyState_Enter
+    {
+        public static void Postfix()
+        {
+            var mlv = MatchLobbyView.Instance;
+            if (!HasModPrivilege(mlv)) return;
+            
+            var tbc = TimerButtonContainer.Instance;
+            tbc.gameObject.SetActive(true);
+        }
+    }
+    
+    [HarmonyPatch(typeof(MatchLobbyView), "Start")]
+    public class MatchLobbyView_Start
+    {
+        public static void Postfix()
+        {
+            var mlv = MatchLobbyView.Instance;
+            if (!HasModPrivilege(mlv)) return;
+            var tbc = TimerButtonContainer.Instance;
+
+            var lobbyTimer = mlv.gameObject.AddComponent<Timer>();
+            lobbyTimer.gameObject.SetActive(true);
+            lobbyTimer.MatchId = mlv.MatchId;
+            lobbyTimer.Initialize(tbc);
+        }
+    }
+    
+    [HarmonyPatch(typeof(MatchLobbyView), "OnDisable")]
+    public class MatchLobbyView_OnDisable
+    {
+        public static void Prefix(MatchLobbyView __instance)
+        {
+            var lobbyTimer = __instance?.gameObject?.GetComponent<Timer>();
+            if (lobbyTimer.Equals(null)) return;
+            Object.Destroy(lobbyTimer);
+        }
+    }
+    
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
     public class UIMatchLobby_Awake
     {

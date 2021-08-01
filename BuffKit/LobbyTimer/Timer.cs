@@ -24,7 +24,10 @@ namespace BuffKit.LobbyTimer
         public int PrePauseSecondsLeft;
         public string MatchId;
 
-        public bool IsActive => CurrentState == State.Main || CurrentState == State.Overtime;
+        public bool IsActive => CurrentState == State.Main ||
+                                CurrentState == State.Overtime ||
+                                CurrentState == State.LoadoutSetup ||
+                                CurrentState == State.LoadoutSetupEnd;
 
         private TimerButtonContainer _tbc;
         
