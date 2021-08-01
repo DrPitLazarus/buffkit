@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BuffKit.LobbyTimer;
 using Muse.Goi2.Entity.Vo;
+using static BuffKit.Util.Util;
 
 namespace BuffKit.AnnounceChanges
 {
@@ -156,7 +156,7 @@ namespace BuffKit.AnnounceChanges
                 
                 if (!(timer is null) && timer.IsActive)
                 {
-                    Util.ForceSendMessage(msg);
+                    ForceSendMessage(msg);
                 }
             }
 

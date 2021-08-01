@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-using static BuffKit.Util;
+using static BuffKit.Util.Util;
 
 namespace BuffKit.LobbyTimer
 {

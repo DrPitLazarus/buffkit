@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using static BuffKit.Util;
+using static BuffKit.Util.Util;
 
 namespace BuffKit.MapPicker.Patchers
 {
