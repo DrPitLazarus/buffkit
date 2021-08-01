@@ -125,11 +125,9 @@ namespace BuffKit.AnnounceChanges
 
         public static void LobbyDataChanged(MatchLobbyView mlv)
         {
-            if (mlv.Running) return;             // Skip if match running
+            if (mlv.Running) return;                        // Skip if match running
 
             MatchData matchDataNew = new MatchData(mlv);
-
-            // log.LogInfo(matchDataNew);
 
             if (_matchDataLast != null)
             {
@@ -153,11 +151,12 @@ namespace BuffKit.AnnounceChanges
                     msg += c.GetDetailsShort();
                     // log.LogInfo(c.ToString());
                 }
-                
+
                 var timer = mlv.GetComponent<LobbyTimer.Timer>();
-                if (!timer.Equals(null) && timer.IsActive)
+                if (timer != null)
                 {
-                    ForceSendMessage(msg);
+                    if (timer.IsActive)
+                        ForceSendMessage(msg);
                 }
             }
 
