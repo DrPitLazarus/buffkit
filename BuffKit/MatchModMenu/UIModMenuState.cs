@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using MuseBase.Multiplayer.Unity;
-using static BuffKit.Util;
+using static BuffKit.Util.Util;
 
 namespace BuffKit.MatchModMenu
 {

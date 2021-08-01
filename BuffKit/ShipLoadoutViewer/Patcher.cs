@@ -9,6 +9,7 @@ namespace BuffKit.ShipLoadoutViewer
         private static void Prepare()
         {
             ShipLoadoutViewer.CreateLog();
+            Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
         }
         private static void Prefix(UIMatchLobby __instance)
         {
@@ -26,15 +27,6 @@ namespace BuffKit.ShipLoadoutViewer
         private static void Postfix(UIMatchLobby __instance, MatchLobbyView ___mlv)
         {
             ShipLoadoutViewer.PaintLoadoutBars(___mlv);
-        }
-    }
-
-    [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
-    public class UILoadingLobbyState_Exit
-    {
-        private static void Postfix()
-        {
-            ShipLoadoutViewer.LoadShipAndGunData();
         }
     }
 }

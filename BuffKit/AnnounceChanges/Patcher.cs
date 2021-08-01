@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using static BuffKit.Util;
 
 namespace BuffKit.AnnounceChanges
 {

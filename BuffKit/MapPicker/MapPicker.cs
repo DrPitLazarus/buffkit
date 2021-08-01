@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Muse.Common;
 using Muse.Goi2.Entity;
-using static BuffKit.Util;
 
 namespace BuffKit.MapPicker
 {

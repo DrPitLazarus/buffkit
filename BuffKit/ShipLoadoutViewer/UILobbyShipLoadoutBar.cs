@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
-using Muse.Common;
 
 namespace BuffKit.ShipLoadoutViewer
 {
     class UILobbyShipLoadoutBar : MonoBehaviour
     {
-
+        public bool MarkForRedraw { set; get; }
         private void Awake()
         {
         }
@@ -64,6 +61,11 @@ namespace BuffKit.ShipLoadoutViewer
         {
             currentFadeOut = Mathf.Clamp(currentFadeOut - Time.deltaTime, 0, Mathf.Infinity);
             backgroundImg.color = Color.Lerp(baseBGCol, Color.white, currentFadeOut / timeToFadeOut);
+            if (MarkForRedraw)
+            {
+                DisplayShipFromData(lastShip);
+                MarkForRedraw = false;
+            }
         }
 
         class ShipLoadoutData : IEquatable<ShipLoadoutData>
@@ -75,16 +77,9 @@ namespace BuffKit.ShipLoadoutViewer
             {
                 if (svo != null)
                 {
-                    shipGuns = new int[6];
-                    for (int i = 0; i < 6; i++) shipGuns[i] = -1;
                     shipClass = svo.ModelId;
-                    var gunSlots = svo.Presets[0].Guns;
-                    foreach (var slot in gunSlots)
-                    {
-                        var slotIndex = ShipLoadoutViewer.shipAndGunSlotToIndex[shipClass][slot.Name];
-                        shipGuns[slotIndex] = slot.GunId;
-                    }
                     availableSlots = svo.Model.GunSlots;
+                    shipGuns = Util.Util.GetSortedGunIds(svo.Model, svo.Presets[0].Guns);
                 }
             }
 
@@ -124,18 +119,23 @@ namespace BuffKit.ShipLoadoutViewer
             baseBGCol.a = 0.5f;
 
             var newShip = new ShipLoadoutData(svo);
-            for (int i = 0; i < newShip.GetVisibleSlots(); i++)
-            {
-                slotImages[i].texture = newShip.GetSlotTexture(i);
-                slotImages[i].gameObject.SetActive(true);
-            }
-            for (int i = newShip.GetVisibleSlots(); i < 6; i++)
-                slotImages[i].gameObject.SetActive(false);
+
+            DisplayShipFromData(newShip);
 
             if (!newShip.Equals(lastShip))
                 DisplayChanged();
 
             lastShip = newShip;
+        }
+        void DisplayShipFromData(ShipLoadoutData data)
+        {
+            for (int i = 0; i < data.GetVisibleSlots(); i++)
+            {
+                slotImages[i].texture = data.GetSlotTexture(i);
+                slotImages[i].gameObject.SetActive(true);
+            }
+            for (int i = data.GetVisibleSlots(); i < 6; i++)
+                slotImages[i].gameObject.SetActive(false);
         }
     }
 }
