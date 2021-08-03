@@ -35,6 +35,10 @@ namespace BuffKit.MapPicker
                     if (index >= 0) LobbyActions.ChangeMap(maps[index].Id);
                 });
 
+
+            var unmd = UIPageFrame.Instance.modalDialog.gameObject;
+
+
             return false;
         }
         

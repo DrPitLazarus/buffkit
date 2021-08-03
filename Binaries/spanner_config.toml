@@ -3,5 +3,6 @@ game_path = ''
 classes_to_patch = [
   "UIManager",
   "UICreateMatchPanel",
-  "UIMatchLobby"
+  "UIMatchLobby",
+  "UINewModalDialog"
 ]
