@@ -10,9 +10,6 @@ namespace BuffKit.ShipLoadoutViewer
     class UILobbyShipLoadoutBar : MonoBehaviour
     {
         public bool MarkForRedraw { set; get; }
-        private void Awake()
-        {
-        }
 
         List<RawImage> slotImages;
 

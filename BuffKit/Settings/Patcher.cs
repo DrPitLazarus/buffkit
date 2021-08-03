@@ -13,8 +13,8 @@ namespace BuffKit.Settings
             {
                 if (_firstCall)
                 {
-                    Util.Util.OnGameInitialize += Settings._Initialize;
-                    _firstCall = false;
+                    //Util.Util.OnGameInitialize += Settings._Initialize;
+                    //_firstCall = false;
                 }
             }
         }

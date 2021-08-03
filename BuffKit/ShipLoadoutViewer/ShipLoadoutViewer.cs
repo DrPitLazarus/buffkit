@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
-using Muse.Goi2.Entity.Vo;
 using static BuffKit.Util.Util;
 
 namespace BuffKit.ShipLoadoutViewer
@@ -25,7 +23,7 @@ namespace BuffKit.ShipLoadoutViewer
             // Edit the "Sample Crew" object to have a loadout panel
 
             var crewUI = uiml.sampleCrew;
-            crewUI.GetComponent<LayoutElement>().preferredHeight = 145;
+            Object.Destroy(crewUI.GetComponent<LayoutElement>());                   // Instead of setting the LayoutElement preferredHeight just delete it
             var loadoutPanel = new GameObject("Loadout Panel");
             loadoutPanel.transform.parent = crewUI.transform;
 
@@ -99,6 +97,13 @@ namespace BuffKit.ShipLoadoutViewer
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     bar.MarkForRedraw = true;
+        }
+
+        public static void SetBarVisibility(bool isVisible)
+        {
+            foreach (var barList in loadoutBars)
+                foreach (var bar in barList)
+                    bar.gameObject.SetActive(isVisible);
         }
     }
 }
