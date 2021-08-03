@@ -247,7 +247,6 @@
     <Compile Include="MapPicker\Patchers\UINewMatchLobbyState_PaintFooterButtons.cs" />
     <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
     <Compile Include="MatchModMenu\UIModMenuState.cs" />
-    <Compile Include="Settings\Patcher.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Settings\UISettingsEntry.cs" />
     <Compile Include="Settings\UISettingsPanel.cs" />
