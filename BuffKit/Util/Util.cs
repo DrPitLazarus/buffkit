@@ -121,6 +121,7 @@ namespace BuffKit.Util
 
                     _shipGunSlotLookup[ship.Id] = shipDict;
                 }
+                UI.Resources._Initialize();
                 OnGameInitialize?.Invoke();
                 _OnLobbyLoadTrigger();
             });
