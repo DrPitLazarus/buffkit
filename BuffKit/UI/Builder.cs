@@ -38,16 +38,7 @@ namespace BuffKit.UI
             sb.handleRect = obHandle.GetComponent<RectTransform>();
             sb.direction = Scrollbar.Direction.BottomToTop;
             sb.image = obHandle.GetComponent<Image>();
-            var colorBlock = new ColorBlock
-            {
-                normalColor = new Color32(0x80, 0x6B, 0x55, 0xFF),
-                highlightedColor = new Color32(0xAB, 0x8D, 0x6D, 0xFF),
-                pressedColor = new Color32(0x92, 0x7C, 0x64, 0xFF),
-                disabledColor = new Color32(0xC8, 0xC8, 0xC8, 0x80),
-                fadeDuration = .1f,
-                colorMultiplier = 1
-            };
-            sb.colors = colorBlock;
+            sb.colors = Resources.ScrollBarColors;
             sb.transition = Selectable.Transition.None;         // Doesn't update the colour without this
             sb.transition = Selectable.Transition.ColorTint;
 
@@ -60,9 +51,7 @@ namespace BuffKit.UI
             rt.offsetMax = new Vector2(-20, -10);
             var mask = obViewport.AddComponent<Mask>();
             mask.showMaskGraphic = false;
-            //mask.showMaskGraphic = true;
             img = obViewport.AddComponent<Image>();
-            //img.color = new Color(1, 0, 0, .5f);
 
             obContent = new GameObject("Content");
             obContent.transform.SetParent(obViewport.transform);
@@ -77,9 +66,7 @@ namespace BuffKit.UI
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
             vlg.spacing = 10;
-            //vlg.padding = new RectOffset(10, 10, 10, 10);
             var csf = obContent.AddComponent<ContentSizeFitter>();
-            //csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             // Scroll View
@@ -108,9 +95,6 @@ namespace BuffKit.UI
         public static GameObject BuildLabel(Transform parent, string text, TextAlignmentOptions alignment = TextAlignmentOptions.Left, int fontSize = 18)
         {
             var obLabel = new GameObject("Label");
-            //var le = obLabel.AddComponent<LayoutElement>();
-            //le.preferredHeight = 25;
-            //le.flexibleWidth = 1;
             var cText = obLabel.AddComponent<TextMeshProUGUI>();
             cText.text = text;
             cText.font = Resources.Font;
@@ -181,12 +165,56 @@ namespace BuffKit.UI
             return obButton;
         }
 
+        public static GameObject BuildInputField(Transform parent, int fontSize = 13)
+        {
+            var obInputField = new GameObject("Input Field");
+            var le = obInputField.AddComponent<LayoutElement>();
+            le.preferredHeight = fontSize + 10;
+
+            var obTextArea = new GameObject("Text Area");
+            obTextArea.AddComponent<RectMask2D>();
+            obTextArea.transform.SetParent(obInputField.transform, false);
+            var rt = obTextArea.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = new Vector2(5, 5);
+            rt.offsetMax = new Vector2(-5, -5);
+
+            var obText = BuildLabel(obTextArea.transform, "", TextAlignmentOptions.Left, fontSize);
+            rt = obText.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 0);
+
+            var imgBackground = obInputField.AddComponent<Image>();
+            imgBackground.sprite = Resources.BlankIcon;
+            imgBackground.color = new Color32(0xFF, 0xFF, 0xFF, 0x80);
+            rt = obInputField.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 0);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 10+fontSize);
+            var field = obInputField.AddComponent<TMP_InputField>();
+            field.textComponent = obText.GetComponent<TextMeshProUGUI>();
+            field.textViewport = obTextArea.GetComponent<RectTransform>();
+            field.onFocusSelectAll = false;
+            field.transition = Selectable.Transition.ColorTint;
+            field.colors = Resources.TextFieldColors;
+
+            obInputField.transform.SetParent(parent, false);
+            return obInputField;
+        }
+
         public static void TestBuilder(Transform parent)
         {
             var log = BepInEx.Logging.Logger.CreateLogSource("builder");
 
             var obPanel = BuildPanel(parent);
             var obScrollView = BuildVerticalScrollView(obPanel.transform, out GameObject obContent);
+
+            BuildInputField(obContent.transform);
+
             var obLabel = BuildLabel(obContent.transform, "First label", TextAlignmentOptions.Right, 13);
             for (int i = 0; i < 5; i++)
             {
