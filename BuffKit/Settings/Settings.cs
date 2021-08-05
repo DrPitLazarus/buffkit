@@ -47,7 +47,7 @@ namespace BuffKit.Settings
         {
             if (_entryValues.ContainsKey(entry))
             {
-                if(_entryValues[entry] != value)
+                if (_entryValues[entry] != value)
                 {
                     log.LogInfo($"Changed value of entry [{entry}] to {value}");
                     _entryValues[entry] = value;
@@ -71,11 +71,9 @@ namespace BuffKit.Settings
             // Settings panel
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) log.LogError("Panel parent transform was not found");
-            _panelObj = new GameObject("UISettingsPanel");
-            _panel = _panelObj.AddComponent<UISettingsPanel>();
-            _panelObj.transform.SetParent(parentTransform, false);
-            _panel.Initialize(log, font);
+            _panelObj = UISettingsPanel.BuildPanel(parentTransform, out _panel);
             _panelObj.SetActive(false);
+            if (_panel == null) log.LogError("Panel is null");
 
 
             // Settings button
@@ -87,7 +85,7 @@ namespace BuffKit.Settings
             le.preferredWidth = 90;
             le.preferredHeight = 25;
             var settingsIcon = new GameObject("Icon");
-            settingsIcon.transform.SetParent( settingsButtonGroup.transform, false);
+            settingsIcon.transform.SetParent(settingsButtonGroup.transform, false);
             settingsIcon.transform.localPosition = new Vector3(30, 0, 0);
             var icon = settingsIcon.AddComponent<Image>();
             icon.color = new Color32(0xC0, 0x30, 0x80, 0xFF);

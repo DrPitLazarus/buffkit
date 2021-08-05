@@ -19,16 +19,16 @@ namespace BuffKit.Settings
             get { return _toggle.isOn; }
         }
 
-        public static UISettingsEntry Build(Transform parent, Sprite tick, Sprite background, TMP_FontAsset font)
+        public static UISettingsEntry Build(Transform parent)
         {
             GameObject go = new GameObject("Settings Entry");
             go.transform.SetParent(parent, false);
             var uise = go.AddComponent<UISettingsEntry>();
-            uise.Build(tick, background, font);
+            uise.Build();
             return uise;
         }
 
-        private void Build(Sprite tick, Sprite background, TMP_FontAsset font)
+        private void Build()
         {
             var hlg = gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.childForceExpandWidth = false;
@@ -38,33 +38,27 @@ namespace BuffKit.Settings
             hlg.childAlignment = TextAnchor.MiddleLeft;
 
             var childBox = new GameObject("Box");
-            var le = childBox.AddComponent<LayoutElement>();
-            le.preferredWidth = 25;
-            le.preferredHeight = 25;
             childBox.transform.SetParent(transform, false);
             var childBoxImg = childBox.AddComponent<Image>();
-            childBoxImg.sprite = background;
+            childBoxImg.sprite = UI.Resources.BlankIcon;
             childBoxImg.color = new Color(1, 1, 1, .45f);
+            var le = childBox.AddComponent<LayoutElement>();
+            le.minWidth = 25;
+            le.minHeight = 25;
+            le.preferredWidth = 25;
+            le.preferredHeight = 25;
 
             var checkmark = new GameObject("Checkmark");
             checkmark.transform.SetParent(childBox.transform, false);
             var checkmarkImg = checkmark.AddComponent<Image>();
-            checkmarkImg.sprite = tick;
+            checkmarkImg.sprite = UI.Resources.Checkmark;
             var rt = checkmarkImg.rectTransform;
             rt.anchorMin = new Vector2(.5f, .5f);
             rt.anchorMax = new Vector2(.5f, .5f);
             rt.sizeDelta = new Vector2(20, 20);
 
-            var childLabel = new GameObject("Label");
-            le = childLabel.AddComponent<LayoutElement>();
-            le.preferredHeight = 25;
-            le.flexibleWidth = 1;
-            childLabel.transform.SetParent(transform, false);
-            _label = childLabel.AddComponent<TextMeshProUGUI>();
-            _label.text = "";
-            _label.fontSize = 13;
-            _label.font = font;
-            _label.alignment = TextAlignmentOptions.Left;
+            var childLabel = UI.Builder.BuildLabel(transform, "", TextAnchor.MiddleLeft, 13);
+            _label = childLabel.GetComponentInChildren<TextMeshProUGUI>();
 
             _toggle = gameObject.AddComponent<Toggle>();
             _toggle.graphic = checkmarkImg;

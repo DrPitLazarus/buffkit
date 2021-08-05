@@ -7,117 +7,29 @@ namespace BuffKit.Settings
 {
     class UISettingsPanel : MonoBehaviour
     {
-        private Sprite _checkbox;
-        private Sprite _checkmark;
-        private TMP_FontAsset _font;
         private GameObject _content;
 
-        public void Initialize(BepInEx.Logging.ManualLogSource log, TMP_FontAsset font)
+        public static GameObject BuildPanel(Transform parent, out UISettingsPanel panel)
         {
-            var rt = gameObject.AddComponent<RectTransform>();
+            var obPanel = UI.Builder.BuildPanel(parent);
+            obPanel.name = "UI Settings Panel";
+            var rt = obPanel.GetComponent<RectTransform>();
+            rt.pivot = new Vector2(1, 0);
             rt.anchorMin = new Vector2(.763f, .046f);
             rt.anchorMax = new Vector2(1f, .5f);
             rt.offsetMin = new Vector2(0, 0);
             rt.offsetMax = new Vector2(0, 0);
-            var bg = gameObject.AddComponent<Image>();
-            bg.color = new Color32(0x10, 0x0A, 0x06, 0xFF);
-            var outline = gameObject.AddComponent<UnityEngine.UI.Outline>();
-            outline.effectColor = new Color32(0xA8, 0x90, 0x79, 0xFF);
-
-            _checkbox = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Profile Character/Character Content/Loadout Group/Golden Checkbox/Background")?.GetComponent<Image>()?.sprite;
-            _checkmark = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Profile Character/Character Content/Loadout Group/Golden Checkbox/Background/Checkmark")?.GetComponent<Image>()?.sprite;
-            if (_checkbox == null) log.LogError("Checkbox not found");
-            if (_checkmark == null) log.LogError("Checkmark not found");
-            _font = font;
-
-            gameObject.AddComponent<GraphicRaycaster>();            // Makes it have UI interaction on top of other UI (I think? It's complicated)
-
-            // Scrollbar
-            var obHandle = new GameObject("Handle");
-            var img = obHandle.AddComponent<Image>();
-            img.color = new Color(1, 1, 1, 1);
-            rt = img.rectTransform;
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(0, 0);
-            rt.offsetMax = new Vector2(0, 0);
-
-            var obSlidingArea = new GameObject("Sliding Area");
-            obHandle.transform.SetParent(obSlidingArea.transform, false);
-            rt = obSlidingArea.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(-5, 10);
-            rt.offsetMax = new Vector2(-5, -10);
-
-            var obScrollbarVertical = new GameObject("Scrollbar Vertical");
-            obSlidingArea.transform.SetParent(obScrollbarVertical.transform, false);
-            rt = obScrollbarVertical.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(1, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(-10, 0);
-            rt.offsetMax = new Vector2(0, 0);
-            var sb = obScrollbarVertical.AddComponent<Scrollbar>();
-            sb.handleRect = obHandle.GetComponent<RectTransform>();
-            sb.direction = Scrollbar.Direction.BottomToTop;
-            sb.image = obHandle.GetComponent<Image>();
-            var colorBlock = new ColorBlock
-            {
-                normalColor = new Color32(0x80, 0x6B, 0x55, 0xFF),
-                highlightedColor = new Color32(0xAB, 0x8D, 0x6D, 0xFF),
-                pressedColor = new Color32(0x92, 0x7C, 0x64, 0xFF),
-                disabledColor = new Color32(0xC8, 0xC8, 0xC8, 0x80),
-                fadeDuration = .1f,
-                colorMultiplier = 1
-            };
-            sb.colors = colorBlock;
-            sb.transition = Selectable.Transition.None;         // Doesn't update the colour without this
-            sb.transition = Selectable.Transition.ColorTint;
-
-            // Viewport
-            var obViewport = new GameObject("Viewport");
-            rt = obViewport.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(10, 10);
-            rt.offsetMax = new Vector2(-20, -10);
-            var mask = obViewport.AddComponent<Mask>();
-            mask.showMaskGraphic = false;
-            obViewport.AddComponent<Image>();
-
-            _content = new GameObject("Content");
-            _content.transform.SetParent(obViewport.transform);
-            var vlg = _content.AddComponent<VerticalLayoutGroup>();
-            vlg.childAlignment = TextAnchor.LowerRight;
-            vlg.childForceExpandWidth = false;
-            vlg.childForceExpandHeight = false;
-            vlg.spacing = 10;
-            vlg.padding = new RectOffset(10, 10, 10, 10);
-            var csf = _content.AddComponent<ContentSizeFitter>();
+            var hlg = obPanel.AddComponent<HorizontalLayoutGroup>();
+            hlg.padding = new RectOffset(5, 5, 5, 5);
+            var csf = obPanel.AddComponent<ContentSizeFitter>();
             csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            rt = _content.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.pivot = new Vector2(0, 1);
 
-            // Scroll View
-            var scrollView = new GameObject("Scroll View");
-            rt = scrollView.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(0, 0);
-            rt.offsetMax = new Vector2(0, 0);
-            obScrollbarVertical.transform.SetParent(scrollView.transform);
-            obViewport.transform.SetParent(scrollView.transform);
-            var scrollRect = scrollView.AddComponent<ScrollRect>();
-            scrollRect.viewport = obViewport.GetComponent<RectTransform>();
-            scrollRect.verticalScrollbar = sb;
-            scrollRect.content = _content.GetComponent<RectTransform>();
-            scrollRect.horizontal = false;
-            scrollRect.scrollSensitivity = 20;
+            panel = obPanel.AddComponent<UISettingsPanel>();
+            obPanel.AddComponent<GraphicRaycaster>();                       // Makes it have UI interaction on top of other UI (I think? It's complicated)
 
-            scrollView.transform.SetParent(transform, false);
+            UI.Builder.BuildVerticalScrollViewFitContent(obPanel.transform, out panel._content);
+
+            return obPanel;
         }
 
         private Dictionary<string, int> _entryIndex = new Dictionary<string, int>();
@@ -130,7 +42,7 @@ namespace BuffKit.Settings
             int i = _entryIndex.Count;
             _entryIndex.Add(entry, i);
 
-            var box = UISettingsEntry.Build(_content.transform, _checkmark, _checkbox, _font);
+            var box = UISettingsEntry.Build(_content.transform);
             box.Text = entry;
             box.Value = value;
             _entryList.Add(box);
