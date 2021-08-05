@@ -72,7 +72,7 @@ namespace BuffKit.Settings
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) log.LogError("Panel parent transform was not found");
             _panelObj = UISettingsPanel.BuildPanel(parentTransform, out _panel);
-            _panelObj.SetActive(false);
+            _panel.SetVisibility(false);
             if (_panel == null) log.LogError("Panel is null");
 
 

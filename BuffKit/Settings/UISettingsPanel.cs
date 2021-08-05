@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using UnityEngine.EventSystems;
 
 namespace BuffKit.Settings
 {
-    class UISettingsPanel : MonoBehaviour
+    class UISettingsPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private GameObject _content;
 
@@ -62,6 +62,11 @@ namespace BuffKit.Settings
             _remakeList = true;
         }
 
+        private bool _pointerInFrame = false;
+        private float _timeUntilDisappear = 0;
+        public float disappearTimer = 2;
+        private bool _isVisible = false;
+
         private void Update()
         {
             if (_remakeList)
@@ -79,15 +84,43 @@ namespace BuffKit.Settings
                 _entryList = newList;
                 _remakeList = false;
             }
+            if(_isVisible && !_pointerInFrame)
+            {
+                if(_timeUntilDisappear > 0)
+                {
+                    _timeUntilDisappear -= Time.deltaTime;
+                }
+                if (_timeUntilDisappear <= 0)
+                    SetVisibility(false);
+                    
+            }
         }
 
-        public void ToggleVisibility()
+        public void SetVisibility(bool visible)
         {
-            var vis = !gameObject.activeSelf;
-            gameObject.SetActive(vis);
-            if (vis)
+            _isVisible = visible;
+            gameObject.SetActive(_isVisible);
+            if (_isVisible)
+            {
                 foreach (var v in _entryList)
                     v.ResetAlignment();
+                _timeUntilDisappear = disappearTimer;
+            }
+        }
+        public void ToggleVisibility()
+        {
+            SetVisibility(!_isVisible);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _pointerInFrame = true;
+            _timeUntilDisappear = disappearTimer;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _pointerInFrame = false;
         }
     }
 }
