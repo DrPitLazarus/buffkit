@@ -7,7 +7,8 @@ namespace BuffKit.UI
 {
     public static class Builder
     {
-        public static GameObject BuildVerticalScrollView(Transform parent, out GameObject obContent)
+        // Fits parent vertically, fits content horizontally
+        public static GameObject BuildVerticalScrollViewFitContent(Transform parent, out GameObject obContent)
         {
             // Scrollbar
             var obHandle = new GameObject("Handle");
@@ -24,16 +25,15 @@ namespace BuffKit.UI
             rt = obSlidingArea.AddComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(-5, 10);
-            rt.offsetMax = new Vector2(-5, -10);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 0);
 
             var obScrollbarVertical = new GameObject("Scrollbar Vertical");
             obSlidingArea.transform.SetParent(obScrollbarVertical.transform, false);
-            rt = obScrollbarVertical.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(1, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(-10, 0);
-            rt.offsetMax = new Vector2(0, 0);
+            var le = obScrollbarVertical.AddComponent<LayoutElement>();
+            le.minWidth = 10;
+            le.preferredWidth = 10;
+            le.flexibleHeight = 1;
             var sb = obScrollbarVertical.AddComponent<Scrollbar>();
             sb.handleRect = obHandle.GetComponent<RectTransform>();
             sb.direction = Scrollbar.Direction.BottomToTop;
@@ -44,24 +44,109 @@ namespace BuffKit.UI
 
             // Viewport
             var obViewport = new GameObject("Viewport");
-            rt = obViewport.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(10, 10);
-            rt.offsetMax = new Vector2(-20, -10);
+            le = obViewport.AddComponent<LayoutElement>();
+            le.minHeight = 0;
             var mask = obViewport.AddComponent<Mask>();
             mask.showMaskGraphic = false;
             img = obViewport.AddComponent<Image>();
+            var vlg = obViewport.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            vlg.childControlHeight = true;
+            vlg.childControlWidth = true;
 
             obContent = new GameObject("Content");
             obContent.transform.SetParent(obViewport.transform);
             rt = obContent.AddComponent<RectTransform>();
+            rt.pivot = new Vector2(0, 1);
+            vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            vlg.childAlignment = TextAnchor.LowerRight;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            vlg.spacing = 10;
+
+            // Scroll View
+            var obScrollView = new GameObject("Scroll View");
+            rt = obScrollView.AddComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = new Vector2(0, 0);
             rt.offsetMax = new Vector2(0, 0);
+            var hlg = obScrollView.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 5;
+            hlg.childForceExpandWidth = false;
+            hlg.childControlHeight = true;
+            hlg.childControlWidth = true;
+            obViewport.transform.SetParent(obScrollView.transform);
+            obScrollbarVertical.transform.SetParent(obScrollView.transform);
+            var scrollRect = obScrollView.AddComponent<ScrollRect>();
+            scrollRect.viewport = obViewport.GetComponent<RectTransform>();
+            scrollRect.verticalScrollbar = sb;
+            scrollRect.content = obContent.GetComponent<RectTransform>();
+            scrollRect.horizontal = false;
+            scrollRect.scrollSensitivity = 20;
+            //var csf = obScrollView.AddComponent<ContentSizeFitter>();
+            //csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            obScrollView.transform.SetParent(parent, false);
+
+            return obScrollView;
+        }
+
+        // Fits parent horizontally and vertically
+        public static GameObject BuildVerticalScrollViewFitParent(Transform parent, out GameObject obContent)
+        {
+            // Scrollbar
+            var obHandle = new GameObject("Handle");
+            var img = obHandle.AddComponent<Image>();
+            img.color = new Color(1, 1, 1, 1);
+            var rt = img.rectTransform;
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 0);
+
+            var obSlidingArea = new GameObject("Sliding Area");
+            obHandle.transform.SetParent(obSlidingArea.transform, false);
+            rt = obSlidingArea.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 0);
+
+            var obScrollbarVertical = new GameObject("Scrollbar Vertical");
+            obSlidingArea.transform.SetParent(obScrollbarVertical.transform, false);
+            var le = obScrollbarVertical.AddComponent<LayoutElement>();
+            le.minWidth = 10;
+            le.preferredWidth = 10;
+            le.flexibleHeight = 1;
+            var sb = obScrollbarVertical.AddComponent<Scrollbar>();
+            sb.handleRect = obHandle.GetComponent<RectTransform>();
+            sb.direction = Scrollbar.Direction.BottomToTop;
+            sb.image = obHandle.GetComponent<Image>();
+            sb.colors = Resources.ScrollBarColors;
+            sb.transition = Selectable.Transition.None;         // Doesn't update the colour without this
+            sb.transition = Selectable.Transition.ColorTint;
+
+            // Viewport
+            var obViewport = new GameObject("Viewport");
+            le = obViewport.AddComponent<LayoutElement>();
+            le.flexibleWidth = 1;
+            le.flexibleHeight = 1;
+            le.minHeight = 0;
+            var mask = obViewport.AddComponent<Mask>();
+            mask.showMaskGraphic = false;
+            img = obViewport.AddComponent<Image>();
+            var vlg = obViewport.AddComponent<VerticalLayoutGroup>();
+            vlg.childAlignment = TextAnchor.LowerRight;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = true;
+
+            obContent = new GameObject("Content");
+            obContent.transform.SetParent(obViewport.transform);
+            rt = obContent.AddComponent<RectTransform>();
             rt.pivot = new Vector2(0, 1);
-            var vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.LowerRight;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
@@ -76,31 +161,45 @@ namespace BuffKit.UI
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = new Vector2(0, 0);
             rt.offsetMax = new Vector2(0, 0);
-            obScrollbarVertical.transform.SetParent(obScrollView.transform);
-            obViewport.transform.SetParent(obScrollView.transform);
+            var hlg = obScrollView.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 5;
+            hlg.padding = new RectOffset(10, 10, 10, 10);
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = false;
+            obViewport.transform.SetParent(obScrollView.transform, false);
+            obScrollbarVertical.transform.SetParent(obScrollView.transform, false);
             var scrollRect = obScrollView.AddComponent<ScrollRect>();
             scrollRect.viewport = obViewport.GetComponent<RectTransform>();
             scrollRect.verticalScrollbar = sb;
             scrollRect.content = obContent.GetComponent<RectTransform>();
             scrollRect.horizontal = false;
             scrollRect.scrollSensitivity = 20;
-            csf = obScrollView.AddComponent<ContentSizeFitter>();
-            csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            //csf = obScrollView.AddComponent<ContentSizeFitter>();
+            //csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
             obScrollView.transform.SetParent(parent, false);
 
             return obScrollView;
         }
 
-        public static GameObject BuildLabel(Transform parent, string text, TextAlignmentOptions alignment = TextAlignmentOptions.Left, int fontSize = 18)
+        public static GameObject BuildLabel(Transform parent, string text, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
         {
             var obLabel = new GameObject("Label");
-            var cText = obLabel.AddComponent<TextMeshProUGUI>();
+            var hlg = obLabel.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childAlignment = alignment;
+
+            var obText = new GameObject("Text");
+            var cText = obText.AddComponent<TextMeshProUGUI>();
             cText.text = text;
             cText.font = Resources.Font;
             cText.fontSize = fontSize;
-            cText.alignment = alignment;
             cText.enableWordWrapping = false;
+            obText.transform.SetParent(obLabel.transform, false);
+            var le = obText.AddComponent<LayoutElement>();
+            le.minHeight = fontSize;
+
             obLabel.transform.SetParent(parent, false);
             return obLabel;
         }
@@ -121,7 +220,7 @@ namespace BuffKit.UI
             return obPanel;
         }
 
-        public static GameObject BuildButton(Transform parent, UnityAction callback, string text, TextAlignmentOptions alignment = TextAlignmentOptions.Center, int fontSize = 18)
+        public static GameObject BuildButton(Transform parent, UnityAction callback, string text, TextAnchor alignment = TextAnchor.MiddleCenter, int fontSize = 18)
         {
             var obButton = new GameObject("Button");
 
@@ -168,7 +267,10 @@ namespace BuffKit.UI
         public static GameObject BuildInputField(Transform parent, int fontSize = 13)
         {
             var obInputField = new GameObject("Input Field");
+            var hlg = obInputField.AddComponent<HorizontalLayoutGroup>();
+            hlg.padding = new RectOffset(5, 5, 5, 5);
             var le = obInputField.AddComponent<LayoutElement>();
+            le.minHeight = fontSize + 10;
             le.preferredHeight = fontSize + 10;
 
             var obTextArea = new GameObject("Text Area");
@@ -177,10 +279,18 @@ namespace BuffKit.UI
             var rt = obTextArea.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(5, 5);
-            rt.offsetMax = new Vector2(-5, -5);
+            rt.offsetMin = new Vector2(0, 0);
+            rt.offsetMax = new Vector2(0, 0);
 
-            var obText = BuildLabel(obTextArea.transform, "", TextAlignmentOptions.Left, fontSize);
+            var obText = new GameObject("Text");
+            var cText = obText.AddComponent<TextMeshProUGUI>();
+            cText.text = "";
+            cText.font = Resources.Font;
+            cText.fontSize = fontSize;
+            cText.enableWordWrapping = false;
+            obText.transform.SetParent(obTextArea.transform, false);
+            le = obText.AddComponent<LayoutElement>();
+            le.minHeight = fontSize;
             rt = obText.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
@@ -190,13 +300,8 @@ namespace BuffKit.UI
             var imgBackground = obInputField.AddComponent<Image>();
             imgBackground.sprite = Resources.BlankIcon;
             imgBackground.color = new Color32(0xFF, 0xFF, 0xFF, 0x80);
-            rt = obInputField.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 0);
-            rt.offsetMin = new Vector2(0, 0);
-            rt.offsetMax = new Vector2(0, 10+fontSize);
             var field = obInputField.AddComponent<TMP_InputField>();
-            field.textComponent = obText.GetComponent<TextMeshProUGUI>();
+            field.textComponent = cText;
             field.textViewport = obTextArea.GetComponent<RectTransform>();
             field.onFocusSelectAll = false;
             field.transition = Selectable.Transition.ColorTint;
@@ -211,23 +316,34 @@ namespace BuffKit.UI
             var log = BepInEx.Logging.Logger.CreateLogSource("builder");
 
             var obPanel = BuildPanel(parent);
-            var obScrollView = BuildVerticalScrollView(obPanel.transform, out GameObject obContent);
+            var hlg = obPanel.AddComponent<HorizontalLayoutGroup>();
+            hlg.padding = new RectOffset(5, 5, 5, 5);
+            var le = obPanel.AddComponent<LayoutElement>();
+            le.preferredHeight = 150;
+            // Auto-fit scrollview to panel
+            var obScrollView = BuildVerticalScrollViewFitParent(obPanel.transform, out GameObject obContent);
+            // Auto-fit panel to scrollview (horizontally)
+            //obPanel.GetComponent<RectTransform>().pivot = new Vector2(.5f, 1f);
+            //var csf = obPanel.AddComponent<ContentSizeFitter>();
+            //csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            //var obScrollView = BuildVerticalScrollViewFitContent(obPanel.transform, out GameObject obContent);
 
             BuildInputField(obContent.transform);
 
-            var obLabel = BuildLabel(obContent.transform, "First label", TextAlignmentOptions.Right, 13);
+            var obLabel = BuildLabel(obContent.transform, "First label", TextAnchor.MiddleRight, 13);
+            BuildLabel(obContent.transform, "My much longer label", TextAnchor.MiddleCenter, 15);
             for (int i = 0; i < 5; i++)
             {
                 var v = i;
-                BuildLabel(obContent.transform, $"Label {i + 1}", TextAlignmentOptions.Left, i + 13);
+                BuildLabel(obContent.transform, $"Label {i + 1}", TextAnchor.MiddleLeft, i + 13);
             }
             var button1 = BuildButton(obContent.transform, delegate { log.LogInfo("My First Button callback"); }, "My First Button");
-            var le = button1.AddComponent<LayoutElement>();
+            le = button1.AddComponent<LayoutElement>();
             le.minHeight = 35;
-            var button2 = BuildButton(obContent.transform, delegate { log.LogInfo("My Second Button callback"); }, "My Second Button", TextAlignmentOptions.Left);
+            var button2 = BuildButton(obContent.transform, delegate { log.LogInfo("My Second Button callback"); }, "My Second Button", TextAnchor.MiddleLeft);
             le = button2.AddComponent<LayoutElement>();
             le.minHeight = 35;
-            var button3 = BuildButton(obContent.transform, delegate { log.LogInfo("My Third Button callback"); }, "My Third Button", TextAlignmentOptions.Left, 13);
+            var button3 = BuildButton(obContent.transform, delegate { log.LogInfo("My Third Button callback"); }, "My Third Button", TextAnchor.MiddleLeft, 13);
             le = button3.AddComponent<LayoutElement>();
             le.minHeight = 25;
         }
