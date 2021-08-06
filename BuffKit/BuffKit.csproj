@@ -252,6 +252,7 @@
     <Compile Include="Settings\UISettingsPanel.cs" />
     <Compile Include="ShipLoadoutViewer\Patcher.cs" />
     <Compile Include="ShipLoadoutViewer\ShipLoadoutViewer.cs" />
+    <Compile Include="ShipLoadoutViewer\UILobbyCrewLoadoutBar.cs" />
     <Compile Include="ShipLoadoutViewer\UILobbyShipLoadoutBar.cs" />
     <Compile Include="AnnounceChanges\AnnounceChanges.cs" />
     <Compile Include="AnnounceChanges\LobbyChanges.cs" />
