@@ -15,8 +15,7 @@ namespace BuffKit.MapPicker
             var entry = new EventTrigger.Entry {eventID = EventTriggerType.Scroll};
             entry.callback.AddListener((BaseEventData data) =>
             {
-                MuseLog.Info("scrolled");
-                scrollRect.SendMessage("OnScroll", data);
+                scrollRect.gameObject.SendMessage("OnScroll", data);
             });
             
             et.triggers.Add(entry);
