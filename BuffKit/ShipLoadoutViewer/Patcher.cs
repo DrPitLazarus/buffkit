@@ -11,8 +11,11 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (_firstPrepare)
             {
-                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
                 ShipLoadoutViewer.CreateLog();
+                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
+                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadSkillTextures;
+                Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true); };
+                Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true); };
                 _firstPrepare = false;
             }
         }

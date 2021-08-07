@@ -10,9 +10,6 @@ namespace BuffKit.ShipLoadoutViewer
     class UILobbyShipLoadoutBar : MonoBehaviour
     {
         public bool MarkForRedraw { set; get; }
-        private void Awake()
-        {
-        }
 
         List<RawImage> slotImages;
 
@@ -20,34 +17,37 @@ namespace BuffKit.ShipLoadoutViewer
         Image headerImg;
         Color baseBGCol;
 
-        public void Build()
+        public static GameObject Build(Transform parent, out UILobbyShipLoadoutBar loadoutBar)
         {
-            gameObject.transform.SetSiblingIndex(1);                                              // Make it just below the ship header
-            gameObject.transform.localPosition = new Vector3(0, 0, 0);
-            var hlg = gameObject.AddComponent<HorizontalLayoutGroup>();
+            var obPanel = new GameObject("Ship Loadout Panel");
+            obPanel.transform.SetParent(parent);
+            loadoutBar = obPanel.AddComponent<UILobbyShipLoadoutBar>();
+            var hlg = obPanel.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 1;
             hlg.padding = new RectOffset(1, 1, 1, 1);
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
-            var leSample = gameObject.transform.parent.GetChild(0).GetComponent<LayoutElement>(); // LayoutElement from ship header
-            var le = gameObject.AddComponent<LayoutElement>();
+            var leSample = obPanel.transform.parent.GetChild(0).GetComponent<LayoutElement>(); // LayoutElement from ship header
+            var le = obPanel.AddComponent<LayoutElement>();
             le.preferredWidth = leSample.preferredWidth;
             le.preferredHeight = leSample.preferredHeight + 2;
             leSample.preferredWidth = le.preferredHeight;
-            backgroundImg = gameObject.AddComponent<Image>();
-            headerImg = gameObject.transform.parent.GetChild(0).GetComponent<Image>();
+            loadoutBar.backgroundImg = obPanel.AddComponent<Image>();
+            loadoutBar.headerImg = obPanel.transform.parent.GetChild(0).GetComponent<Image>();
 
-            slotImages = new List<RawImage>();
+            loadoutBar.slotImages = new List<RawImage>();
             foreach (var i in Enumerable.Range(0, 6))
             {
                 var slot = new GameObject("slot" + (i + 1));
-                slot.transform.parent = gameObject.transform;
+                slot.transform.parent = obPanel.transform;
                 slot.transform.localPosition = new Vector3(0, 0, 0);
-                slotImages.Add(slot.AddComponent<RawImage>());
+                loadoutBar.slotImages.Add(slot.AddComponent<RawImage>());
                 le = slot.AddComponent<LayoutElement>();
                 le.preferredWidth = 26;
                 le.preferredHeight = 26;
             }
+
+            return obPanel;
         }
 
         float currentFadeOut = 0f;

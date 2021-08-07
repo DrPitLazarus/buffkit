@@ -11,28 +11,33 @@ namespace BuffKit.Util
 {
     public static class Util
     {
+
+        public delegate void Notify();
+        public static event Notify OnGameInitialize;                // Called once before the launcher "Play" button can be pressed
+        public static event Notify OnLobbyLoad;                     // Called when the game loads to menu and after every match
+
         public static bool HasModPrivilege(MatchLobbyView mlv)
         {
             return mlv.Moderated && NetworkedPlayer.Local.Privilege >= UserPrivilege.Referee ||
                    NetworkedPlayer.Local.Privilege.IsModerator();
         }
-        
+
         public static void TrySendMessage(string message, string channel = "match")
         {
             MuseWorldClient.Instance.ChatHandler.TrySendMessage(message, channel);
         }
 
-		public static void ForceSendMessage(string msg, string channel = "match")
-		{
+        public static void ForceSendMessage(string msg, string channel = "match")
+        {
             // Note: This might break for PMs
-			if (string.IsNullOrEmpty(msg))
-			{
-				return;
-			}
+            if (string.IsNullOrEmpty(msg))
+            {
+                return;
+            }
             MuseWorldClient.Instance.Client.SendChatMessage(msg, channel);
-		}
+        }
 
-		public static string GetHierarchyPath(this Transform t)
+        public static string GetHierarchyPath(this Transform t)
         {
             string s = t.name;
             while (t.parent != null)
@@ -49,10 +54,6 @@ namespace BuffKit.Util
                 if (csvo.CrewId == crewId) return ShipPreview.GetShipVO(csvo);
             return null;
         }
-
-        public delegate void Notify();
-        public static event Notify OnGameInitialize;
-        public static event Notify OnLobbyLoad;
 
         public static HashSet<int> ShipIds { get; private set; }
         public static HashSet<int> GunIds { get; private set; }
@@ -121,6 +122,8 @@ namespace BuffKit.Util
 
                     _shipGunSlotLookup[ship.Id] = shipDict;
                 }
+                UI.Resources._Initialize();
+                Settings.Settings._Initialize();
                 OnGameInitialize?.Invoke();
                 _OnLobbyLoadTrigger();
             });

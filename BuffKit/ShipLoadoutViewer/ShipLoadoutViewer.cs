@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
@@ -23,39 +22,77 @@ namespace BuffKit.ShipLoadoutViewer
         public static void LobbyUIPreBuild(UIMatchLobby uiml)
         {
             // Edit the "Sample Crew" object to have a loadout panel
-
             var crewUI = uiml.sampleCrew;
-            crewUI.GetComponent<LayoutElement>().preferredHeight = 145;
-            var loadoutPanel = new GameObject("Loadout Panel");
-            loadoutPanel.transform.parent = crewUI.transform;
-
-            loadoutPanel.AddComponent<UILobbyShipLoadoutBar>();
+            Object.Destroy(crewUI.GetComponent<LayoutElement>());                   // Instead of setting the LayoutElement preferredHeight just delete it
         }
 
-        static List<List<UILobbyShipLoadoutBar>> loadoutBars;                       // Access by [column][row]
-        static Dictionary<UILobbyCrew, UILobbyShipLoadoutBar> crewToLoadoutBar;
+        class ShipLoadoutBars
+        {
+            public UILobbyShipLoadoutBar shipBar;
+            public UILobbyCrewLoadoutBar[] crewBars;
+
+            public ShipLoadoutBars(UILobbyCrew crew)
+            {
+                crewBars = new UILobbyCrewLoadoutBar[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    var obCrewSlot = crew.transform.GetChild(i + 1);
+                    UILobbyCrewLoadoutBar.Build(obCrewSlot, out crewBars[i]);
+                }
+
+                var header = UILobbyShipLoadoutBar.Build(crew.transform, out shipBar);
+                header.transform.SetSiblingIndex(1);
+            }
+
+            public void DisplayShip(CrewEntity crew)
+            {
+                shipBar.DisplayShip(crew.HasCaptain ? MatchLobbyView.Instance.GetShipVO(crew.Id) : null);
+            }
+            public void DisplayLoadouts(CrewEntity crew)
+            {
+                for (var i = 0; i < 4; i++)
+                {
+                    var slot = crew.Slots[i];
+                    crewBars[i].DisplayItems(slot.PlayerEntity);
+                }
+            }
+            public void ShowShipBar() { shipBar.gameObject.SetActive(true); }
+            public void HideShipBar() { shipBar.gameObject.SetActive(false); }
+            public void ShowCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(true); }
+            public void HideCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(false); }
+            /*
+             * Add checks for when to paint bars based on the show/hide status (in Paint...)
+             * Call (Paint...) when setting changes to true
+             */
+        }
+
+        static List<List<ShipLoadoutBars>> loadoutBars;                         // Access by [column][row]
+        static Dictionary<UILobbyCrew, ShipLoadoutBars> crewToLoadoutBar;
         public static void LobbyUIPostBuild(List<List<UILobbyCrew>> uimlCrewElements)
         {
-            loadoutBars = new List<List<UILobbyShipLoadoutBar>>();
-            crewToLoadoutBar = new Dictionary<UILobbyCrew, UILobbyShipLoadoutBar>();
+            loadoutBars = new List<List<ShipLoadoutBars>>();
+            crewToLoadoutBar = new Dictionary<UILobbyCrew, ShipLoadoutBars>();
             // crewElements is a 2-wide, 4-tall list
             // For each crew element, find the loadout bar and add to loadoutBars in the same order
             foreach (var column in uimlCrewElements)
             {
-                var currentCol = new List<UILobbyShipLoadoutBar>();
+                var currentCol = new List<ShipLoadoutBars>();
                 foreach (var crew in column)
                 {
-                    var bar = crew.gameObject.transform.GetComponentInChildren<UILobbyShipLoadoutBar>();
-                    bar.Build();
-                    currentCol.Add(bar);
-                    crewToLoadoutBar.Add(crew, bar);
+                    var bars = new ShipLoadoutBars(crew);
+                    currentCol.Add(bars);
+                    crewToLoadoutBar.Add(crew, bars);
                 }
                 loadoutBars.Add(currentCol);
             }
         }
 
+        static bool _paintShipBars = true;
+        static bool _paintGunBars = true;
+
         public static void PaintLoadoutBars(MatchLobbyView mlv)
         {
+            if (!_paintShipBars && !_paintGunBars) return;
             // Update all UILobbyShipLoadoutBar in loadoutBars with ship data
             // Loop logic came from UIMatchLobby.PaintCrews
             int[] array = new int[loadoutBars.Count];
@@ -68,7 +105,10 @@ namespace BuffKit.ShipLoadoutViewer
                     CrewEntity crewData = list[j];
                     if (array[num] < loadoutBars[num].Count)
                     {
-                        loadoutBars[num][array[num]].DisplayShip(crewData.HasCaptain ? mlv.GetShipVO(crewData.Id) : null);
+                        if (_paintShipBars)
+                            loadoutBars[num][array[num]].DisplayShip(crewData);
+                        if (_paintGunBars)
+                            loadoutBars[num][array[num]].DisplayLoadouts(crewData);
                         array[num]++;
                     }
                 }
@@ -76,6 +116,7 @@ namespace BuffKit.ShipLoadoutViewer
         }
 
         public static Dictionary<int, Texture2D> gunIcons;
+        public static Dictionary<int, Texture2D> skillIcons;
         public static void LoadGunTextures()
         {
             // Load the actual icons
@@ -87,8 +128,23 @@ namespace BuffKit.ShipLoadoutViewer
                 MuseBundleStore.Instance.LoadObject<Texture2D>(gunItem.GetIcon(), delegate (Texture2D t)
                 {
                     gunIcons[gunId] = t;
-                    log.LogInfo($"  Loaded icon texture for {gunItem.NameText.En}");
+                    log.LogInfo($"  Loaded icon texture for gun: {gunItem.NameText.En}");
                     MarkBarsForRedraw();
+                }, 0, false);
+            }
+        }
+        public static void LoadSkillTextures()
+        {
+            log.LogInfo("Loading skill icon textures");
+            skillIcons = new Dictionary<int, Texture2D>();
+            var allSkills = CachedRepository.Instance.GetAll<SkillConfig>();
+            foreach (var sk in allSkills)
+            {
+                var id = sk.ActivationId;
+                MuseBundleStore.Instance.LoadObject<Texture2D>(sk.GetIcon(), delegate (Texture2D t)
+                {
+                    skillIcons[id] = t;
+                    log.LogInfo($"  Loaded icon texture for skill: {sk.NameText.En}");
                 }, 0, false);
             }
         }
@@ -98,7 +154,30 @@ namespace BuffKit.ShipLoadoutViewer
             // Should result in icon textures being drawn as soon as they are loaded instead of on next PaintLoadoutBars call
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
-                    bar.MarkForRedraw = true;
+                    bar.shipBar.MarkForRedraw = true;
         }
+
+        public static void SetShipBarVisibility(bool isVisible)
+        {
+            foreach (var barList in loadoutBars)
+                foreach (var bar in barList)
+                    if (isVisible)
+                        bar.ShowShipBar();
+                    else
+                        bar.HideShipBar();
+            //bar.shipBar.gameObject.SetActive(isVisible);
+            PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+        public static void SetCrewBarVisibility(bool isVisible)
+        {
+            foreach (var barList in loadoutBars)
+                foreach (var bar in barList)
+                    if (isVisible)
+                        bar.ShowCrewBars();
+                    else
+                        bar.HideCrewBars();
+            PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+
     }
 }
