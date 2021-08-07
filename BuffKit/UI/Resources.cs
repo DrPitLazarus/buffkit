@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Muse.Goi2.Entity;
 
 namespace BuffKit.UI
 {
@@ -14,6 +15,8 @@ namespace BuffKit.UI
         public static RuntimeAnimatorController ButtonAnimatorController { get; private set; }
         public static ColorBlock ScrollBarColors { get; private set; }
         public static ColorBlock TextFieldColors { get; private set; }
+        public static Color BackgroundColor { get; private set; }
+        public static Color OutlineColor { get; private set; }
 
         public static void _Initialize()
         {
@@ -48,6 +51,9 @@ namespace BuffKit.UI
                 fadeDuration = .1f,
                 colorMultiplier = 1
             };
+
+            BackgroundColor = new Color32(0x10, 0x0A, 0x06, 0xFF);
+            OutlineColor = new Color32(0xA8, 0x90, 0x79, 0xFF);
 
             //Builder.TestBuilder(GameObject.Find("/Menu UI/Standard Canvas/Main Menu/Main Screen Elements/Game logo")?.transform);
         }

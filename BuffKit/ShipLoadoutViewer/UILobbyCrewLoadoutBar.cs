@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
-using Muse.Goi2.Entity.Vo;
 
 namespace BuffKit.ShipLoadoutViewer
 {
@@ -63,14 +60,12 @@ namespace BuffKit.ShipLoadoutViewer
                 _loadoutIds = new List<int>();
                 if (player != null)
                 {
-                var log = BepInEx.Logging.Logger.CreateLogSource("displaycrew");
                     foreach(var skill in player.CurrentSkills)
                     {
                         var sc = CachedRepository.Instance.Get<SkillConfig>(skill);
                         if (sc.Type == SkillType.Gun || sc.Type == SkillType.Helm || sc.Type == SkillType.Repair)
                         {
                             _loadoutIds.Add(skill);
-                            log.LogInfo($"  Added {skill}:{sc.NameText.En}");
                         }
                     }
                 }

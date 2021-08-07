@@ -208,14 +208,14 @@ namespace BuffKit.UI
         {
             var obPanel = new GameObject("Panel");
             var img = obPanel.AddComponent<Image>();
-            img.color = new Color32(0x10, 0x0A, 0x06, 0xFF);
+            img.color = Resources.BackgroundColor;
             var rt = img.rectTransform;
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
             rt.offsetMin = new Vector2(0, 0);
             rt.offsetMax = new Vector2(0, 0);
             var outline = obPanel.AddComponent<UnityEngine.UI.Outline>();
-            outline.effectColor = new Color32(0xA8, 0x90, 0x79, 0xFF);
+            outline.effectColor = Resources.OutlineColor;
             obPanel.transform.SetParent(parent, false);
             return obPanel;
         }

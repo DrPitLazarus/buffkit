@@ -90,7 +90,6 @@ namespace BuffKit.ShipLoadoutViewer
         static bool _paintShipBars = true;
         static bool _paintGunBars = true;
 
-
         public static void PaintLoadoutBars(MatchLobbyView mlv)
         {
             if (!_paintShipBars && !_paintGunBars) return;

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Muse.Goi2.Entity;
 
 namespace BuffKit.Settings
 {
@@ -49,7 +49,7 @@ namespace BuffKit.Settings
             {
                 if (_entryValues[entry] != value)
                 {
-                    log.LogInfo($"Changed value of entry [{entry}] to {value}");
+                    //log.LogInfo($"Changed value of entry [{entry}] to {value}");
                     _entryValues[entry] = value;
                     foreach (var action in _entryCallbacks[entry])
                         if (action != null)
@@ -80,32 +80,42 @@ namespace BuffKit.Settings
             var buttonParent = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group")?.transform;
             if (buttonParent == null) log.LogError("Button parent transform was not found");
 
-            var settingsButtonGroup = new GameObject("BuffKit Settings");
-            var le = settingsButtonGroup.AddComponent<LayoutElement>();
-            le.preferredWidth = 90;
+            var obSettingsButtonGroup = new GameObject("BuffKit Settings");
+            var im = obSettingsButtonGroup.AddComponent<Image>();               // Invisible image to make the button clicking area cover the whole rect
+            im.color = new Color(0, 0, 0, 0);
+            var hlg = obSettingsButtonGroup.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 7;
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+
+            var obSettingsIcon = new GameObject("Icon");
+            obSettingsIcon.transform.SetParent(obSettingsButtonGroup.transform, false);
+            var icon = obSettingsIcon.AddComponent<RawImage>();
+            var le = obSettingsIcon.AddComponent<LayoutElement>();
+            le.preferredWidth = 25;
             le.preferredHeight = 25;
-            var settingsIcon = new GameObject("Icon");
-            settingsIcon.transform.SetParent(settingsButtonGroup.transform, false);
-            settingsIcon.transform.localPosition = new Vector3(30, 0, 0);
-            var icon = settingsIcon.AddComponent<Image>();
-            icon.color = new Color32(0xC0, 0x30, 0x80, 0xFF);
-            var rt = icon.rectTransform;
-            rt.sizeDelta = new Vector2(25, 25);
-            rt.anchorMin = new Vector2(0, .5f);
-            rt.anchorMax = new Vector2(0, .5f);
-            var settingsLabel = new GameObject("Label");
-            settingsLabel.transform.SetParent(settingsButtonGroup.transform, false);
-            settingsLabel.transform.localPosition = new Vector3(30, 0, 0);
-            var label = settingsLabel.AddComponent<TextMeshProUGUI>();
+            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
+            {
+                icon.texture = t;
+            }, 0, false);
+
+            var obSettingsLabel = new GameObject("Label");
+            obSettingsLabel.transform.SetParent(obSettingsButtonGroup.transform, false);
+            obSettingsLabel.transform.localPosition = new Vector3(30, 0, 0);
+            var label = obSettingsLabel.AddComponent<TextMeshProUGUI>();
             label.text = "BuffKit";
             label.fontSize = 13;
             label.alignment = TextAlignmentOptions.Center;
             label.font = font;
 
-            settingsButtonGroup.transform.SetParent(buttonParent, false);
+            obSettingsButtonGroup.transform.SetParent(buttonParent, false);
 
-            var button = settingsButtonGroup.AddComponent<Button>();
+            var button = obSettingsButtonGroup.AddComponent<Button>();
             button.onClick.AddListener(delegate { _panel.ToggleVisibility(); });
+            button.transition = Selectable.Transition.ColorTint;
+            button.colors = UI.Resources.ScrollBarColors;
+            button.targetGraphic = icon;
         }
 
     }
