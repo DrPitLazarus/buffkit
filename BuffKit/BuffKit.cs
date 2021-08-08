@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace BuffKit
 {
-    [BepInPlugin("me.trgk.buffkit", "Buff Kit", "0.0.1")]
+    [BepInPlugin("me.trgk.buffkit", "Buff Kit", "0.0.2")]
     public class BuffKit : BaseUnityPlugin
     {
         private void Awake()

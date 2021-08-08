@@ -50,7 +50,7 @@
         <value>TIMER: {0} remaining, ship lock after the timer runs out</value>
     </data>
     <data name="TimerAnnouncement">
-        <value>TIMER: {0} remaining</value>
+        <value>TIMER: {0} until lock</value>
     </data>
     <data name="TimerResumed">
         <value>TIMER: Timer resumed, {0} remaining</value>

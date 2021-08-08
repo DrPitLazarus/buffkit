@@ -4,5 +4,6 @@ classes_to_patch = [
   "UIManager",
   "UICreateMatchPanel",
   "UIMatchLobby",
-  "UINewModalDialog"
+  "UINewModalDialog",
+  "UIMapDisplay"
 ]
