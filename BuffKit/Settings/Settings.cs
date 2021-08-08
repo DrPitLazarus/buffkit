@@ -15,12 +15,12 @@ namespace BuffKit.Settings
             Instance = new Settings();
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
+            Util.Util.OnLobbyLoad += Instance.LoadIconTexture;
             Instance.log.LogInfo("Settings initialized");
         }
 
         private BepInEx.Logging.ManualLogSource log;
 
-        public delegate void SettingsChanged(bool newSetting);
         private Dictionary<string, bool> _entryValues = new Dictionary<string, bool>();
         private Dictionary<string, List<Action<bool>>> _entryCallbacks = new Dictionary<string, List<Action<bool>>>();
 
@@ -59,8 +59,8 @@ namespace BuffKit.Settings
             }
         }
 
-        private GameObject _panelObj;
         private UISettingsPanel _panel;
+        private RawImage _icon;
         private void CreatePanel()
         {
             // Font
@@ -71,7 +71,7 @@ namespace BuffKit.Settings
             // Settings panel
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) log.LogError("Panel parent transform was not found");
-            _panelObj = UISettingsPanel.BuildPanel(parentTransform, out _panel);
+            var obPanel = UISettingsPanel.BuildPanel(parentTransform, out _panel);
             _panel.SetVisibility(false);
             if (_panel == null) log.LogError("Panel is null");
 
@@ -91,14 +91,10 @@ namespace BuffKit.Settings
 
             var obSettingsIcon = new GameObject("Icon");
             obSettingsIcon.transform.SetParent(obSettingsButtonGroup.transform, false);
-            var icon = obSettingsIcon.AddComponent<RawImage>();
+            _icon = obSettingsIcon.AddComponent<RawImage>();
             var le = obSettingsIcon.AddComponent<LayoutElement>();
             le.preferredWidth = 25;
             le.preferredHeight = 25;
-            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
-            {
-                icon.texture = t;
-            }, 0, false);
 
             var obSettingsLabel = new GameObject("Label");
             obSettingsLabel.transform.SetParent(obSettingsButtonGroup.transform, false);
@@ -115,7 +111,15 @@ namespace BuffKit.Settings
             button.onClick.AddListener(delegate { _panel.ToggleVisibility(); });
             button.transition = Selectable.Transition.ColorTint;
             button.colors = UI.Resources.ScrollBarColors;
-            button.targetGraphic = icon;
+            button.targetGraphic = _icon;
+        }
+
+        private void LoadIconTexture()
+        {
+            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
+            {
+                _icon.texture = t;
+            }, 0, false);
         }
 
     }
