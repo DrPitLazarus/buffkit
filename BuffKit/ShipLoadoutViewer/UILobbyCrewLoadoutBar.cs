@@ -8,6 +8,7 @@ namespace BuffKit.ShipLoadoutViewer
 {
     class UILobbyCrewLoadoutBar : MonoBehaviour
     {
+        public bool MarkForRedraw { set; get; }
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
             var obBar = new GameObject("Loadout Bar");
@@ -60,7 +61,7 @@ namespace BuffKit.ShipLoadoutViewer
                 _loadoutIds = new List<int>();
                 if (player != null)
                 {
-                    foreach(var skill in player.CurrentSkills)
+                    foreach (var skill in player.CurrentSkills)
                     {
                         var sc = CachedRepository.Instance.Get<SkillConfig>(skill);
                         if (sc.Type == SkillType.Gun || sc.Type == SkillType.Helm || sc.Type == SkillType.Repair)
@@ -85,7 +86,7 @@ namespace BuffKit.ShipLoadoutViewer
             {
                 StringBuilder b = new StringBuilder();
                 b.Append("Loadout: ");
-                foreach(var i in _loadoutIds)
+                foreach (var i in _loadoutIds)
                 {
                     var sc = CachedRepository.Instance.Get<SkillConfig>(i);
                     b.Append($"  {sc.NameText.En}");
@@ -94,17 +95,32 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
+        void Update()
+        {
+            if (MarkForRedraw)
+            {
+                DisplayItemsFromData(_loadoutDataLast);
+                MarkForRedraw = false;
+            }
+        }
+
         private List<RawImage> _loadoutImages;
+        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
 
         public void DisplayItems(UserAvatarEntity player)
         {
-            var data = new PlayerLoadoutData(player);
-            for(int i = 0; i < data.GetVisibleSlots(); i++)
+            _loadoutDataLast = new PlayerLoadoutData(player);
+            DisplayItemsFromData(_loadoutDataLast);
+        }
+
+        private void DisplayItemsFromData(PlayerLoadoutData data)
+        {
+            for (int i = 0; i < _loadoutDataLast.GetVisibleSlots(); i++)
             {
                 _loadoutImages[i].enabled = true;
-                _loadoutImages[i].texture = data.GetSlotTexture(i);
+                _loadoutImages[i].texture = _loadoutDataLast.GetSlotTexture(i);
             }
-            for (int i = data.GetVisibleSlots(); i < _loadoutImages.Count; i++)
+            for (int i = _loadoutDataLast.GetVisibleSlots(); i < _loadoutImages.Count; i++)
                 _loadoutImages[i].enabled = false;
         }
     }
