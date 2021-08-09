@@ -27,7 +27,9 @@ namespace BuffKit.LobbyTimer
         public bool IsActive => CurrentState == State.Main ||
                                 CurrentState == State.Overtime ||
                                 CurrentState == State.LoadoutSetup ||
-                                CurrentState == State.LoadoutSetupEnd;
+                                CurrentState == State.OvertimeLoadoutSetup ||
+                                CurrentState == State.LoadoutSetupEnd ||
+                                CurrentState == State.End;
 
         private TimerButtonContainer _tbc;
         
