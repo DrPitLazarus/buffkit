@@ -311,6 +311,119 @@ namespace BuffKit.UI
             return obInputField;
         }
 
+        public static GameObject BuildMenuToggle(Transform parent, out Toggle toggle, bool defaultValue, UnityAction<bool> callback)
+        {
+            var obToggle = new GameObject($"toggle");
+            obToggle.transform.SetParent(parent, false);
+            var hlg = obToggle.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.spacing = 10;
+            hlg.padding = new RectOffset(3, 3, 3, 3);
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            var imgBackground = obToggle.AddComponent<Image>();
+            imgBackground.color = Resources.MenuSelectableInteractable;
+
+            var obBox = new GameObject("Box");
+            obBox.transform.SetParent(obToggle.transform, false);
+            var imgBox = obBox.AddComponent<Image>();
+            imgBox.sprite = Resources.BlankIcon;
+            imgBox.color = Resources.MenuSelectableInteractable;
+            var le = obBox.AddComponent<LayoutElement>();
+            le.minWidth = 25;
+            le.minHeight = 25;
+            le.preferredWidth = 25;
+            le.preferredHeight = 25;
+
+            var obCheckmark = new GameObject("Checkmark");
+            obCheckmark.transform.SetParent(obBox.transform, false);
+            var imgCheckmark = obCheckmark.AddComponent<Image>();
+            imgCheckmark.sprite = Resources.Checkmark;
+            var rt = imgCheckmark.rectTransform;
+            rt.anchorMin = new Vector2(.5f, .5f);
+            rt.anchorMax = new Vector2(.5f, .5f);
+            rt.sizeDelta = new Vector2(20, 20);
+
+            toggle = obToggle.AddComponent<Toggle>();
+            toggle.graphic = imgCheckmark;
+            toggle.targetGraphic = imgBox;
+            toggle.isOn = defaultValue;
+            toggle.onValueChanged.AddListener(callback);
+            toggle.transition = Selectable.Transition.ColorTint;
+            toggle.colors = Resources.ScrollBarColors;
+            toggle.image = imgBackground;
+
+            return obToggle;
+        }
+
+        public static GameObject BuildMenuToggle(Transform parent, out Toggle toggle, string text, bool defaultValue, UnityAction<bool> callback, int fontSize = 13)
+        {
+            var obToggle = BuildMenuToggle(parent, out toggle, defaultValue, callback);
+            obToggle.name = $"toggle {text}";
+
+            BuildLabel(obToggle.transform, text, TextAnchor.MiddleLeft, fontSize);
+
+            return obToggle;
+        }
+
+        public static GameObject BuildMenuButton(Transform parent, string entry, string text, UnityAction callback, int fontSize = 13)
+        {
+            var obButton = new GameObject($"button {entry}");
+            obButton.transform.SetParent(parent, false);
+            var imgBackground = obButton.AddComponent<Image>();
+            imgBackground.color = Resources.MenuSelectableInteractable;
+            var hlg = obButton.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.spacing = 10;
+            hlg.padding = new RectOffset(3, 3, 3, 3);
+
+            var label = BuildLabel(obButton.transform, text, TextAnchor.MiddleLeft, fontSize);
+
+            var button = obButton.AddComponent<Button>();
+            button.image = imgBackground;
+            button.colors = Resources.ScrollBarColors;
+            button.transition = Selectable.Transition.ColorTint;
+            button.onClick.AddListener(callback);
+
+            return obButton;
+        }
+
+        public static GameObject BuildMenuDropdown(Transform parent, string text, out GameObject obContent)
+        {
+            var obDropdown = new GameObject($"dropdown {text}");
+            obDropdown.transform.SetParent(parent, false);
+            var vlg = obDropdown.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandHeight = false;
+            vlg.childForceExpandWidth = true;
+            //vlg.padding = new RectOffset(3, 3, 3, 3);
+            vlg.spacing = 1;
+
+            obContent = new GameObject($"content {text}");
+
+            var obDropdownIcon = new GameObject("icon");
+
+            var tmp = obContent;
+            var obDropdownButton = BuildMenuButton(obDropdown.transform, "dropdown", text, delegate 
+            {
+                var nextState = !tmp.activeSelf;
+                tmp.SetActive(nextState);
+                obDropdownIcon.transform.localEulerAngles = new Vector3(0, 0, nextState ? 0 : 90);
+            });
+            obContent.transform.SetParent(obDropdown.transform, false);
+
+            obDropdownIcon.transform.SetParent(obDropdownButton.transform, false);
+            obDropdownIcon.transform.SetSiblingIndex(0);
+            var img = obDropdownIcon.AddComponent<Image>();
+            img.sprite = Resources.Dropdown;
+            var le = obDropdownIcon.AddComponent<LayoutElement>();
+            le.preferredWidth = 25;
+            le.preferredHeight = 25;
+
+            return obDropdown;
+        }
+
         public static void TestBuilder(Transform parent)
         {
             var log = BepInEx.Logging.Logger.CreateLogSource("builder");

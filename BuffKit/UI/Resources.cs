@@ -11,12 +11,17 @@ namespace BuffKit.UI
         public static Sprite BlankIcon { get; private set; }
         public static Sprite ButtonOutline { get; private set; }
         public static Sprite Checkmark { get; private set; }
+        public static Sprite Dropdown { get; private set; }
         public static Sprite BetaBanner { get; private set; }
         public static RuntimeAnimatorController ButtonAnimatorController { get; private set; }
         public static ColorBlock ScrollBarColors { get; private set; }
         public static ColorBlock TextFieldColors { get; private set; }
         public static Color BackgroundColor { get; private set; }
         public static Color OutlineColor { get; private set; }
+        public static Color MenuSelectableInteractable { get; private set; }
+        public static Sprite EngineerIcon { get; private set; }
+        public static Sprite GunnerIcon { get; private set; }
+        public static Sprite PilotIcon { get; private set; }
 
         public static void _Initialize()
         {
@@ -29,6 +34,8 @@ namespace BuffKit.UI
             if (ButtonOutline == null) log.LogWarning("Could not find ButtonOutline");
             Checkmark = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Create/Container/Options Panel/Scroll View/Viewport/Content/Password Option/Password Label Group/Checkbox Item/Checkbox /Checkmark")?.GetComponent<Image>()?.sprite;
             if (Checkmark == null) log.LogWarning("Could not find Checkmark");
+            Dropdown = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Status Filter/Icon")?.GetComponent<Image>()?.sprite;
+            if (Dropdown == null) log.LogWarning("Could not find Dropdown");
             BetaBanner = GameObject.Find("/Game UI/Menu Canvas/UI Prototype Banner/Banner Image")?.GetComponent<Image>()?.sprite;
             if (BetaBanner == null) log.LogWarning("Could not find BetaBanner");
             ButtonAnimatorController = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button")?.GetComponent<Animator>()?.runtimeAnimatorController;
@@ -54,6 +61,14 @@ namespace BuffKit.UI
 
             BackgroundColor = new Color32(0x10, 0x0A, 0x06, 0xFF);
             OutlineColor = new Color32(0xA8, 0x90, 0x79, 0xFF);
+            MenuSelectableInteractable = new Color(1, 1, 1, .3f);
+
+            EngineerIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Engineer Button/Icon")?.GetComponent<Image>()?.sprite;
+            if (EngineerIcon == null) log.LogWarning("Could not find EngineerIcon");
+            GunnerIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Gunner Button/Icon")?.GetComponent<Image>()?.sprite;
+            if (GunnerIcon == null) log.LogWarning("Could not find GunnerIcon");
+            PilotIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Pilot Button/Icon")?.GetComponent<Image>()?.sprite;
+            if (PilotIcon == null) log.LogWarning("Could not find PilotIcon");
 
             //Builder.TestBuilder(GameObject.Find("/Menu UI/Standard Canvas/Main Menu/Main Screen Elements/Game logo")?.transform);
         }

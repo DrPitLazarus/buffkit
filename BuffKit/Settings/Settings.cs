@@ -20,46 +20,67 @@ namespace BuffKit.Settings
 
         private BepInEx.Logging.ManualLogSource log;
 
-        public delegate void SettingsChanged(bool newSetting);
-        private Dictionary<string, bool> _entryValues = new Dictionary<string, bool>();
-        private Dictionary<string, List<Action<bool>>> _entryCallbacks = new Dictionary<string, List<Action<bool>>>();
+        private Dictionary<string, BaseSettingType> _entries = new Dictionary<string, BaseSettingType>();
 
-        public void AddEntry(string entry, Action<bool> callback, bool entryValue = false)
+        public void AddEntry<T>(string entry, Action<T> callback, T defaultValue)
         {
-            // entryValue is only used if the entry is not yet set
-            if (!_entryCallbacks.ContainsKey(entry))
+            if (!_entries.ContainsKey(entry))
             {
-                var actionList = new List<Action<bool>>();
-                actionList.Add(callback);
-                _entryCallbacks[entry] = actionList;
-                _entryValues[entry] = entryValue;
-                log.LogInfo($"Added entry [{entry}]");
-                _panel.AddEntry(entry, entryValue);
+                AddEntryElement<T>(entry, entry, defaultValue);
             }
+            else if (!(_entries[entry] is SettingType<T>))
+                throw new InvalidCastException($"Attempted to add entry {entry} callback with type {typeof(T)} but a different type is already assigned");
+            var currentEntry = _entries[entry] as SettingType<T>;
+            currentEntry.AddCallback(callback);
+            var currentValue = currentEntry.GetValue();
+            if (!currentEntry.IsSameValue(defaultValue))
+            {
+                callback?.Invoke(currentValue);
+            }
+        }
+        public void SetEntry<T>(string entry, T value)
+        {
+            if (!_entries.ContainsKey(entry))
+            {
+                return;
+            }
+            var setting = _entries[entry] as SettingType<T>;
+            if (setting == null)
+            {
+                log.LogInfo($"Setting {entry} of type {typeof(T)} not found");
+                return;
+            }
+            var result = setting.SetValue(value);
+            if (result)
+            {
+                setting.InvokeCallbacks();
+            }
+        }
+
+        public void AddEntryElement<T>(string entry, string text, object value)
+        {
+            Transform parent = _panel.GetContent();
+            BaseSettingType settingEntry = null;
+            if (typeof(T) == typeof(bool))
+                settingEntry = new SettingToggle(parent, entry, text, (bool)value);
+            else if (typeof(T) == typeof(Dummy))
+                settingEntry = new SettingButton(parent, entry, text);
+            else if (typeof(T) == typeof(ToggleGrid))
+                settingEntry = new SettingToggleGrid(parent, entry, text, (ToggleGrid)value);
             else
-            {
-                _entryCallbacks[entry].Add(callback);
-                log.LogInfo($"Added callback to entry [{entry}]");
-            }
+                throw new NotSupportedException($"No entry type exists for {typeof(T)}");
+
+            _panel.AddSetting(settingEntry, entry);
+            _entries.Add(entry, settingEntry);
         }
 
-        public void SetEntry(string entry, bool value)
+        // Concenience function for adding a button entry (no need to use Dummy)
+        public void AddEntry(string entry, Action callback)
         {
-            if (_entryValues.ContainsKey(entry))
-            {
-                if (_entryValues[entry] != value)
-                {
-                    //log.LogInfo($"Changed value of entry [{entry}] to {value}");
-                    _entryValues[entry] = value;
-                    foreach (var action in _entryCallbacks[entry])
-                        if (action != null)
-                            action(value);
-                    _panel.SetEntry(entry, value);
-                }
-            }
+            AddEntry<Dummy>(entry, delegate { callback(); }, null);
         }
 
-        private GameObject _panelObj;
+
         private UISettingsPanel _panel;
         private void CreatePanel()
         {
@@ -71,7 +92,7 @@ namespace BuffKit.Settings
             // Settings panel
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) log.LogError("Panel parent transform was not found");
-            _panelObj = UISettingsPanel.BuildPanel(parentTransform, out _panel);
+            UISettingsPanel.BuildPanel(parentTransform, out _panel);
             _panel.SetVisibility(false);
             if (_panel == null) log.LogError("Panel is null");
 
