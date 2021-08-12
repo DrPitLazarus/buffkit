@@ -137,7 +137,7 @@ namespace BuffKit.ShipLoadoutViewer
         }
 
         private List<RawImage> _loadoutImages;
-        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
+        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null, null);
 
         public void DisplayItems(UserAvatarEntity player, bool[,] showTools)
         {
