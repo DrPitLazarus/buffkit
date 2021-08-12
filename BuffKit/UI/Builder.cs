@@ -184,6 +184,12 @@ namespace BuffKit.UI
 
         public static GameObject BuildLabel(Transform parent, string text, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
         {
+            var obLabel = BuildLabel(parent, out var cText, alignment, fontSize);
+            cText.text = text;
+            return obLabel;
+        }
+        public static GameObject BuildLabel(Transform parent, out TextMeshProUGUI cText, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
+        {
             var obLabel = new GameObject("Label");
             var hlg = obLabel.AddComponent<HorizontalLayoutGroup>();
             hlg.childForceExpandHeight = false;
@@ -191,8 +197,7 @@ namespace BuffKit.UI
             hlg.childAlignment = alignment;
 
             var obText = new GameObject("Text");
-            var cText = obText.AddComponent<TextMeshProUGUI>();
-            cText.text = text;
+            cText = obText.AddComponent<TextMeshProUGUI>();
             cText.font = Resources.Font;
             cText.fontSize = fontSize;
             cText.enableWordWrapping = false;

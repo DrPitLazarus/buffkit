@@ -75,6 +75,29 @@ namespace BuffKit.Util
             return shipGunIds;//.ToList();
         }
 
+        public static string GetDamageTypeName(DamageType type)
+        {
+            switch (type)
+            {
+                case DamageType.FIRE:
+                    return "Fire";
+                case DamageType.HOOK:
+                    return "Flechette";
+                case DamageType.LIGHTNING:
+                    return "Shatter";
+                case DamageType.PIERCING:
+                    return "Piercing";
+                case DamageType.EXPLOSIVE:
+                    return "Explosive";
+                case DamageType.IMPACT:
+                    return "Impact";
+                default:
+                    return "Unknown";
+                //case DamageType.ARMORONLY:
+                //    return "Armour only";
+            }
+        }
+
         public static void _OnLobbyLoadTrigger() { OnLobbyLoad?.Invoke(); }
         public static void _Initialize()
         {

@@ -235,6 +235,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
+    <Compile Include="GunInfoOverlay\GunInfoOverlay.cs" />
+    <Compile Include="GunInfoOverlay\Patcher.cs" />
     <Compile Include="LobbyTimer\Patcher.cs" />
     <Compile Include="LobbyTimer\Timer.cs" />
     <Compile Include="LobbyTimer\TimerButtonContainer.cs" />

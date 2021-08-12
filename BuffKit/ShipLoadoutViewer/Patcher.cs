@@ -14,23 +14,23 @@ namespace BuffKit.ShipLoadoutViewer
                 ShipLoadoutViewer.CreateLog();
                 Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
                 Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadSkillTextures;
-                Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true); };
-                Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true); };
                 Util.Util.OnGameInitialize += delegate
                 {
+                    Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
+                    Settings.Settings.Instance.AddEntry("crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true);
                     var gridIcons = new List<UnityEngine.Sprite>()
-                {
-                    UI.Resources.PilotIcon,
-                    UI.Resources.GunnerIcon,
-                    UI.Resources.EngineerIcon
-                };
+                    {
+                        UI.Resources.PilotIcon,
+                        UI.Resources.GunnerIcon,
+                        UI.Resources.EngineerIcon
+                    };
                     var gridLabels = new List<string> { "Show pilot tools", "Show gunner tools", "Show engineer tools" };
                     var toggleGrid = new Settings.ToggleGrid(gridIcons, gridLabels, true);
                     toggleGrid.SetValues(new bool[,]
                     {
-                    { true, false, false },
-                    { false, true, true },
-                    { false, true, true }
+                        { true, false, false },
+                        { false, true, true },
+                        { false, true, true }
                     });
                     Settings.Settings.Instance.AddEntry("crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
                     ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);
