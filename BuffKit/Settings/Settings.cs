@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Muse.Goi2.Entity;
+using Newtonsoft.Json;
 
 namespace BuffKit.Settings
 {
@@ -15,48 +17,91 @@ namespace BuffKit.Settings
             Instance = new Settings();
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
+            Instance.LoadFromFile();
             Util.Util.OnLobbyLoad += Instance.LoadIconTexture;
             Instance.log.LogInfo("Settings initialized");
         }
 
         private BepInEx.Logging.ManualLogSource log;
 
-        private Dictionary<string, bool> _entryValues = new Dictionary<string, bool>();
-        private Dictionary<string, List<Action<bool>>> _entryCallbacks = new Dictionary<string, List<Action<bool>>>();
+        private Dictionary<string, BaseSettingType> _entries = new Dictionary<string, BaseSettingType>();
 
-        public void AddEntry(string entry, Action<bool> callback, bool entryValue = false)
+        public void AddEntry<T>(string entry, Action<T> callback, T defaultValue)
         {
-            // entryValue is only used if the entry is not yet set
-            if (!_entryCallbacks.ContainsKey(entry))
+            if (!_entries.ContainsKey(entry))
             {
-                var actionList = new List<Action<bool>>();
-                actionList.Add(callback);
-                _entryCallbacks[entry] = actionList;
-                _entryValues[entry] = entryValue;
-                log.LogInfo($"Added entry [{entry}]");
-                _panel.AddEntry(entry, entryValue);
+                if (AddEntryElement<T>(entry, entry, defaultValue))
+                    SaveToFile();
             }
-            else
+            else if (!(_entries[entry] is SettingType<T>))
+                throw new InvalidCastException($"Attempted to add entry {entry} callback with type {typeof(T)} but a different type is already assigned");
+            var currentEntry = _entries[entry] as SettingType<T>;
+            currentEntry.AddCallback(callback);
+            var currentValue = currentEntry.GetValue();
+            if (!currentEntry.IsSameValue(defaultValue))
             {
-                _entryCallbacks[entry].Add(callback);
-                log.LogInfo($"Added callback to entry [{entry}]");
+                callback?.Invoke(currentValue);
+            }
+        }
+        public void SetEntry<T>(string entry, T value)
+        {
+            if (!_entries.ContainsKey(entry))
+            {
+                return;
+            }
+            var setting = _entries[entry] as SettingType<T>;
+            if (setting == null)
+            {
+                log.LogInfo($"Setting {entry} of type {typeof(T)} not found");
+                return;
+            }
+            var result = setting.SetValue(value);
+            if (result)
+            {
+                SaveToFile();
+                setting.InvokeCallbacks();
             }
         }
 
-        public void SetEntry(string entry, bool value)
+        // Returns true if the entry should be saved to file
+        private bool AddEntryElement<T>(string entry, string text, object value)
         {
-            if (_entryValues.ContainsKey(entry))
+            bool r = true;
+
+            Transform parent = _panel.GetContent();
+            BaseSettingType settingEntry;
+            if (typeof(T) == typeof(bool))
+                settingEntry = new SettingToggle(parent, entry, text, (bool)value);
+            else if (typeof(T) == typeof(Dummy))
+                settingEntry = new SettingButton(parent, entry, text);
+            else if (typeof(T) == typeof(ToggleGrid))
+                settingEntry = new SettingToggleGrid(parent, entry, text, (ToggleGrid)value);
+            else
+                throw new NotSupportedException($"No entry type exists for {typeof(T)}");
+
+            if (_loadedSettings.ContainsKey(entry))
             {
-                if (_entryValues[entry] != value)
+                var loadedValue = _loadedSettings[entry];
+                if (settingEntry.IsCompatible(loadedValue))
                 {
-                    //log.LogInfo($"Changed value of entry [{entry}] to {value}");
-                    _entryValues[entry] = value;
-                    foreach (var action in _entryCallbacks[entry])
-                        if (action != null)
-                            action(value);
-                    _panel.SetEntry(entry, value);
+                    if (settingEntry.SetUnknownValue(loadedValue))
+                    {
+                        r = false;
+                    }
                 }
+                _loadedSettings.Remove(entry);
             }
+
+            _panel.AddSetting(settingEntry, entry);
+            _entries.Add(entry, settingEntry);
+
+            return r;
+        }
+
+        // Concenience function for adding a button entry (no need to use Dummy)
+        public void AddEntry(string entry, Action callback)
+        {
+            AddEntry<Dummy>(entry, delegate { callback(); }, null);
         }
 
         private UISettingsPanel _panel;
@@ -71,7 +116,7 @@ namespace BuffKit.Settings
             // Settings panel
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) log.LogError("Panel parent transform was not found");
-            var obPanel = UISettingsPanel.BuildPanel(parentTransform, out _panel);
+            UISettingsPanel.BuildPanel(parentTransform, out _panel);
             _panel.SetVisibility(false);
             if (_panel == null) log.LogError("Panel is null");
 
@@ -120,6 +165,134 @@ namespace BuffKit.Settings
             {
                 _icon.texture = t;
             }, 0, false);
+        }
+
+        private enum DataType
+        {
+            Bool,
+            ToggleGrid,
+            Button,
+            Invalid
+        }
+        private static DataType GetDataType(object data)
+        {
+            if (data is bool)
+                return DataType.Bool;
+            if (data is Dummy)
+                return DataType.Button;
+            if (data is ToggleGrid)
+                return DataType.ToggleGrid;
+            return DataType.Invalid;
+        }
+
+        [Serializable]
+        class SerializableEntry
+        {
+            public string Entry { get; private set; }
+            public DataType Type { get; private set; }
+            public string Data { get; private set; }
+            public SerializableEntry(string entry, object data)
+            {
+                Entry = entry;
+
+                Type = GetDataType(data);
+                switch (Type)
+                {
+                    case DataType.Bool:
+                        Data = JsonConvert.SerializeObject(data);
+                        break;
+                    case DataType.ToggleGrid:
+                        Data = JsonConvert.SerializeObject(data);
+                        break;
+                    case DataType.Button:
+                        Type = DataType.Invalid;
+                        Data = "";
+                        break;
+                    case DataType.Invalid:
+                        Data = "";
+                        break;
+                }
+            }
+            [JsonConstructor]
+            public SerializableEntry(string entry, DataType type, string data)
+            {
+                Entry = entry;
+                Type = type;
+                Data = data;
+            }
+            public override string ToString() { return JsonConvert.SerializeObject(this); }
+        }
+
+        public void SaveToFile()
+        {
+            var data = new List<SerializableEntry>();
+
+            // Add active entries
+            foreach (var kvp in _entries)
+            {
+                var entry = kvp.Key;
+                var entryValue = kvp.Value;
+
+                var serializableEntry = new SerializableEntry(entry, entryValue.GetUnknownValue());
+                if (serializableEntry.Type != DataType.Invalid)
+                {
+                    data.Add(serializableEntry);
+                }
+            }
+            // Add inactive entries
+            foreach (var kvp in _loadedSettings)
+            {
+                var entry = kvp.Key;
+                var entryValue = kvp.Value;
+
+                var serializableEntry = new SerializableEntry(entry, entryValue);
+                if (serializableEntry.Type != DataType.Invalid)
+                {
+                    data.Add(serializableEntry);
+                }
+            }
+            // Stringify data
+            var dataString = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            var filePath = @"BepInEx\plugins\BuffKit\settings.json";
+            var gp = Directory.GetCurrentDirectory();
+            var path = Path.Combine(gp, filePath);
+            File.WriteAllText(path, dataString);
+
+            log.LogInfo("Saved settings to file");
+        }
+
+        private Dictionary<string, object> _loadedSettings;
+        public void LoadFromFile()
+        {
+            _loadedSettings = new Dictionary<string, object>();
+
+            var filePath = @"BepInEx\plugins\BuffKit\settings.json";
+            var gp = Directory.GetCurrentDirectory();
+            var path = Path.Combine(gp, filePath);
+            var savedData = File.ReadAllText(path);
+            try
+            {
+                var data = JsonConvert.DeserializeObject<List<SerializableEntry>>(savedData);
+                foreach (var d in data)
+                {
+                    switch (d.Type)
+                    {
+                        case DataType.Bool:
+                            _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<bool>(d.Data));
+                            break;
+                        case DataType.ToggleGrid:
+                            _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<ToggleGrid>(d.Data));
+                            break;
+                    }
+                }
+            }
+            catch (JsonReaderException e)
+            {
+                log.LogInfo($"Failed to read settings file:\n{e.Message}");
+            }
+            foreach (var kvp in _loadedSettings)
+                log.LogInfo($"{kvp.Key}:{kvp.Value}");
         }
 
     }

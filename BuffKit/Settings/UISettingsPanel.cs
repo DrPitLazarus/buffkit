@@ -33,33 +33,13 @@ namespace BuffKit.Settings
         }
 
         private Dictionary<string, int> _entryIndex = new Dictionary<string, int>();
-        private List<UISettingsEntry> _entryList = new List<UISettingsEntry>();
+        private List<BaseSettingType> _entryList = new List<BaseSettingType>();
 
-
-        public void AddEntry(string entry, bool value)
+        public Transform GetContent() { return _content.transform; }
+        public void AddSetting(BaseSettingType setting, string entry)
         {
-            if (_entryIndex.ContainsKey(entry)) return;
-            int i = _entryIndex.Count;
-            _entryIndex.Add(entry, i);
-
-            var box = UISettingsEntry.Build(_content.transform);
-            box.Text = entry;
-            box.Value = value;
-            _entryList.Add(box);
-        }
-        public void SetEntry(string entry, bool value)
-        {
-            if (!_entryIndex.ContainsKey(entry)) return;
-            int i = _entryIndex[entry];
-            _entryList[i].Value = value;
-        }
-
-        private bool _remakeList = false;
-        public void RemoveEntry(string entry)
-        {
-            if (!_entryIndex.ContainsKey(entry)) return;
-            Destroy(_entryList[_entryIndex[entry]].gameObject);
-            _remakeList = true;
+            _entryIndex.Add(entry, _entryList.Count);
+            _entryList.Add(setting);
         }
 
         private bool _pointerInFrame = false;
@@ -69,30 +49,14 @@ namespace BuffKit.Settings
 
         private void Update()
         {
-            if (_remakeList)
+            if (_isVisible && !_pointerInFrame)
             {
-                _entryIndex = new Dictionary<string, int>();
-                var newList = new List<UISettingsEntry>();
-                foreach(var uise in _entryList)
-                {
-                    if(uise!=null)
-                    {
-                        _entryIndex.Add(uise.Text, newList.Count);
-                        newList.Add(uise);
-                    }
-                }
-                _entryList = newList;
-                _remakeList = false;
-            }
-            if(_isVisible && !_pointerInFrame)
-            {
-                if(_timeUntilDisappear > 0)
+                if (_timeUntilDisappear > 0)
                 {
                     _timeUntilDisappear -= Time.deltaTime;
                 }
                 if (_timeUntilDisappear <= 0)
                     SetVisibility(false);
-                    
             }
         }
 
@@ -102,8 +66,6 @@ namespace BuffKit.Settings
             gameObject.SetActive(_isVisible);
             if (_isVisible)
             {
-                foreach (var v in _entryList)
-                    v.ResetAlignment();
                 _timeUntilDisappear = disappearTimer;
             }
         }

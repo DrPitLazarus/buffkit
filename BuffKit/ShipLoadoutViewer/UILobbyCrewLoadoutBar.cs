@@ -56,20 +56,52 @@ namespace BuffKit.ShipLoadoutViewer
         class PlayerLoadoutData
         {
             List<int> _loadoutIds;
-            public PlayerLoadoutData(UserAvatarEntity player)
+            public PlayerLoadoutData(UserAvatarEntity player, bool[,] showTools)
             {
+                var _pilotIds = new List<int>();
+                var _gunnerIds = new List<int>();
+                var _engineerIds = new List<int>();
                 _loadoutIds = new List<int>();
                 if (player != null)
                 {
+                    int column = 0;
+                    switch (player.CurrentClass)
+                    {
+                        case AvatarClass.Pilot:
+                            column = 0;
+                            break;
+                        case AvatarClass.Gunner:
+                            column = 1;
+                            break;
+                        case AvatarClass.Engineer:
+                            column = 2;
+                            break;
+                    }
+
                     foreach (var skill in player.CurrentSkills)
                     {
                         var sc = CachedRepository.Instance.Get<SkillConfig>(skill);
-                        if (sc.Type == SkillType.Gun || sc.Type == SkillType.Helm || sc.Type == SkillType.Repair)
+                        switch (sc.Type)
                         {
-                            _loadoutIds.Add(skill);
+                            case SkillType.Helm:
+                                if (showTools[0, column])
+                                    _pilotIds.Add(skill);
+                                break;
+                            case SkillType.Gun:
+                                if (showTools[1, column])
+                                    _gunnerIds.Add(skill);
+                                break;
+                            case SkillType.Repair:
+                                if (showTools[2, column])
+                                    _engineerIds.Add(skill);
+                                break;
                         }
                     }
                 }
+
+                _loadoutIds.AddRange(_pilotIds);
+                _loadoutIds.AddRange(_gunnerIds);
+                _loadoutIds.AddRange(_engineerIds);
             }
 
             public int GetVisibleSlots() { return _loadoutIds.Count; }
@@ -107,9 +139,9 @@ namespace BuffKit.ShipLoadoutViewer
         private List<RawImage> _loadoutImages;
         private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
 
-        public void DisplayItems(UserAvatarEntity player)
+        public void DisplayItems(UserAvatarEntity player, bool[,] showTools)
         {
-            _loadoutDataLast = new PlayerLoadoutData(player);
+            _loadoutDataLast = new PlayerLoadoutData(player, showTools);
             DisplayItemsFromData(_loadoutDataLast);
         }
 
@@ -120,8 +152,30 @@ namespace BuffKit.ShipLoadoutViewer
                 _loadoutImages[i].enabled = true;
                 _loadoutImages[i].texture = _loadoutDataLast.GetSlotTexture(i);
             }
-            for (int i = _loadoutDataLast.GetVisibleSlots(); i < _loadoutImages.Count; i++)
+            for (int i = _loadoutDataLast.GetVisibleSlots(); i < _enabledToolSlots; i++)
                 _loadoutImages[i].enabled = false;
+
+            for (int i = 0; i < _enabledToolSlots; i++)
+                _loadoutImages[i].gameObject.SetActive(true);
+            for (int i = _enabledToolSlots; i < _loadoutImages.Count; i++)
+                _loadoutImages[i].gameObject.SetActive(false);
+        }
+
+        private static int _enabledToolSlots = 6;
+        public static void SetEnabledToolSlotCount(bool[,] showTools)
+        {
+            var classCount = new int[] { 0, 0, 0 };
+            if (showTools[0, 0]) classCount[0] += 3;    // Pilot has 3 pilot tools
+            if (showTools[1, 0]) classCount[0] += 1;    // Pilot has 1 gunner tool
+            if (showTools[2, 0]) classCount[0] += 1;    // Pilot has 1 engineer tool
+            if (showTools[0, 1]) classCount[1] += 1;    // Gunner has 1 pilot tool
+            if (showTools[1, 1]) classCount[1] += 3;    // Gunner has 3 gunner tools
+            if (showTools[2, 1]) classCount[1] += 2;    // Gunner has 2 engineer tools
+            if (showTools[0, 2]) classCount[2] += 1;    // Engineer has 1 pilot tool
+            if (showTools[1, 2]) classCount[2] += 1;    // Engineer has 1 gunner tool
+            if (showTools[2, 2]) classCount[2] += 3;    // Engineer has 3 engineer tools
+
+            _enabledToolSlots = Mathf.Max(classCount);
         }
     }
 }

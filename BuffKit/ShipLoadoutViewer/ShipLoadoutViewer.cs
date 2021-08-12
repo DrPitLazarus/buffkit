@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
-using Muse.Goi2.Entity.Vo;
 using static BuffKit.Util.Util;
 
 namespace BuffKit.ShipLoadoutViewer
@@ -53,7 +52,7 @@ namespace BuffKit.ShipLoadoutViewer
                 for (var i = 0; i < 4; i++)
                 {
                     var slot = crew.Slots[i];
-                    crewBars[i].DisplayItems(slot.PlayerEntity);
+                    crewBars[i].DisplayItems(slot.PlayerEntity, _crewToolSettings);
                 }
             }
             public void ShowShipBar() { shipBar.gameObject.SetActive(true); }
@@ -93,6 +92,7 @@ namespace BuffKit.ShipLoadoutViewer
         public static void PaintLoadoutBars(MatchLobbyView mlv)
         {
             if (!_paintShipBars && !_paintGunBars) return;
+            if (mlv == null) return;
             // Update all UILobbyShipLoadoutBar in loadoutBars with ship data
             // Loop logic came from UIMatchLobby.PaintCrews
             int[] array = new int[loadoutBars.Count];
@@ -169,6 +169,7 @@ namespace BuffKit.ShipLoadoutViewer
 
         public static void SetShipBarVisibility(bool isVisible)
         {
+            log.LogInfo($"Setting ship bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     if (isVisible)
@@ -180,12 +181,21 @@ namespace BuffKit.ShipLoadoutViewer
         }
         public static void SetCrewBarVisibility(bool isVisible)
         {
+            log.LogInfo($"Setting crew bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     if (isVisible)
                         bar.ShowCrewBars();
                     else
                         bar.HideCrewBars();
+            PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+
+        private static bool[,] _crewToolSettings;
+        public static void SetCrewBarOptions(Settings.ToggleGrid value)
+        {
+            _crewToolSettings = value.Values;
+            UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(_crewToolSettings);
             PaintLoadoutBars(MatchLobbyView.Instance);
         }
 

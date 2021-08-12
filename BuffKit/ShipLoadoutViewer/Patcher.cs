@@ -16,6 +16,26 @@ namespace BuffKit.ShipLoadoutViewer
                 Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadSkillTextures;
                 Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true); };
                 Util.Util.OnGameInitialize += delegate { Settings.Settings.Instance.AddEntry("crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true); };
+                Util.Util.OnGameInitialize += delegate
+                {
+                    var gridIcons = new List<UnityEngine.Sprite>()
+                {
+                    UI.Resources.PilotIcon,
+                    UI.Resources.GunnerIcon,
+                    UI.Resources.EngineerIcon
+                };
+                    var gridLabels = new List<string> { "Show pilot tools", "Show gunner tools", "Show engineer tools" };
+                    var toggleGrid = new Settings.ToggleGrid(gridIcons, gridLabels, true);
+                    toggleGrid.SetValues(new bool[,]
+                    {
+                    { true, false, false },
+                    { false, true, true },
+                    { false, true, true }
+                    });
+                    Settings.Settings.Instance.AddEntry("crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
+                    ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);
+                };
+
                 _firstPrepare = false;
             }
         }

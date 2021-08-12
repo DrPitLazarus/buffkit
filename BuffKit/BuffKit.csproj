@@ -249,7 +249,7 @@
     <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
     <Compile Include="MatchModMenu\UIModMenuState.cs" />
     <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Settings\UISettingsEntry.cs" />
+    <Compile Include="Settings\SettingType.cs" />
     <Compile Include="Settings\UISettingsPanel.cs" />
     <Compile Include="ShipLoadoutViewer\Patcher.cs" />
     <Compile Include="ShipLoadoutViewer\ShipLoadoutViewer.cs" />
