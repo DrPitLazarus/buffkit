@@ -128,8 +128,8 @@ namespace BuffKit.ShipLoadoutViewer
                 MuseBundleStore.Instance.LoadObject<Texture2D>(gunItem.GetIcon(), delegate (Texture2D t)
                 {
                     gunIcons[gunId] = t;
-                    log.LogInfo($"  Loaded icon texture for gun: {gunItem.NameText.En}");
-                    MarkBarsForRedraw();
+                    //log.LogInfo($"  Loaded icon texture for gun: {gunItem.NameText.En}");
+                    MarkShipBarsForRedraw();
                 }, 0, false);
             }
         }
@@ -143,18 +143,28 @@ namespace BuffKit.ShipLoadoutViewer
                 var id = sk.ActivationId;
                 MuseBundleStore.Instance.LoadObject<Texture2D>(sk.GetIcon(), delegate (Texture2D t)
                 {
-                    skillIcons[id] = t;
-                    log.LogInfo($"  Loaded icon texture for skill: {sk.NameText.En}");
+                    if (t != null)
+                    {
+                        skillIcons[id] = t;
+                        //log.LogInfo($"  Loaded icon texture for skill: {sk.NameText.En}");
+                    }
                 }, 0, false);
             }
         }
-        static void MarkBarsForRedraw()
+        static void MarkShipBarsForRedraw()
         {
             // This is called every time LoadGunTextures loads a texture
             // Should result in icon textures being drawn as soon as they are loaded instead of on next PaintLoadoutBars call
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     bar.shipBar.MarkForRedraw = true;
+        }
+        static void MarkCrewBarsForRedraw()
+        {
+            foreach (var barList in loadoutBars)
+                foreach (var bar in barList)
+                    foreach (var crewBar in bar.crewBars)
+                        crewBar.MarkForRedraw = true;
         }
 
         public static void SetShipBarVisibility(bool isVisible)

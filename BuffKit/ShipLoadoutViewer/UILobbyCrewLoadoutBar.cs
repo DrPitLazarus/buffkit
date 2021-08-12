@@ -8,6 +8,7 @@ namespace BuffKit.ShipLoadoutViewer
 {
     class UILobbyCrewLoadoutBar : MonoBehaviour
     {
+        public bool MarkForRedraw { set; get; }
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
             var obBar = new GameObject("Loadout Bar");
@@ -126,17 +127,32 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
+        void Update()
+        {
+            if (MarkForRedraw)
+            {
+                DisplayItemsFromData(_loadoutDataLast);
+                MarkForRedraw = false;
+            }
+        }
+
         private List<RawImage> _loadoutImages;
+        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
 
         public void DisplayItems(UserAvatarEntity player, bool[,] showTools)
         {
-            var data = new PlayerLoadoutData(player, showTools);
-            for (int i = 0; i < data.GetVisibleSlots(); i++)
+            _loadoutDataLast = new PlayerLoadoutData(player, showTools);
+            DisplayItemsFromData(_loadoutDataLast);
+        }
+
+        private void DisplayItemsFromData(PlayerLoadoutData data)
+        {
+            for (int i = 0; i < _loadoutDataLast.GetVisibleSlots(); i++)
             {
                 _loadoutImages[i].enabled = true;
-                _loadoutImages[i].texture = data.GetSlotTexture(i);
+                _loadoutImages[i].texture = _loadoutDataLast.GetSlotTexture(i);
             }
-            for (int i = data.GetVisibleSlots(); i < _enabledToolSlots; i++)
+            for (int i = _loadoutDataLast.GetVisibleSlots(); i < _enabledToolSlots; i++)
                 _loadoutImages[i].enabled = false;
 
             for (int i = 0; i < _enabledToolSlots; i++)

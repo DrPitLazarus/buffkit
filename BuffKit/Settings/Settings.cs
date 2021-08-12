@@ -18,6 +18,7 @@ namespace BuffKit.Settings
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
             Instance.LoadFromFile();
+            Util.Util.OnLobbyLoad += Instance.LoadIconTexture;
             Instance.log.LogInfo("Settings initialized");
         }
 
@@ -103,8 +104,8 @@ namespace BuffKit.Settings
             AddEntry<Dummy>(entry, delegate { callback(); }, null);
         }
 
-
         private UISettingsPanel _panel;
+        private RawImage _icon;
         private void CreatePanel()
         {
             // Font
@@ -135,14 +136,10 @@ namespace BuffKit.Settings
 
             var obSettingsIcon = new GameObject("Icon");
             obSettingsIcon.transform.SetParent(obSettingsButtonGroup.transform, false);
-            var icon = obSettingsIcon.AddComponent<RawImage>();
+            _icon = obSettingsIcon.AddComponent<RawImage>();
             var le = obSettingsIcon.AddComponent<LayoutElement>();
             le.preferredWidth = 25;
             le.preferredHeight = 25;
-            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
-            {
-                icon.texture = t;
-            }, 0, false);
 
             var obSettingsLabel = new GameObject("Label");
             obSettingsLabel.transform.SetParent(obSettingsButtonGroup.transform, false);
@@ -159,7 +156,15 @@ namespace BuffKit.Settings
             button.onClick.AddListener(delegate { _panel.ToggleVisibility(); });
             button.transition = Selectable.Transition.ColorTint;
             button.colors = UI.Resources.ScrollBarColors;
-            button.targetGraphic = icon;
+            button.targetGraphic = _icon;
+        }
+
+        private void LoadIconTexture()
+        {
+            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
+            {
+                _icon.texture = t;
+            }, 0, false);
         }
 
         private enum DataType

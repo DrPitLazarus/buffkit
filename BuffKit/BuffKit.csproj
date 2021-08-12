@@ -244,7 +244,8 @@
       <DependentUpon>TimerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="MapPicker\MapPicker.cs" />
-    <Compile Include="MapPicker\Patchers\UINewMatchLobbyState_PaintFooterButtons.cs" />
+    <Compile Include="MapPicker\Patcher.cs" />
+    <Compile Include="MapPicker\ScrollEventPassthrough.cs" />
     <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
     <Compile Include="MatchModMenu\UIModMenuState.cs" />
     <Compile Include="Settings\Settings.cs" />

@@ -161,7 +161,7 @@ namespace BuffKit {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TIMER: {0} remaining.
+        ///   Looks up a localized string similar to TIMER: {0} until lock.
         /// </summary>
         internal static string TimerAnnouncement {
             get {

@@ -11,6 +11,7 @@ namespace BuffKit.AnnounceChanges
     public class AnnounceChanges
     {
         static BepInEx.Logging.ManualLogSource log;
+        public static bool IsEnabled = true; 
         public static void CreateLog()
         {
             if (log == null)
@@ -125,7 +126,8 @@ namespace BuffKit.AnnounceChanges
 
         public static void LobbyDataChanged(MatchLobbyView mlv)
         {
-            if (mlv.Running) return;                        // Skip if match running
+            // Skip if match is running or the component is disabled in settings
+            if (mlv.Running || !IsEnabled) return;
 
             MatchData matchDataNew = new MatchData(mlv);
 
