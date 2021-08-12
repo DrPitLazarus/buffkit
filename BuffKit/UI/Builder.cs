@@ -421,6 +421,9 @@ namespace BuffKit.UI
             le.preferredWidth = 25;
             le.preferredHeight = 25;
 
+            obContent.SetActive(false);
+            obDropdownIcon.transform.localEulerAngles = new Vector3(0, 0, 90);
+
             return obDropdown;
         }
 

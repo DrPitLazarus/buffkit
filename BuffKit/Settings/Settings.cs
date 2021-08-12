@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Muse.Goi2.Entity;
+using Newtonsoft.Json;
 
 namespace BuffKit.Settings
 {
@@ -15,6 +17,7 @@ namespace BuffKit.Settings
             Instance = new Settings();
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
+            Instance.LoadFromFile();
             Instance.log.LogInfo("Settings initialized");
         }
 
@@ -26,7 +29,8 @@ namespace BuffKit.Settings
         {
             if (!_entries.ContainsKey(entry))
             {
-                AddEntryElement<T>(entry, entry, defaultValue);
+                if (AddEntryElement<T>(entry, entry, defaultValue))
+                    SaveToFile();
             }
             else if (!(_entries[entry] is SettingType<T>))
                 throw new InvalidCastException($"Attempted to add entry {entry} callback with type {typeof(T)} but a different type is already assigned");
@@ -53,14 +57,18 @@ namespace BuffKit.Settings
             var result = setting.SetValue(value);
             if (result)
             {
+                SaveToFile();
                 setting.InvokeCallbacks();
             }
         }
 
-        public void AddEntryElement<T>(string entry, string text, object value)
+        // Returns true if the entry should be saved to file
+        private bool AddEntryElement<T>(string entry, string text, object value)
         {
+            bool r = true;
+
             Transform parent = _panel.GetContent();
-            BaseSettingType settingEntry = null;
+            BaseSettingType settingEntry;
             if (typeof(T) == typeof(bool))
                 settingEntry = new SettingToggle(parent, entry, text, (bool)value);
             else if (typeof(T) == typeof(Dummy))
@@ -70,8 +78,23 @@ namespace BuffKit.Settings
             else
                 throw new NotSupportedException($"No entry type exists for {typeof(T)}");
 
+            if (_loadedSettings.ContainsKey(entry))
+            {
+                var loadedValue = _loadedSettings[entry];
+                if (settingEntry.IsCompatible(loadedValue))
+                {
+                    if (settingEntry.SetUnknownValue(loadedValue))
+                    {
+                        r = false;
+                    }
+                }
+                _loadedSettings.Remove(entry);
+            }
+
             _panel.AddSetting(settingEntry, entry);
             _entries.Add(entry, settingEntry);
+
+            return r;
         }
 
         // Concenience function for adding a button entry (no need to use Dummy)
@@ -137,6 +160,134 @@ namespace BuffKit.Settings
             button.transition = Selectable.Transition.ColorTint;
             button.colors = UI.Resources.ScrollBarColors;
             button.targetGraphic = icon;
+        }
+
+        private enum DataType
+        {
+            Bool,
+            ToggleGrid,
+            Button,
+            Invalid
+        }
+        private static DataType GetDataType(object data)
+        {
+            if (data is bool)
+                return DataType.Bool;
+            if (data is Dummy)
+                return DataType.Button;
+            if (data is ToggleGrid)
+                return DataType.ToggleGrid;
+            return DataType.Invalid;
+        }
+
+        [Serializable]
+        class SerializableEntry
+        {
+            public string Entry { get; private set; }
+            public DataType Type { get; private set; }
+            public string Data { get; private set; }
+            public SerializableEntry(string entry, object data)
+            {
+                Entry = entry;
+
+                Type = GetDataType(data);
+                switch (Type)
+                {
+                    case DataType.Bool:
+                        Data = JsonConvert.SerializeObject(data);
+                        break;
+                    case DataType.ToggleGrid:
+                        Data = JsonConvert.SerializeObject(data);
+                        break;
+                    case DataType.Button:
+                        Type = DataType.Invalid;
+                        Data = "";
+                        break;
+                    case DataType.Invalid:
+                        Data = "";
+                        break;
+                }
+            }
+            [JsonConstructor]
+            public SerializableEntry(string entry, DataType type, string data)
+            {
+                Entry = entry;
+                Type = type;
+                Data = data;
+            }
+            public override string ToString() { return JsonConvert.SerializeObject(this); }
+        }
+
+        public void SaveToFile()
+        {
+            var data = new List<SerializableEntry>();
+
+            // Add active entries
+            foreach (var kvp in _entries)
+            {
+                var entry = kvp.Key;
+                var entryValue = kvp.Value;
+
+                var serializableEntry = new SerializableEntry(entry, entryValue.GetUnknownValue());
+                if (serializableEntry.Type != DataType.Invalid)
+                {
+                    data.Add(serializableEntry);
+                }
+            }
+            // Add inactive entries
+            foreach (var kvp in _loadedSettings)
+            {
+                var entry = kvp.Key;
+                var entryValue = kvp.Value;
+
+                var serializableEntry = new SerializableEntry(entry, entryValue);
+                if (serializableEntry.Type != DataType.Invalid)
+                {
+                    data.Add(serializableEntry);
+                }
+            }
+            // Stringify data
+            var dataString = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            var filePath = @"BepInEx\plugins\BuffKit\settings.json";
+            var gp = Directory.GetCurrentDirectory();
+            var path = Path.Combine(gp, filePath);
+            File.WriteAllText(path, dataString);
+
+            log.LogInfo("Saved settings to file");
+        }
+
+        private Dictionary<string, object> _loadedSettings;
+        public void LoadFromFile()
+        {
+            _loadedSettings = new Dictionary<string, object>();
+
+            var filePath = @"BepInEx\plugins\BuffKit\settings.json";
+            var gp = Directory.GetCurrentDirectory();
+            var path = Path.Combine(gp, filePath);
+            var savedData = File.ReadAllText(path);
+            try
+            {
+                var data = JsonConvert.DeserializeObject<List<SerializableEntry>>(savedData);
+                foreach (var d in data)
+                {
+                    switch (d.Type)
+                    {
+                        case DataType.Bool:
+                            _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<bool>(d.Data));
+                            break;
+                        case DataType.ToggleGrid:
+                            _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<ToggleGrid>(d.Data));
+                            break;
+                    }
+                }
+            }
+            catch (JsonReaderException e)
+            {
+                log.LogInfo($"Failed to read settings file:\n{e.Message}");
+            }
+            foreach (var kvp in _loadedSettings)
+                log.LogInfo($"{kvp.Key}:{kvp.Value}");
         }
 
     }

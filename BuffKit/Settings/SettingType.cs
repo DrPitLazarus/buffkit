@@ -2,11 +2,20 @@
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace BuffKit.Settings
 {
 
-    public abstract class BaseSettingType { }
+    public abstract class BaseSettingType
+    {
+        // Used when loading settings from file
+        public abstract bool IsCompatible(object value);
+        // Used when loading settings from file
+        public abstract bool SetUnknownValue(object value);
+        // Used when saving settings to value
+        public abstract object GetUnknownValue();
+    }
     public abstract class SettingType<T> : BaseSettingType
     {
         private List<Action<T>> _callbacks = new List<Action<T>>();
@@ -21,6 +30,15 @@ namespace BuffKit.Settings
         }
         protected T _value;
         public T GetValue() { return _value; }
+        public override object GetUnknownValue() { return GetValue(); }
+        // Used when loading settings from file
+        // Returns true if the setting was changed, false otherwise
+        public override bool SetUnknownValue(object value)
+        {
+            if (value is T)
+                return SetValue((T)value);
+            return false;
+        }
         // Called by Settings when anything calls to change the value
         // Return true if listeners should be invoked, false otherwise
         public abstract bool SetValue(T value);
@@ -48,7 +66,9 @@ namespace BuffKit.Settings
             return false;
         }
         public override bool IsSameValue(bool value) { return _value == value; }
+        public override bool IsCompatible(object value) { return (value is bool); }
     }
+
     public class Dummy { }
     public class SettingButton : SettingType<Dummy>
     {
@@ -59,12 +79,17 @@ namespace BuffKit.Settings
         }
         public override bool SetValue(Dummy value) { return true; }
         public override bool IsSameValue(Dummy value) { return true; }
+        public override bool IsCompatible(object value) { return false; }
     }
+
+    [Serializable]
     public class ToggleGrid
     {
         public int Cols { get; private set; }
         public int Rows { get; private set; }
+        [JsonIgnore]
         public List<Sprite> Icons { get; private set; }
+        [JsonIgnore]
         public List<string> Labels { get; private set; }
         public bool[,] Values { get; private set; }
         public ToggleGrid(List<Sprite> colIcons, List<string> rowLabels, bool defaultValue = false)
@@ -84,11 +109,18 @@ namespace BuffKit.Settings
             Cols = other.Cols;
             Values = other.Values.Clone() as bool[,];
         }
+        [JsonConstructor]
+        public ToggleGrid(int cols, int rows, bool[,] values)
+        {
+            Cols = cols;
+            Rows = rows;
+            Values = values;
+        }
         public void SetValues(bool[,] values)
         {
             var rows = values.GetLength(0);
             var cols = values.GetLength(1);
-            if (rows != Rows && cols != Cols) throw new IndexOutOfRangeException($"Values {rows}x{cols} was of incorrect side - expected {Rows}x{Cols}");
+            if (rows != Rows && cols != Cols) throw new IndexOutOfRangeException($"Values {rows}x{cols} was of incorrect size - expected {Rows}x{Cols}");
             Values = values;
         }
         public void SetValue(int row, int col, bool value) { Values[row, col] = value; }
@@ -99,6 +131,17 @@ namespace BuffKit.Settings
                 for (var c = 0; c < Cols; c++)
                     if (Values[r, c] != other.Values[r, c]) return false;
             return true;
+        }
+        public override string ToString()
+        {
+            var s = new System.Text.StringBuilder();
+            for (var r = 0; r < Rows; r++)
+            {
+                s.Append("\n");
+                for (var c = 0; c < Cols; c++)
+                    s.Append($"\t{Values[r, c]}");
+            }
+            return s.ToString();
         }
     }
     public class SettingToggleGrid : SettingType<ToggleGrid>
@@ -194,5 +237,14 @@ namespace BuffKit.Settings
             return didChange;
         }
         public override bool IsSameValue(ToggleGrid value) { return _value.IsEqual(value); }
+        public override bool IsCompatible(object value)
+        {
+            if (value is ToggleGrid)
+            {
+                var v = value as ToggleGrid;
+                return (v.Rows == _value.Rows && v.Cols == _value.Cols);
+            }
+            return false;
+        }
     }
 }
