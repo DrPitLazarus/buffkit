@@ -260,7 +260,7 @@
     <Compile Include="AnnounceChanges\Patcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Builder.cs" />
-    <Compile Include="UI\DragAndDropper.cs" />
+    <Compile Include="UI\DropHandler.cs" />
     <Compile Include="UI\Resources.cs" />
     <Compile Include="Util\Patcher.cs" />
     <Compile Include="Util\Util.cs" />

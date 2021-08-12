@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using Muse;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Math = Muse.Math;
 using Transform = UnityEngine.Transform;
 using Vector3 = UnityEngine.Vector3;
 
@@ -10,7 +11,9 @@ namespace BuffKit.UI
 {
     public class DragAndDropper : MonoBehaviour
     {
-        private Dictionary<int, Transform> _order = new Dictionary<int, Transform>();
+        public event Action<SortedList<int, Transform>, SortedList<int, Transform>> OnDropped;
+
+        private SortedList<int, Transform> _startingOrder = new SortedList<int, Transform>();
 
         private void Start()
         {
@@ -22,14 +25,12 @@ namespace BuffKit.UI
 
             for (int i = 0; i < transform.childCount; i++)
             {
-                _order.Add(i, transform.GetChild(i));
-            }
-
-            foreach (var i in _order)
-            {
-                if (i.Value.GetComponent<LayoutElement>() != null)
+                var c = transform.GetChild(i);
+                
+                if (c.GetComponent<LayoutElement>() != null)
                 {
-                    var d = i.Value.gameObject.AddComponent<Dragger>();
+                    c.gameObject.AddComponent<Dragger>();
+                    _startingOrder.Add(i, c);
                 }
             }
         }
@@ -70,17 +71,21 @@ namespace BuffKit.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             _dragged = true;
-
+            
             //Clone self to take up space in the layout
             _shadow = Instantiate(gameObject, transform.parent);
             //Make shadow invisible while still keeping its original layout box dimensions
             _shadow.transform.localScale = new Vector3(0, 0, 0);
-            _shadow.SetActive(true);
+            
+            //The rebuilds are needed to prevent jitter when the component is first picked up
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
 
             //Yeet ourselves out of the layout
             transform.GetComponent<LayoutElement>().ignoreLayout = true;
             //Make sure we are getting drawn above everything else
             transform.SetAsLastSibling();
+            
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -146,7 +151,6 @@ namespace BuffKit.UI
 
             _dragged = false;
         }
-
 
         public void OnPointerUp(PointerEventData eventData)
         {
