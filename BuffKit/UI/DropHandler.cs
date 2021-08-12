@@ -88,13 +88,14 @@ namespace BuffKit.UI
             transform.position = eventData.position;
             var rt = transform.GetComponent<RectTransform>();
 
-            int closestSiblingIndex = 0;
+            int closestSiblingIndex = int.MinValue;
             float closestSiblingDistance = float.PositiveInfinity;
+            
             // Find the closest sibling 
             for (int i = 0; i < transform.parent.childCount; i++)
             {
                 // Ignore self, as it is getting dragged around and doing all sorts of strange things
-                if (i == transform.GetSiblingIndex()) continue;
+                if (i == transform.GetSiblingIndex()) continue; 
 
                 // Others should have rect transforms too
                 if (!(transform.parent.GetChild(i).GetComponent<RectTransform>() is RectTransform t)) continue;
@@ -113,20 +114,24 @@ namespace BuffKit.UI
                         (rt.position.y + rt.sizeDelta.y / 2) - (t.position.y + t.sizeDelta.y / 2)
                     );
                 }
-
+                
                 if (distance < closestSiblingDistance)
                 {
                     closestSiblingIndex = i;
                     closestSiblingDistance = distance;
                 }
-
-                // If shadow is the closest sibling, return
-                var shadowIndex = _shadow.transform.GetSiblingIndex();
-                if (shadowIndex == closestSiblingIndex) return;
-
-                _shadow.transform.SetSiblingIndex(closestSiblingIndex);
-                LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
             }
+            
+            
+            // If shadow is the closest sibling, return
+            var shadowIndex = _shadow.transform.GetSiblingIndex();
+            if (shadowIndex == closestSiblingIndex)
+            {
+                return;
+            }
+
+            _shadow.transform.SetSiblingIndex(closestSiblingIndex);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
         }
 
         public void OnEndDrag(PointerEventData eventData)
