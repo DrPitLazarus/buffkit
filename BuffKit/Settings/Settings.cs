@@ -267,12 +267,12 @@ namespace BuffKit.Settings
         {
             _loadedSettings = new Dictionary<string, object>();
 
-            var filePath = @"BepInEx\plugins\BuffKit\settings.json";
-            var gp = Directory.GetCurrentDirectory();
-            var path = Path.Combine(gp, filePath);
-            var savedData = File.ReadAllText(path);
             try
             {
+                var filePath = @"BepInEx\plugins\BuffKit\settings.json";
+                var gp = Directory.GetCurrentDirectory();
+                var path = Path.Combine(gp, filePath);
+                var savedData = File.ReadAllText(path);
                 var data = JsonConvert.DeserializeObject<List<SerializableEntry>>(savedData);
                 foreach (var d in data)
                 {
@@ -286,6 +286,10 @@ namespace BuffKit.Settings
                             break;
                     }
                 }
+            }
+            catch (FileNotFoundException)
+            {
+                log.LogInfo("Settings file was not found");
             }
             catch (JsonReaderException e)
             {
