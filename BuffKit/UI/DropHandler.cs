@@ -9,7 +9,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace BuffKit.UI
 {
-    public class DragAndDropper : MonoBehaviour
+    public class DropHandler : MonoBehaviour
     {
         public event Action<SortedList<int, Transform>, SortedList<int, Transform>> OnDropped;
 
@@ -21,6 +21,7 @@ namespace BuffKit.UI
             {
                 MuseLog.Debug("DnD found itself in a non-layout GO, initiating self-destruct");
                 Destroy(this);
+                return;
             }
 
             for (int i = 0; i < transform.childCount; i++)
@@ -35,26 +36,35 @@ namespace BuffKit.UI
             }
         }
 
-        // private void OnTransformChildrenChanged()
-        // {
-        //     
-        // }
+        private void Dropped()
+        {
+            var order = new SortedList<int, Transform>();
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var c = transform.GetChild(i);
+                if (!(c.GetComponent<Dragger>() is null) && c.gameObject.activeInHierarchy)
+                {
+                    order.Add(i, transform.GetChild(i));
+                }
+            }
+            
+            OnDropped?.Invoke(_startingOrder, order);
+
+            _startingOrder = order;
+        }
     }
 
     public class Dragger : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerUpHandler
     {
-        public HorizontalOrVerticalLayoutGroup lg;
+        private HorizontalOrVerticalLayoutGroup _lg;
+        private bool _isHorizontal;
 
         //An invisible clone that takes up the element's layout slot
         private GameObject _shadow;
-        private int _startingIndex;
-        private Vector3 _startingPosition;
-        private readonly Dictionary<int, Vector3> _siblingPositions = new Dictionary<int, Vector3>();
+
+        //Used to check whether we need to null-out the PointerUp event
         private bool _dragged = false;
-
-        private readonly SortedList<int, RectTransform> _siblings =
-            new SortedList<int, RectTransform>();
-
+        
         private void Start()
         {
             _lg = transform.parent.GetComponent<HorizontalOrVerticalLayoutGroup>();
@@ -150,6 +160,7 @@ namespace BuffKit.UI
             LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
 
             _dragged = false;
+            _lg.gameObject.SendMessage("Dropped");
         }
 
         public void OnPointerUp(PointerEventData eventData)
