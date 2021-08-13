@@ -34,6 +34,16 @@ namespace BuffKit.ShipLoadoutViewer
                     });
                     Settings.Settings.Instance.AddEntry("crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
                     ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);
+
+                    var lobbyGunTooltipDisplay = new Settings.EnumString(
+                        typeof(UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer),
+                        (int)UIShipLoadoutSlot.InfoDisplaySetting);
+                    Settings.Settings.Instance.AddEntry("lobby gun tooltip display", delegate (Settings.EnumString enumString)
+                    {
+                        var log = BepInEx.Logging.Logger.CreateLogSource("tooltipcallback");
+                        log.LogInfo($"Changing from {(int)UIShipLoadoutSlot.InfoDisplaySetting} to {enumString.SelectedValue}");
+                        UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
+                    }, lobbyGunTooltipDisplay);
                 };
 
                 _firstPrepare = false;

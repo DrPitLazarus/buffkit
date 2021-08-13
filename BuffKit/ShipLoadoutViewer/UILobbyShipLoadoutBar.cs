@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
 
 namespace BuffKit.ShipLoadoutViewer
@@ -11,7 +13,7 @@ namespace BuffKit.ShipLoadoutViewer
     {
         public bool MarkForRedraw { set; get; }
 
-        List<RawImage> slotImages;
+        List<UIShipLoadoutSlot> slots;
 
         Image backgroundImg;
         Image headerImg;
@@ -35,16 +37,16 @@ namespace BuffKit.ShipLoadoutViewer
             loadoutBar.backgroundImg = obPanel.AddComponent<Image>();
             loadoutBar.headerImg = obPanel.transform.parent.GetChild(0).GetComponent<Image>();
 
-            loadoutBar.slotImages = new List<RawImage>();
+            loadoutBar.slots = new List<UIShipLoadoutSlot>();
             foreach (var i in Enumerable.Range(0, 6))
             {
                 var slot = new GameObject("slot" + (i + 1));
                 slot.transform.parent = obPanel.transform;
                 slot.transform.localPosition = new Vector3(0, 0, 0);
-                loadoutBar.slotImages.Add(slot.AddComponent<RawImage>());
                 le = slot.AddComponent<LayoutElement>();
                 le.preferredWidth = 26;
                 le.preferredHeight = 26;
+                loadoutBar.slots.Add(slot.AddComponent<UIShipLoadoutSlot>());
             }
 
             return obPanel;
@@ -94,13 +96,9 @@ namespace BuffKit.ShipLoadoutViewer
             {
                 return availableSlots;
             }
-
-            public Texture GetSlotTexture(int slot)
+            public int GetGunId(int slotIndex)
             {
-                int gunId = shipGuns[slot];
-                if (gunId == -1) return UIManager.IconForNullOrEmpty;
-                if (!ShipLoadoutViewer.gunIcons.ContainsKey(gunId)) return UIManager.IconForNullOrEmpty;
-                return ShipLoadoutViewer.gunIcons[gunId];
+                return shipGuns[slotIndex];
             }
 
             public bool Equals(ShipLoadoutData other)
@@ -132,11 +130,57 @@ namespace BuffKit.ShipLoadoutViewer
         {
             for (int i = 0; i < data.GetVisibleSlots(); i++)
             {
-                slotImages[i].texture = data.GetSlotTexture(i);
-                slotImages[i].gameObject.SetActive(true);
+                slots[i].SetGun(data.GetGunId(i));
+                slots[i].gameObject.SetActive(true);
             }
             for (int i = data.GetVisibleSlots(); i < 6; i++)
-                slotImages[i].gameObject.SetActive(false);
+                slots[i].gameObject.SetActive(false);
+        }
+    }
+
+    class UIShipLoadoutSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    {
+        public enum UIShipLoadoutSlotInfoViewer
+        {
+            Disabled,
+            Hover,
+            Click
+        }
+        public static UIShipLoadoutSlotInfoViewer InfoDisplaySetting = UIShipLoadoutSlotInfoViewer.Click;
+
+        private int _gunId = -1;
+        private GunItemInfo _gunInfo;
+        private RawImage _image;
+        public void SetGun(int gunId)
+        {
+            if (gunId == _gunId) return;
+            _gunId = gunId;
+            if (gunId == -1) _image.texture = UIManager.IconForNullOrEmpty;
+            if (!ShipLoadoutViewer.gunIcons.ContainsKey(gunId)) _image.texture = UIManager.IconForNullOrEmpty;
+            _image.texture = ShipLoadoutViewer.gunIcons[gunId];
+            _gunInfo = GunItemInfo.FromGunItem(CachedRepository.Instance.Get<GunItem>(_gunId));
+        }
+        private void Awake()
+        {
+            _image = gameObject.AddComponent<RawImage>();
+        }
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (InfoDisplaySetting != UIShipLoadoutSlotInfoViewer.Hover) return;
+            if (_gunId == -1) return;
+            UIGunTooltip.Instance.RenderGun(_gunInfo);
+            UIGunTooltip.Instance.ShowAtScreenPosition(UIShipCustomizationScreen.Instance.gunTooltipAnchor.position, new Vector2?(new Vector2(0f, 1f)), 0f);
+        }
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            UIGunTooltip.Instance.Hide();
+        }
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (InfoDisplaySetting != UIShipLoadoutSlotInfoViewer.Click) return;
+            if (_gunId == -1) return;
+            UIGunTooltip.Instance.RenderGun(_gunInfo);
+            UIGunTooltip.Instance.ShowAtScreenPosition(UIShipCustomizationScreen.Instance.gunTooltipAnchor.position, new Vector2?(new Vector2(0f, 1f)), 0f);
         }
     }
 }

@@ -28,17 +28,21 @@ namespace BuffKit.Settings
 
         public void AddEntry<T>(string entry, Action<T> callback, T defaultValue)
         {
+            bool callCallback = false;
             if (!_entries.ContainsKey(entry))
             {
-                if (AddEntryElement<T>(entry, entry, defaultValue))
+                log.LogInfo($"Adding entry: {entry}");
+                if (AddEntryElement<T>(entry, entry, defaultValue, out callCallback))
+                {
                     SaveToFile();
+                }
             }
             else if (!(_entries[entry] is SettingType<T>))
                 throw new InvalidCastException($"Attempted to add entry {entry} callback with type {typeof(T)} but a different type is already assigned");
             var currentEntry = _entries[entry] as SettingType<T>;
             currentEntry.AddCallback(callback);
             var currentValue = currentEntry.GetValue();
-            if (!currentEntry.IsSameValue(defaultValue))
+            if (!currentEntry.IsSameValue(defaultValue) || callCallback)
             {
                 callback?.Invoke(currentValue);
             }
@@ -64,9 +68,10 @@ namespace BuffKit.Settings
         }
 
         // Returns true if the entry should be saved to file
-        private bool AddEntryElement<T>(string entry, string text, object value)
+        private bool AddEntryElement<T>(string entry, string text, object value, out bool callCallback)
         {
             bool r = true;
+            callCallback = false;
 
             Transform parent = _panel.GetContent();
             BaseSettingType settingEntry;
@@ -76,6 +81,8 @@ namespace BuffKit.Settings
                 settingEntry = new SettingButton(parent, entry, text);
             else if (typeof(T) == typeof(ToggleGrid))
                 settingEntry = new SettingToggleGrid(parent, entry, text, (ToggleGrid)value);
+            else if (typeof(T) == typeof(EnumString))
+                settingEntry = new SettingEnumString(parent, entry, text, (EnumString)value);
             else
                 throw new NotSupportedException($"No entry type exists for {typeof(T)}");
 
@@ -86,8 +93,9 @@ namespace BuffKit.Settings
                 {
                     if (settingEntry.SetUnknownValue(loadedValue))
                     {
-                        r = false;
+                        callCallback = true;
                     }
+                    r = false;
                 }
                 _loadedSettings.Remove(entry);
             }
@@ -169,10 +177,11 @@ namespace BuffKit.Settings
 
         private enum DataType
         {
+            Invalid,
             Bool,
             ToggleGrid,
             Button,
-            Invalid
+            EnumString
         }
         private static DataType GetDataType(object data)
         {
@@ -182,6 +191,8 @@ namespace BuffKit.Settings
                 return DataType.Button;
             if (data is ToggleGrid)
                 return DataType.ToggleGrid;
+            if (data is EnumString)
+                return DataType.EnumString;
             return DataType.Invalid;
         }
 
@@ -202,6 +213,10 @@ namespace BuffKit.Settings
                         Data = JsonConvert.SerializeObject(data);
                         break;
                     case DataType.ToggleGrid:
+                        Data = JsonConvert.SerializeObject(data);
+                        break;
+                    case DataType.EnumString:
+                        Type = DataType.EnumString;
                         Data = JsonConvert.SerializeObject(data);
                         break;
                     case DataType.Button:
@@ -284,6 +299,9 @@ namespace BuffKit.Settings
                         case DataType.ToggleGrid:
                             _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<ToggleGrid>(d.Data));
                             break;
+                        case DataType.EnumString:
+                            _loadedSettings.Add(d.Entry, JsonConvert.DeserializeObject<EnumString>(d.Data));
+                            break;
                     }
                 }
             }
@@ -295,8 +313,8 @@ namespace BuffKit.Settings
             {
                 log.LogInfo($"Failed to read settings file:\n{e.Message}");
             }
-            foreach (var kvp in _loadedSettings)
-                log.LogInfo($"{kvp.Key}:{kvp.Value}");
+            //foreach (var kvp in _loadedSettings)
+            //    log.LogInfo($"{kvp.Key}:{kvp.Value}");
         }
 
     }

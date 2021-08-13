@@ -180,8 +180,10 @@ namespace BuffKit.Settings
                 var im = obIconBox.AddComponent<Image>();
                 im.sprite = s;
                 le = obIconBox.AddComponent<LayoutElement>();
-                le.preferredHeight = 25;
+                le.minWidth = 25;
+                le.minHeight = 25;
                 le.preferredWidth = 25;
+                le.preferredHeight = 25;
             }
             var obSpacer = new GameObject("spacer");
             obSpacer.transform.SetParent(obGridIconBar.transform, false);
@@ -245,6 +247,102 @@ namespace BuffKit.Settings
                 return (v.Rows == _value.Rows && v.Cols == _value.Cols);
             }
             return false;
+        }
+    }
+
+    public class EnumString
+    {
+        [JsonIgnore]
+        public int Count { get; private set; }
+        public int SelectedValue { get; set; }
+        [JsonIgnore]
+        private List<string> _enumNames;
+        [JsonIgnore]
+        private List<int> _enumValues;
+        public EnumString(Type enumType, int value)
+        {
+            _enumNames = new List<string>();
+            _enumValues = new List<int>();
+            var values = Enum.GetValues(enumType);
+            bool valueValid = false;
+            foreach (var v in values)
+            {
+                _enumNames.Add(v.ToString());
+                var vAsInt = (int)v;
+                _enumValues.Add(vAsInt);
+                if (vAsInt == value)
+                    valueValid = true;
+            }
+            if (!valueValid) throw new ArgumentOutOfRangeException($"Initial value {value} is invalid");
+            SelectedValue = value;
+            Count = _enumNames.Count;
+        }
+        [JsonConstructor]
+        public EnumString(int value) { SelectedValue = value; }
+        public bool IsValidValue(int v) { return _enumValues.Contains(v); }
+        public int GetEnumValue(int index) { return _enumValues[index]; }
+        public string GetEnumName(int index) { return _enumNames[index]; }
+        public int GetSelectedIndex() { return _enumValues.IndexOf(SelectedValue); }
+    }
+    public class SettingEnumString : SettingType<EnumString>
+    {
+        private List<Toggle> _toggles;
+        public SettingEnumString(Transform parent, string entry, string title, EnumString value)
+        {
+            _value = value;
+
+            _toggles = new List<Toggle>();
+
+            UI.Builder.BuildMenuDropdown(parent, title, out var obContent);
+            var vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            vlg.spacing = 2;
+            vlg.childForceExpandHeight = false;
+            vlg.padding = new RectOffset(3, 3, 3, 3);
+
+            var toggleGroup = obContent.AddComponent<ToggleGroup>();
+            toggleGroup.allowSwitchOff = true;
+
+            for (var i = 0; i < value.Count; i++)
+            {
+                var val = value.GetEnumValue(i);
+                var name = value.GetEnumName(i);
+                UI.Builder.BuildMenuToggle(obContent.transform, out var toggle, name, false, delegate (bool v)
+                {
+                    if (v)
+                        Settings.Instance.SetEntry(entry, new EnumString(val));
+                });
+                toggle.isOn = (val == value.SelectedValue);
+                toggle.group = toggleGroup;
+                _toggles.Add(toggle);
+            }
+
+            toggleGroup.allowSwitchOff = false;
+        }
+        public override bool IsCompatible(object value)
+        {
+            if (value is EnumString)
+            {
+                return _value.IsValidValue((value as EnumString).SelectedValue);
+            }
+            return false;
+        }
+
+        public override bool IsSameValue(EnumString value)
+        {
+            return (_value.SelectedValue == value.SelectedValue);
+        }
+
+        public override bool SetValue(EnumString value)
+        {
+            if (IsSameValue(value))
+            {
+                return false;
+            }
+            _value.SelectedValue = value.SelectedValue;
+            var ind = _value.GetSelectedIndex();
+            for (var i = 0; i < _toggles.Count; i++)
+                _toggles[i].isOn = (i == ind);
+            return true;
         }
     }
 }

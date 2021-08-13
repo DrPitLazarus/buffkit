@@ -16,9 +16,6 @@ namespace BuffKit.GunInfoOverlay
 
         private static Dictionary<string, int> _infoNameToId;           // Convert from GunItemInfo.name to GunItem.id
 
-        private static GraphicRaycaster _raycaster;                     // Disable parent raycaster and controller when showing overlay, prevents flickering
-        private static UIGraphicRaycastController _raycastController;
-
         // Regular info displays
         private static TextMeshProUGUI _lName, _lDamageDirect, _lDamageAoE, _lRoF, _lReloadTime, _lClipSize, _lRange;
         private static TextMeshProUGUI _lProjectileSpeed, _lArmingTime, _lBuckshots, _lShellDrop, _lFireDirect, _lFireAoE, _lAoESize, _lSpecialEffect;
@@ -118,10 +115,6 @@ namespace BuffKit.GunInfoOverlay
             _obPanel.SetActive(true);
             _rectPanel.pivot = ((pivot == null) ? _defaultRectPivot : pivot.Value);
             _rectPanel.position = position;
-
-            _raycastController.enabled = false;
-            _raycaster.enabled = false;
-
             return false;
         }
         public static bool Hide()
@@ -129,10 +122,6 @@ namespace BuffKit.GunInfoOverlay
             if (!_useOverlay) return true;
             if (_obPanel == null) return true;
             _obPanel.SetActive(false);
-
-            _raycaster.enabled = true;
-            _raycastController.enabled = true;
-
             return false;
         }
 
@@ -301,10 +290,11 @@ namespace BuffKit.GunInfoOverlay
             }
             var obInfoOverlayWindow = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Info Overlay Window (don't hide)");
 
-            _raycaster = obInfoOverlayWindow.GetComponent<GraphicRaycaster>();
-            _raycastController = obInfoOverlayWindow.GetComponent<UIGraphicRaycastController>();
-
             CreatePanel();
+            _obPanel.GetComponentsInChildren<Graphic>().ForEach(delegate (Graphic g)
+            {
+                g.raycastTarget = false;
+            });
         }
     }
 }

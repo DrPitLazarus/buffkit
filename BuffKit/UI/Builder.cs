@@ -423,6 +423,8 @@ namespace BuffKit.UI
             var img = obDropdownIcon.AddComponent<Image>();
             img.sprite = Resources.Dropdown;
             var le = obDropdownIcon.AddComponent<LayoutElement>();
+            le.minWidth = 25;
+            le.minHeight = 25;
             le.preferredWidth = 25;
             le.preferredHeight = 25;
 
