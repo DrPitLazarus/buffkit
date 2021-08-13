@@ -50,7 +50,11 @@ namespace BuffKit.UI
             
             OnDropped?.Invoke(_startingOrder, order);
 
-            _startingOrder = order;
+            _startingOrder = new SortedList<int, Transform>();
+            foreach (var t in order)
+            {
+                _startingOrder.Add(t.Key, t.Value);
+            }
         }
     }
 
@@ -155,7 +159,8 @@ namespace BuffKit.UI
 
             var index = _shadow.transform.GetSiblingIndex();
             transform.SetSiblingIndex(index);
-            Destroy(_shadow);
+            // If kept around until the end of the frame, this will interfere 
+            DestroyImmediate(_shadow);
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
 
