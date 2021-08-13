@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,67 +10,59 @@ namespace BuffKit.GunInfoOverlay
 {
     public static class GunInfoOverlay
     {
-        /*
-         * Info
-         *   Name
-         *   Direct damage (type, value)
-         *   AoE damage (type, value)
-         *   RoF
-         *   Reload speed
-         *   Magazine size
-         *   Range
-         * ====================================
-         *   Projectile speed
-         *   Arming time
-         *   Buckshots
-         *   Shell drop
-         *   Fire chance
-         *   AoE size
-         *   Special effects (1 of)
-         *     Pull (strength, duration)
-         *     Flare (illumination, duration)
-         *     Mine impulse
-         *     Knockback
-         * ====================================
-         *   Arcs (horizontal, vertical)
-         */
-
         private static BepInEx.Logging.ManualLogSource log;
-        public static void CreateLog()
+
+        private static Dictionary<string, int> _infoNameToId;           // Convert from GunItemInfo.name to GunItem.id
+
+        private static GraphicRaycaster _raycaster;                     // Disable parent raycaster and controller when showing overlay, prevents flickering
+        private static UIGraphicRaycastController _raycastController;
+
+        // Regular info displays
+        private static TextMeshProUGUI _lName, _lDamageDirect, _lDamageAoE, _lRoF, _lReloadTime, _lClipSize, _lRange;
+        private static TextMeshProUGUI _lProjectileSpeed, _lArmingTime, _lBuckshots, _lShellDrop, _lFireDirect, _lFireAoE, _lAoESize, _lSpecialEffect;
+        // Arc info displays
+        private static Image _arcLeftAngleImage;
+        private static TextMeshProUGUI _arcLeftAngleLabel;
+        private static Image _arcRightAngleImage;
+        private static TextMeshProUGUI _arcRightAngleLabel;
+        private static Image _arcUpAngleImage;
+        private static TextMeshProUGUI _arcUpAngleLabel;
+        private static Image _arcDownAngleImage;
+        private static TextMeshProUGUI _arcDownAngleLabel;
+        // Other components
+        private static GameObject _obPanel;
+        private static RectTransform _rectPanel;
+        private static Vector2 _defaultRectPivot;
+
+        public static bool DisplayGun(GunItemInfo gunInfo)
         {
-            log = BepInEx.Logging.Logger.CreateLogSource("guninfo");
-        }
-        public static void ListAllGunDetails()
-        {
-            StringBuilder b = new StringBuilder();
-            foreach (var id in GunIds)
-            {
-                var gun = CachedRepository.Instance.Get<GunItem>(id);
-                DisplayGun(gun);
-            }
-        }
-        public static void DisplayGun(GunItem gun)
-        {
-            var gunInfo = GunItemInfo.FromGunItem(gun);
+            if (_obPanel == null) return true;
+            log.LogInfo($"DisplayGun called for {gunInfo.name}");
+            var gunId = _infoNameToId[gunInfo.name];
+            var gunItem = CachedRepository.Instance.Get<GunItem>(gunId);
+
+
             _lName.text = gunInfo.name;
-            _lDamageDirect.text = $"Primary: {gunInfo.directDamage} {GetDamageTypeName(gunInfo.directDamageType)}";
-            _lDamageAoE.text = $"Secondary: {gunInfo.areaDamage} {GetDamageTypeName(gunInfo.areaDamageType)}";
-            _lRoF.text = $"RoF: {gunInfo.rateOfFire} shots/s";
-            _lReloadTime.text = $"Reload time: {1f / gunInfo.reloadSpeed}s";
-            _lClipSize.text = $"Clip size: {gunInfo.magazineSize}";
-            _lRange.text = $"Range: {gunInfo.range}m ({gunInfo.RangeString})";
+            _lDamageDirect.text = $"{gunInfo.directDamage} {GetDamageTypeName(gunInfo.directDamageType)}";
+            BasicDisplayDecision(_lDamageAoE, $"{gunInfo.areaDamage} {GetDamageTypeName(gunInfo.areaDamageType)}", gunInfo.areaDamage, 0);
+            _lRoF.text = $"{String.Format("{0:0.###}", gunInfo.rateOfFire)} rounds/s";
+            _lReloadTime.text = $"{1f / gunInfo.reloadSpeed}s";
+            _lClipSize.text = $"{gunInfo.magazineSize}";
+            _lRange.text = $"{gunInfo.range}m ({gunInfo.RangeString})";
 
-            _lProjectileSpeed.text = $"Speed: {gunInfo.projectileSpeed}m/s";
-            _lArmingTime.text = $"Arming time: {gun.GetParam("fArmingDelay", "0")}s";
-            _lBuckshots.text = $"Buckshots: {gunInfo.buckshots}";
-            _lShellDrop.text = $"Drop: {gunInfo.shellDrop}m/s²";
-            _lFireChance.text = $"Fire chance: {gunInfo.directFireChance * 100f}% chance of {gunInfo.directFireStacks} direct, {gunInfo.areaFireChance * 100f}% chance of {gunInfo.areaFireStacks} indirect";
+            BasicDisplayDecision(_lProjectileSpeed, $"{gunInfo.projectileSpeed}m/s", gunInfo.projectileSpeed, 0);
+            var arming = gunItem.GetFloatParam("fArmingDelay");
+            BasicDisplayDecision(_lArmingTime, $"{String.Format("{0:0.###}", arming)}s", arming, 0);
+            BasicDisplayDecision(_lBuckshots, $"{gunInfo.buckshots}", gunInfo.buckshots, 1);
+            BasicDisplayDecision(_lShellDrop, $"{gunInfo.shellDrop}m/s²", gunInfo.shellDrop, 0);
+            BasicDisplayDecision(_lFireDirect, $"{gunInfo.directFireChance * 100f}% chance of {gunInfo.directFireStacks} stack{(gunInfo.directFireStacks != 1 ? "s" : "")}", gunInfo.directFireChance * gunInfo.directFireStacks, 0);
+            BasicDisplayDecision(_lFireAoE, $"{gunInfo.areaFireChance * 100f}% chance of {gunInfo.areaFireStacks} stack{(gunInfo.areaFireStacks != 1 ? "s" : "")}", gunInfo.areaFireChance * gunInfo.areaFireStacks, 0);
             if (gunInfo.aoeRangeMax != gunInfo.aoeRangeMin)
-                _lAoESize.text = $"AoE: {gunInfo.aoeRangeMin}m to {gunInfo.aoeRangeMax}m";
+                _lAoESize.text = $"{gunInfo.aoeRangeMin}m to {gunInfo.aoeRangeMax}m";
             else
-                _lAoESize.text = $"AoE: {gunInfo.aoeRangeMin}m";
+                _lAoESize.text = $"{gunInfo.aoeRangeMin}m";
 
-            string special = "No special";
+            string special = "";
             string strengthName = null;
             float strengthValue = 0;
             string strengthUnit = null;
@@ -80,90 +71,229 @@ namespace BuffKit.GunInfoOverlay
             string durationUnit = null;
             if (gunInfo.TryGetSpecialEfx(ref strengthName, ref strengthValue, ref strengthUnit, ref durationName, ref durationValue, ref durationUnit))
             {
-                special = "Special: ";
-                if (!string.IsNullOrEmpty(strengthName))
+                bool flag1 = !string.IsNullOrEmpty(strengthName);
+                bool flag2 = !string.IsNullOrEmpty(durationName);
+                if (flag1)
                 {
-                    special += $"{strengthName}: {strengthValue}{strengthUnit}     ";
+                    special += $"{strengthName}: {strengthValue}{strengthUnit}";
+                    if (flag2)
+                        special += "\n";
                 }
-                if (!string.IsNullOrEmpty(durationName))
-                {
+                if (flag2)
                     special += $"{durationName}: {durationValue}{durationUnit}";
-                }
             }
-            _lSpecialEffect.text = special;
+            BasicDisplayDecision(_lSpecialEffect, special, special, "");
 
-            _lArcsHorizontal.text = $"Horizontal arcs: {gunInfo.leftAngle}° left, {gunInfo.rightAngle}° right";
-            _lArcsVertical.text = $"Vertical arcs: {gunInfo.upAngle}° up, {gunInfo.downAngle}° down";
+            _arcLeftAngleImage.fillAmount = gunInfo.leftAngle / 90f;
+            _arcRightAngleImage.fillAmount = gunInfo.rightAngle / 90f;
+            _arcUpAngleImage.fillAmount = gunInfo.upAngle / 90f;
+            _arcDownAngleImage.fillAmount = gunInfo.downAngle / 90f;
+            _arcLeftAngleLabel.text = $"{gunInfo.leftAngle}°";
+            _arcRightAngleLabel.text = $"{gunInfo.rightAngle}°";
+            _arcUpAngleLabel.text = $"{gunInfo.upAngle}°";
+            _arcDownAngleLabel.text = $"{gunInfo.downAngle}°";
 
-            log.LogInfo(GetDisplayString());
+            return false;
         }
 
-
-        private static float GetGunParameter(GunItem gun, string paramKey)
+        private static void BasicDisplayDecision<T>(TextMeshProUGUI label, string display, T data, T dataTest)
+            where T : IEquatable<T>
         {
-            string s;
-            float result;
-            if (gun.Params.TryGetValue(paramKey, out s) && float.TryParse(s, out result))
+            if (!data.Equals(dataTest))
             {
-                return result;
+                label.text = display;
+                label.transform.parent.parent.gameObject.SetActive(true);
             }
-            return 0f;
+            else
+                label.transform.parent.parent.gameObject.SetActive(false);
         }
-        public static void CreatePanel()
+
+        public static bool ShowAtScreenPosition(Vector3 position, Vector2? pivot)
+        {
+            if (_obPanel == null) return true;
+            _obPanel.SetActive(true);
+            _rectPanel.pivot = ((pivot == null) ? _defaultRectPivot : pivot.Value);
+            _rectPanel.position = position;
+
+            _raycastController.enabled = false;
+            _raycaster.enabled = false;
+
+            return false;
+        }
+        public static bool Hide()
+        {
+            if (_obPanel == null) return true;
+            _obPanel.SetActive(false);
+
+            _raycaster.enabled = true;
+            _raycastController.enabled = true;
+
+            return false;
+        }
+
+        private static void CreatePanel()
         {
             var parent = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Info Overlay Window (don't hide)")?.transform;
-            var obPanel = UI.Builder.BuildPanel(parent);
-            var csf = obPanel.AddComponent<ContentSizeFitter>();
+            _obPanel = UI.Builder.BuildPanel(parent);
+            _obPanel.name = "Custom Gun Tooltip";
+            _rectPanel = _obPanel.GetComponent<RectTransform>();
+            _defaultRectPivot = _rectPanel.pivot;
+            var csf = _obPanel.AddComponent<ContentSizeFitter>();
             csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var vlg = _obPanel.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandWidth = false;
+            vlg.childForceExpandHeight = false;
+            vlg.spacing = 3;
+            vlg.padding = new RectOffset(3, 3, 3, 3);
 
-            UI.Builder.BuildLabel(obPanel.transform, out _lName, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lDamageDirect, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lDamageAoE, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lRoF, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lReloadTime, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lClipSize, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lRange, TextAnchor.MiddleLeft, 10);
+            // Title
+            var obName = UI.Builder.BuildLabel(_obPanel.transform, out _lName, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 18);
+            obName.name = "name label";
+            var le = obName.AddComponent<LayoutElement>();
+            le.minWidth = 250;
 
-            UI.Builder.BuildLabel(obPanel.transform, out _lProjectileSpeed, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lArmingTime, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lBuckshots, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lShellDrop, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lFireChance, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lAoESize, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lSpecialEffect, TextAnchor.MiddleLeft, 10);
+            // Content
+            var obContent = new GameObject("content");
+            obContent.transform.SetParent(_obPanel.transform, false);
+            vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            vlg.spacing = 2;
 
-            UI.Builder.BuildLabel(obPanel.transform, out _lArcsHorizontal, TextAnchor.MiddleLeft, 10);
-            UI.Builder.BuildLabel(obPanel.transform, out _lArcsVertical, TextAnchor.MiddleLeft, 10);
+            // Regular rows
+            BuildRow(obContent.transform, "Primary", out _lDamageDirect);
+            BuildRow(obContent.transform, "Secondary", out _lDamageAoE);
+            BuildRow(obContent.transform, "RoF", out _lRoF);
+            BuildRow(obContent.transform, "Reload time", out _lReloadTime);
+            BuildRow(obContent.transform, "Clip size", out _lClipSize);
+            BuildRow(obContent.transform, "Range", out _lRange);
+            BuildRow(obContent.transform, "Projectile speed", out _lProjectileSpeed);
+            BuildRow(obContent.transform, "Arming time", out _lArmingTime);
+            BuildRow(obContent.transform, "Buckshots", out _lBuckshots);
+            BuildRow(obContent.transform, "Shell drop", out _lShellDrop);
+            BuildRow(obContent.transform, "Primary fire chance", out _lFireDirect);
+            BuildRow(obContent.transform, "Secondary fire chance", out _lFireAoE);
+            BuildRow(obContent.transform, "AoE", out _lAoESize);
+            BuildRow(obContent.transform, "Special effect", out _lSpecialEffect);
+            // Arc display row
+            var sampleArcDisplay = GameObject.Find("/Menu UI/Standard Canvas/Pages/Library/Gun Selection Panel/Gun Information Panel/Gun Arc Group");
+            var obArcDisplay = GameObject.Instantiate(sampleArcDisplay, obContent.transform);
+            if (obArcDisplay != null)
+            {
+                // Get arc components, replacing Text components with TextMeshProUGUI
+                _arcLeftAngleImage = obArcDisplay.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+                var obLabel = obArcDisplay.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
+                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                _arcLeftAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
+                _arcLeftAngleLabel.alignment = TextAlignmentOptions.Center;
+
+                _arcRightAngleImage = obArcDisplay.transform.GetChild(0).GetChild(1).GetComponent<Image>();
+                obLabel = obArcDisplay.transform.GetChild(0).GetChild(1).GetChild(0).gameObject;
+                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                _arcRightAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
+
+                _arcUpAngleImage = obArcDisplay.transform.GetChild(2).GetChild(0).GetComponent<Image>();
+                obLabel = obArcDisplay.transform.GetChild(2).GetChild(0).GetChild(0).gameObject;
+                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                _arcUpAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
+
+                _arcDownAngleImage = obArcDisplay.transform.GetChild(2).GetChild(1).GetComponent<Image>();
+                obLabel = obArcDisplay.transform.GetChild(2).GetChild(1).GetChild(0).gameObject;
+                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                _arcDownAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
+
+                // Remake row display with HLG
+                GameObject.Destroy(obArcDisplay.GetComponent<LayoutElement>());
+                var hlg = obArcDisplay.GetComponent<HorizontalLayoutGroup>();
+                hlg.enabled = true;
+                hlg.spacing = 0;
+                hlg.padding = new RectOffset(0, 0, 10, 0);
+
+                // Resize arc displays
+                le = obArcDisplay.transform.GetChild(0).gameObject.GetComponent<LayoutElement>();
+                le.minHeight = 100;
+                le.minWidth = 120;
+                le = obArcDisplay.transform.GetChild(2).gameObject.GetComponent<LayoutElement>();
+                le.minHeight = 100;
+                le.minWidth = 120;
+
+                // Recreate spacer
+                var obSpacer = obArcDisplay.transform.GetChild(1).gameObject;
+                GameObject.Destroy(obSpacer.GetComponent<Image>());
+                GameObject.Destroy(obSpacer.GetComponent<CanvasRenderer>());
+                le = obSpacer.GetComponent<LayoutElement>();
+                le.preferredHeight = -1;
+                le.preferredWidth = -1;
+                le.flexibleWidth = 1;
+
+                GameObject.Destroy(obArcDisplay.transform.GetChild(0).GetChild(3).gameObject);      // Destroy "Horizontal" label object
+                GameObject.Destroy(obArcDisplay.transform.GetChild(2).GetChild(3).gameObject);      // Destroy "Vertical" label object
+
+                // Set up TextMeshProUGUI components with wanted parameters
+                _arcLeftAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcLeftAngleLabel.fontSize = 13;
+                _arcLeftAngleLabel.enableWordWrapping = false;
+                _arcLeftAngleLabel.alignment = TextAlignmentOptions.BottomGeoAligned;
+                _arcRightAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcRightAngleLabel.fontSize = 13;
+                _arcRightAngleLabel.enableWordWrapping = false;
+                _arcRightAngleLabel.alignment = TextAlignmentOptions.BottomGeoAligned;
+                _arcUpAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcUpAngleLabel.fontSize = 13;
+                _arcUpAngleLabel.enableWordWrapping = false;
+                _arcUpAngleLabel.alignment = TextAlignmentOptions.Left;
+                _arcDownAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcDownAngleLabel.fontSize = 13;
+                _arcDownAngleLabel.enableWordWrapping = false;
+                _arcDownAngleLabel.alignment = TextAlignmentOptions.Left;
+            }
+            else log.LogInfo("Failed to find sample arc display");
+
+            _obPanel.SetActive(false);
         }
 
-
-        private static TextMeshProUGUI _lName, _lDamageDirect, _lDamageAoE, _lRoF, _lReloadTime, _lClipSize, _lRange;
-        private static TextMeshProUGUI _lProjectileSpeed, _lArmingTime, _lBuckshots, _lShellDrop, _lFireChance, _lAoESize, _lSpecialEffect;
-        private static TextMeshProUGUI _lArcsHorizontal, _lArcsVertical;
-        private static string GetDisplayString()
+        private static void BuildRow(Transform parent, string name, out TextMeshProUGUI label)
         {
-            StringBuilder b = new StringBuilder();
-            b.Append($"\n{_lName.text}");
-            b.Append($"\n{_lDamageDirect.text}");
-            b.Append($"\n{_lDamageAoE.text}");
-            b.Append($"\n{_lRoF.text}");
-            b.Append($"\n{_lReloadTime.text}");
-            b.Append($"\n{_lClipSize.text}");
-            b.Append($"\n{_lRange.text}");
+            var row = new GameObject($"row {name}");
+            row.transform.SetParent(parent, false);
+            var hlg = row.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = false;
+            hlg.childAlignment = TextAnchor.MiddleRight;
 
-            b.Append($"\n{_lProjectileSpeed.text}");
-            b.Append($"\n{_lArmingTime.text}");
-            b.Append($"\n{_lBuckshots.text}");
-            b.Append($"\n{_lShellDrop.text}");
-            b.Append($"\n{_lFireChance.text}");
-            b.Append($"\n{_lAoESize.text}");
-            b.Append($"\n{_lSpecialEffect.text}");
+            TextMeshProUGUI tmp;
+            UI.Builder.BuildLabel(row.transform, out tmp, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label text";
+            tmp.text = name;
 
-            b.Append($"\n{_lArcsHorizontal.text}");
-            b.Append($"\n{_lArcsVertical.text}");
+            var spacer = new GameObject("spacer");
+            spacer.transform.SetParent(row.transform, false);
+            var le = spacer.AddComponent<LayoutElement>();
+            le.flexibleWidth = 1;
+            le.minWidth = 10;
 
-            return b.ToString();
+            UI.Builder.BuildLabel(row.transform, out label, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label info";
+        }
+
+        public static void Initialize()
+        {
+            log = BepInEx.Logging.Logger.CreateLogSource("guninfo");
+
+            _infoNameToId = new Dictionary<string, int>();
+            foreach (var id in GunIds)
+            {
+                var gunItem = CachedRepository.Instance.Get<GunItem>(id);
+                var gunInfo = GunItemInfo.FromGunItem(gunItem);
+                var gunName = gunInfo.name;
+                if (!string.IsNullOrEmpty(gunName))
+                    _infoNameToId.Add(gunName, id);
+            }
+            var obInfoOverlayWindow = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Info Overlay Window (don't hide)");
+
+            _raycaster = obInfoOverlayWindow.GetComponent<GraphicRaycaster>();
+            _raycastController = obInfoOverlayWindow.GetComponent<UIGraphicRaycastController>();
+
+            CreatePanel();
         }
     }
 }

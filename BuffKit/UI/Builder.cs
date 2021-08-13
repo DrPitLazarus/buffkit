@@ -184,11 +184,11 @@ namespace BuffKit.UI
 
         public static GameObject BuildLabel(Transform parent, string text, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
         {
-            var obLabel = BuildLabel(parent, out var cText, alignment, fontSize);
+            var obLabel = BuildLabel(parent, out var cText, Resources.FontPenumbraHalfSerifStd, alignment, fontSize);
             cText.text = text;
             return obLabel;
         }
-        public static GameObject BuildLabel(Transform parent, out TextMeshProUGUI cText, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
+        public static GameObject BuildLabel(Transform parent, out TextMeshProUGUI cText, TMP_FontAsset font, TextAnchor alignment = TextAnchor.MiddleLeft, int fontSize = 18)
         {
             var obLabel = new GameObject("Label");
             var hlg = obLabel.AddComponent<HorizontalLayoutGroup>();
@@ -198,7 +198,7 @@ namespace BuffKit.UI
 
             var obText = new GameObject("Text");
             cText = obText.AddComponent<TextMeshProUGUI>();
-            cText.font = Resources.Font;
+            cText.font = font;
             cText.fontSize = fontSize;
             cText.enableWordWrapping = false;
             obText.transform.SetParent(obLabel.transform, false);
@@ -290,7 +290,7 @@ namespace BuffKit.UI
             var obText = new GameObject("Text");
             var cText = obText.AddComponent<TextMeshProUGUI>();
             cText.text = "";
-            cText.font = Resources.Font;
+            cText.font = Resources.FontPenumbraHalfSerifStd;
             cText.fontSize = fontSize;
             cText.enableWordWrapping = false;
             obText.transform.SetParent(obTextArea.transform, false);

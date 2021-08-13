@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Muse.Goi2.Entity;
 
 namespace BuffKit.UI
 {
     public static class Resources
     {
-        public static TMP_FontAsset Font { get; private set; }
+        public static TMP_FontAsset FontPenumbraHalfSerifStd { get; private set; }
+        public static TMP_FontAsset FontGaldeanoRegular { get; private set; }
         public static Sprite BlankIcon { get; private set; }
         public static Sprite ButtonOutline { get; private set; }
         public static Sprite Checkmark { get; private set; }
@@ -26,8 +26,10 @@ namespace BuffKit.UI
         public static void _Initialize()
         {
             var log = BepInEx.Logging.Logger.CreateLogSource("resources");
-            Font = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
-            if (Font == null) log.LogWarning("Could not find Font");
+            FontPenumbraHalfSerifStd = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
+            if (FontPenumbraHalfSerifStd == null) log.LogWarning("Could not find Font");
+            FontGaldeanoRegular = GameObject.Find("/Menu UI/Standard Canvas/Pages/Library/Book Selection Panel/Text Panel/Body Text")?.GetComponent<TextMeshProUGUI>()?.font;
+            if (FontGaldeanoRegular == null) log.LogWarning("Could not find FontGaldeanoRegular");
             BlankIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button/Background")?.GetComponent<Image>()?.sprite;
             if (BlankIcon == null) log.LogWarning("Could not find BlankIcon");
             ButtonOutline = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button/Outline")?.GetComponent<Image>()?.sprite;

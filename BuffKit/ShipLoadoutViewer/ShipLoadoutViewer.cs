@@ -147,6 +147,7 @@ namespace BuffKit.ShipLoadoutViewer
                     {
                         skillIcons[id] = t;
                         //log.LogInfo($"  Loaded icon texture for skill: {sk.NameText.En}");
+                        MarkCrewBarsForRedraw();
                     }
                 }, 0, false);
             }
