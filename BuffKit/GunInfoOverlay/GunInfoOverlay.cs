@@ -12,6 +12,8 @@ namespace BuffKit.GunInfoOverlay
     {
         private static BepInEx.Logging.ManualLogSource log;
 
+        private static bool _useOverlay = true;                         // Test whether to use this overlay or regular one
+
         private static Dictionary<string, int> _infoNameToId;           // Convert from GunItemInfo.name to GunItem.id
 
         private static GraphicRaycaster _raycaster;                     // Disable parent raycaster and controller when showing overlay, prevents flickering
@@ -36,6 +38,7 @@ namespace BuffKit.GunInfoOverlay
 
         public static bool DisplayGun(GunItemInfo gunInfo)
         {
+            if (!_useOverlay) return true;
             if (_obPanel == null) return true;
             log.LogInfo($"DisplayGun called for {gunInfo.name}");
             var gunId = _infoNameToId[gunInfo.name];
@@ -110,6 +113,7 @@ namespace BuffKit.GunInfoOverlay
 
         public static bool ShowAtScreenPosition(Vector3 position, Vector2? pivot)
         {
+            if (!_useOverlay) return true;
             if (_obPanel == null) return true;
             _obPanel.SetActive(true);
             _rectPanel.pivot = ((pivot == null) ? _defaultRectPivot : pivot.Value);
@@ -122,6 +126,7 @@ namespace BuffKit.GunInfoOverlay
         }
         public static bool Hide()
         {
+            if (!_useOverlay) return true;
             if (_obPanel == null) return true;
             _obPanel.SetActive(false);
 
@@ -277,6 +282,12 @@ namespace BuffKit.GunInfoOverlay
 
         public static void Initialize()
         {
+            Settings.Settings.Instance.AddEntry("detailed gun info", delegate (bool v)
+            {
+                if (!v) Hide();
+                _useOverlay = v;
+            }, _useOverlay);
+
             log = BepInEx.Logging.Logger.CreateLogSource("guninfo");
 
             _infoNameToId = new Dictionary<string, int>();
