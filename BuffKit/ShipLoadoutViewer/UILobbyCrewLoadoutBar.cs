@@ -11,6 +11,9 @@ namespace BuffKit.ShipLoadoutViewer
         public bool MarkForRedraw { set; get; }
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
+            Image img;
+            LayoutElement le;
+
             var obBar = new GameObject("Loadout Bar");
 
             var hlg = obBar.AddComponent<HorizontalLayoutGroup>();
@@ -18,23 +21,55 @@ namespace BuffKit.ShipLoadoutViewer
             hlg.childForceExpandHeight = false;
             hlg.spacing = 1;
 
-            var images = new List<RawImage>();
-            for (var i = 0; i < 6; i++)
+            var subBars = new List<GameObject>();
+            var subBarImages = new List<List<RawImage>>();
+
+            for (var i = 0; i < 3; i++)
             {
-                var slot = new GameObject($"slot{i}");
-                var im = slot.AddComponent<RawImage>();
-                im.enabled = false;
-                images.Add(im);
-                var le = slot.AddComponent<LayoutElement>();
-                le.preferredWidth = 21;
-                le.preferredHeight = 21;
-                slot.transform.SetParent(obBar.transform);
+                var subImages = new List<RawImage>();
+
+                var obSubBar = new GameObject($"bar {i}");
+                obSubBar.transform.SetParent(obBar.transform, false);
+                hlg = obSubBar.AddComponent<HorizontalLayoutGroup>();
+                hlg.childForceExpandWidth = false;
+                hlg.childForceExpandHeight = false;
+                hlg.spacing = 1;
+                subBars.Add(obSubBar);
+                for (var j = 0; j < 3; j++)
+                {
+                    var slot = new GameObject($"slot{j}");
+                    var im = slot.AddComponent<RawImage>();
+                    //im.enabled = false;
+                    subImages.Add(im);
+                    le = slot.AddComponent<LayoutElement>();
+                    le.preferredWidth = 21;
+                    le.preferredHeight = 21;
+                    slot.transform.SetParent(obSubBar.transform, false);
+                }
+                subBarImages.Add(subImages);
             }
 
             loadoutBar = obBar.AddComponent<UILobbyCrewLoadoutBar>();
-            loadoutBar._loadoutImages = images;
+            loadoutBar._loadoutBarObjects = subBars;
+            loadoutBar._loadoutBarImages = subBarImages;
+            loadoutBar._spacer1 = new GameObject("spacer");
+            img = loadoutBar._spacer1.AddComponent<Image>();
+            img.color = new Color32(0x7A, 0x7A, 0x7A, 0x80);
+            le = loadoutBar._spacer1.AddComponent<LayoutElement>();
+            le.preferredWidth = 2;
+            le.preferredHeight = 21;
+            loadoutBar._spacer1.transform.SetParent(obBar.transform, false);
+            loadoutBar._spacer1.transform.SetSiblingIndex(1);
+            loadoutBar._spacer2 = new GameObject("spacer");
+            img = loadoutBar._spacer2.AddComponent<Image>();
+            img.color = new Color32(0x7A, 0x7A, 0x7A, 0x80);
+            le = loadoutBar._spacer2.AddComponent<LayoutElement>();
+            le.preferredWidth = 2;
+            le.preferredHeight = 21;
+            loadoutBar._spacer2.transform.SetParent(obBar.transform, false);
+            loadoutBar._spacer2.transform.SetSiblingIndex(3);
 
-            var img = obBar.AddComponent<Image>();
+            img = obBar.AddComponent<Image>();
             img.color = new Color32(0xD8, 0xC8, 0xB1, 0x3C);
 
             var btn = obBar.AddComponent<Button>();
@@ -55,26 +90,25 @@ namespace BuffKit.ShipLoadoutViewer
 
         class PlayerLoadoutData
         {
-            List<int> _loadoutIds;
-            public PlayerLoadoutData(UserAvatarEntity player, bool[,] showTools)
+            public List<List<int>> AllIds { get; private set; }
+            public int PlayerClass { get; private set; }
+            public PlayerLoadoutData(UserAvatarEntity player)
             {
-                var _pilotIds = new List<int>();
-                var _gunnerIds = new List<int>();
-                var _engineerIds = new List<int>();
-                _loadoutIds = new List<int>();
+                var pilotIds = new List<int>();
+                var gunnerIds = new List<int>();
+                var engineerIds = new List<int>();
                 if (player != null)
                 {
-                    int column = 0;
                     switch (player.CurrentClass)
                     {
                         case AvatarClass.Pilot:
-                            column = 0;
+                            PlayerClass = 0;
                             break;
                         case AvatarClass.Gunner:
-                            column = 1;
+                            PlayerClass = 1;
                             break;
                         case AvatarClass.Engineer:
-                            column = 2;
+                            PlayerClass = 2;
                             break;
                     }
 
@@ -84,48 +118,25 @@ namespace BuffKit.ShipLoadoutViewer
                         switch (sc.Type)
                         {
                             case SkillType.Helm:
-                                if (showTools[0, column])
-                                    _pilotIds.Add(skill);
+                                pilotIds.Add(skill);
                                 break;
                             case SkillType.Gun:
-                                if (showTools[1, column])
-                                    _gunnerIds.Add(skill);
+                                gunnerIds.Add(skill);
                                 break;
                             case SkillType.Repair:
-                                if (showTools[2, column])
-                                    _engineerIds.Add(skill);
+                                engineerIds.Add(skill);
                                 break;
                         }
                     }
                 }
-
-                _loadoutIds.AddRange(_pilotIds);
-                _loadoutIds.AddRange(_gunnerIds);
-                _loadoutIds.AddRange(_engineerIds);
-            }
-
-            public int GetVisibleSlots() { return _loadoutIds.Count; }
-
-            public Texture GetSlotTexture(int slot)
-            {
-                int skillId = _loadoutIds[slot];
-                if (skillId == -1) return UIManager.IconForNullOrEmpty;
-                if (!ShipLoadoutViewer.skillIcons.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
-                return ShipLoadoutViewer.skillIcons[skillId];
-            }
-
-            public override string ToString()
-            {
-                StringBuilder b = new StringBuilder();
-                b.Append("Loadout: ");
-                foreach (var i in _loadoutIds)
+                else
                 {
-                    var sc = CachedRepository.Instance.Get<SkillConfig>(i);
-                    b.Append($"  {sc.NameText.En}");
+                    PlayerClass = -1;
                 }
-                return b.ToString();
+                AllIds = new List<List<int>> { pilotIds, gunnerIds, engineerIds };
             }
         }
+
 
         void Update()
         {
@@ -136,46 +147,88 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
-        private List<RawImage> _loadoutImages;
-        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null, null);
+        private GameObject _spacer1;
+        private GameObject _spacer2;
+        private List<GameObject> _loadoutBarObjects;
+        private List<List<RawImage>> _loadoutBarImages;
+        private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
 
-        public void DisplayItems(UserAvatarEntity player, bool[,] showTools)
+        public void DisplayItems(UserAvatarEntity player)
         {
-            _loadoutDataLast = new PlayerLoadoutData(player, showTools);
+            _loadoutDataLast = new PlayerLoadoutData(player);
             DisplayItemsFromData(_loadoutDataLast);
         }
 
         private void DisplayItemsFromData(PlayerLoadoutData data)
         {
-            for (int i = 0; i < _loadoutDataLast.GetVisibleSlots(); i++)
+            if (data.PlayerClass != -1)
             {
-                _loadoutImages[i].enabled = true;
-                _loadoutImages[i].texture = _loadoutDataLast.GetSlotTexture(i);
-            }
-            for (int i = _loadoutDataLast.GetVisibleSlots(); i < _enabledToolSlots; i++)
-                _loadoutImages[i].enabled = false;
+                int column = data.PlayerClass;
 
-            for (int i = 0; i < _enabledToolSlots; i++)
-                _loadoutImages[i].gameObject.SetActive(true);
-            for (int i = _enabledToolSlots; i < _loadoutImages.Count; i++)
-                _loadoutImages[i].gameObject.SetActive(false);
+                _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
+                _spacer2.SetActive(showTools[2, column] && (showTools[0, column] || showTools[1, column]));
+
+                for (var i = 0; i < 3; i++)
+                {
+                    if (showTools[i, column])
+                    {
+                        // Show this sub-bar
+                        _loadoutBarObjects[i].SetActive(true);
+                        var classItemCount = data.AllIds[i].Count;
+                        for (var j = 0; j < classItemCount; j++)
+                        {
+                            //_loadoutBarImages[i][j].enabled = true;
+                            _loadoutBarImages[i][j].gameObject.SetActive(true);
+                            _loadoutBarImages[i][j].texture = GetTexture(data.AllIds[i][j]);
+                        }
+                        for (var j = classItemCount; j < 3; j++)
+                        {
+                            _loadoutBarImages[i][j].gameObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        // Hide this sub-bar
+                        _loadoutBarObjects[i].SetActive(false);
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < 3; i++)
+                    _loadoutBarObjects[i].SetActive(false);
+                _spacer1.SetActive(false);
+                _spacer2.SetActive(false);
+            }
         }
 
-        private static int _enabledToolSlots = 6;
-        public static void SetEnabledToolSlotCount(bool[,] showTools)
+        private static Texture GetTexture(int skillId)
         {
-            var classCount = new int[] { 0, 0, 0 };
-            if (showTools[0, 0]) classCount[0] += 3;    // Pilot has 3 pilot tools
-            if (showTools[1, 0]) classCount[0] += 1;    // Pilot has 1 gunner tool
-            if (showTools[2, 0]) classCount[0] += 1;    // Pilot has 1 engineer tool
-            if (showTools[0, 1]) classCount[1] += 1;    // Gunner has 1 pilot tool
-            if (showTools[1, 1]) classCount[1] += 3;    // Gunner has 3 gunner tools
-            if (showTools[2, 1]) classCount[1] += 2;    // Gunner has 2 engineer tools
-            if (showTools[0, 2]) classCount[2] += 1;    // Engineer has 1 pilot tool
-            if (showTools[1, 2]) classCount[2] += 1;    // Engineer has 1 gunner tool
-            if (showTools[2, 2]) classCount[2] += 3;    // Engineer has 3 engineer tools
+            if (skillId == -1) return UIManager.IconForNullOrEmpty;
+            if (!ShipLoadoutViewer.skillIcons.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
+            return ShipLoadoutViewer.skillIcons[skillId];
+        }
 
-            _enabledToolSlots = Mathf.Max(classCount);
+        //private static int _enabledToolSlots = 6;
+        private static bool[,] showTools;
+        public static void SetEnabledToolSlotCount(bool[,] newShowTools)
+        {
+            /*
+            var classCount = new int[] { 0, 0, 0 };
+            if (newShowTools[0, 0]) classCount[0] += 3;     // Pilot has 3 pilot tools
+            if (newShowTools[1, 0]) classCount[0] += 1;     // Pilot has 1 gunner tool
+            if (newShowTools[2, 0]) classCount[0] += 1;     // Pilot has 1 engineer tool
+            if (newShowTools[0, 1]) classCount[1] += 1;     // Gunner has 1 pilot tool
+            if (newShowTools[1, 1]) classCount[1] += 3;     // Gunner has 3 gunner tools
+            if (newShowTools[2, 1]) classCount[1] += 2;     // Gunner has 2 engineer tools
+            if (newShowTools[0, 2]) classCount[2] += 1;     // Engineer has 1 pilot tool
+            if (newShowTools[1, 2]) classCount[2] += 1;     // Engineer has 1 gunner tool
+            if (newShowTools[2, 2]) classCount[2] += 3;     // Engineer has 3 engineer tools
+            */
+
+            showTools = newShowTools;
+
+            //_enabledToolSlots = Mathf.Max(classCount);
         }
     }
 }

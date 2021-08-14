@@ -52,23 +52,26 @@ namespace BuffKit.ShipLoadoutViewer
                 for (var i = 0; i < 4; i++)
                 {
                     var slot = crew.Slots[i];
-                    crewBars[i].DisplayItems(slot.PlayerEntity, _crewToolSettings);
+                    crewBars[i].DisplayItems(slot.PlayerEntity);
                 }
             }
             public void ShowShipBar() { shipBar.gameObject.SetActive(true); }
             public void HideShipBar() { shipBar.gameObject.SetActive(false); }
             public void ShowCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(true); }
             public void HideCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(false); }
-            /*
-             * Add checks for when to paint bars based on the show/hide status (in Paint...)
-             * Call (Paint...) when setting changes to true
-             */
         }
 
+        static List<GameObject> crewProfileButtons;
         static List<List<ShipLoadoutBars>> loadoutBars;                         // Access by [column][row]
         static Dictionary<UILobbyCrew, ShipLoadoutBars> crewToLoadoutBar;
         public static void LobbyUIPostBuild(List<List<UILobbyCrew>> uimlCrewElements)
         {
+            // Fill crewProfileButtons
+            crewProfileButtons = new List<GameObject>();
+            foreach (var column in uimlCrewElements)
+                foreach (var crew in column)
+                    for (var i = 0; i < 4; i++)
+                        crewProfileButtons.Add(crew.transform.GetChild(i + 1).GetChild(2).gameObject);
             loadoutBars = new List<List<ShipLoadoutBars>>();
             crewToLoadoutBar = new Dictionary<UILobbyCrew, ShipLoadoutBars>();
             // crewElements is a 2-wide, 4-tall list
@@ -192,12 +195,16 @@ namespace BuffKit.ShipLoadoutViewer
             PaintLoadoutBars(MatchLobbyView.Instance);
         }
 
-        private static bool[,] _crewToolSettings;
         public static void SetCrewBarOptions(Settings.ToggleGrid value)
         {
-            _crewToolSettings = value.Values;
-            UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(_crewToolSettings);
+            UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(value.Values);
             PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+
+        public static void SetCrewProfileButtonVisibility(bool isVisible)
+        {
+            foreach (var btn in crewProfileButtons)
+                btn.SetActive(isVisible);
         }
 
     }

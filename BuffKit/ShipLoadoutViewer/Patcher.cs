@@ -44,6 +44,8 @@ namespace BuffKit.ShipLoadoutViewer
                         log.LogInfo($"Changing from {(int)UIShipLoadoutSlot.InfoDisplaySetting} to {enumString.SelectedValue}");
                         UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
                     }, lobbyGunTooltipDisplay);
+
+                    Settings.Settings.Instance.AddEntry("crew profile button visibility", ShipLoadoutViewer.SetCrewProfileButtonVisibility, true);
                 };
 
                 _firstPrepare = false;
