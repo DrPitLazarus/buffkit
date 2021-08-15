@@ -235,8 +235,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
-    <Compile Include="GunInfoOverlay\GunInfoOverlay.cs" />
-    <Compile Include="GunInfoOverlay\Patcher.cs" />
+    <Compile Include="InfoPanels\GunInfoOverlay.cs" />
+    <Compile Include="InfoPanels\Patcher.cs" />
     <Compile Include="LobbyTimer\Patcher.cs" />
     <Compile Include="LobbyTimer\Timer.cs" />
     <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
@@ -261,6 +261,7 @@
     <Compile Include="AnnounceChanges\LobbyChanges.cs" />
     <Compile Include="AnnounceChanges\Patcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="InfoPanels\ShipStatsPanel.cs" />
     <Compile Include="UI\Builder.cs" />
     <Compile Include="UI\Resources.cs" />
     <Compile Include="Util\Patcher.cs" />
@@ -279,6 +280,7 @@
     <Content Include="Assets\Timer\start.png" />
     <Content Include="GamePath.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
   </Target>

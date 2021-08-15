@@ -295,7 +295,7 @@ namespace BuffKit.Settings
 
             UI.Builder.BuildMenuDropdown(parent, title, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
-            vlg.spacing = 2;
+            vlg.spacing = 3;
             vlg.childForceExpandHeight = false;
             vlg.padding = new RectOffset(3, 3, 3, 3);
 

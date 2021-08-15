@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
 using UnityEngine;
+using Muse.Goi2.Entity.Vo;
 
-namespace BuffKit.GunInfoOverlay
+namespace BuffKit.InfoPanels
 {
     [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
     public class UILoadingLobbyState_Exit
@@ -59,6 +60,24 @@ namespace BuffKit.GunInfoOverlay
             {
                 return true;
             }
+        }
+    }
+    [HarmonyPatch(typeof(UIShipCustomizationScreen), "SetActiveShip")]
+    public class UIShipCustomizationScreen_SetActiveShip
+    {
+        private static bool _firstPrepare = true;
+        private static void Prepare()
+        {
+            if (_firstPrepare)
+            {
+                Util.Util.OnGameInitialize += delegate { ShipStatsPanel.Initialize(); };
+
+                _firstPrepare = false;
+            }
+        }
+        private static void Postfix(ShipViewObject ___currentShip)
+        {
+            ShipStatsPanel.SetShip(___currentShip.Model);
         }
     }
 }

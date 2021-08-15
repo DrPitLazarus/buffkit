@@ -6,7 +6,7 @@ using Muse.Goi2.Entity;
 using TMPro;
 using static BuffKit.Util.Util;
 
-namespace BuffKit.GunInfoOverlay
+namespace BuffKit.InfoPanels
 {
     public static class GunInfoOverlay
     {
@@ -139,7 +139,7 @@ namespace BuffKit.GunInfoOverlay
             vlg.childForceExpandWidth = false;
             vlg.childForceExpandHeight = false;
             vlg.spacing = 3;
-            vlg.padding = new RectOffset(3, 3, 3, 3);
+            vlg.padding = new RectOffset(6, 6, 5, 5);
 
             // Title
             var obName = UI.Builder.BuildLabel(_obPanel.transform, out _lName, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 18);
