@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BuffKit.UI;
 using HarmonyLib;
 using Muse.Goi2.Entity;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BuffKit.LoadoutDnd
 {
@@ -53,62 +51,44 @@ namespace BuffKit.LoadoutDnd
         }
     }
 
-    // [HarmonyPatch(typeof(UINewAcceptLoadoutDialog), "Show")]
-    // public class UINewAcceptLoadoutDialog_OnEnable
-    // {
-    //     public static void Postfix(IList<SkillConfig> ___skills)
-    //     {
-    //         var bg = UINewAcceptLoadoutDialog.Instance.transform.GetChild(2);
-    //
-    //         if (bg.gameObject.GetComponent<DropHandler>() is null)
-    //         {
-    //             var dh = bg.gameObject.AddComponent<DropHandler>();
-    //             dh.OnDropped +=
-    //                 (previous, current) =>
-    //                 {
-    //                     var oldSkills = new List<SkillConfig>(___skills);
-    //                     MuseLog.Info("OLD SKILLS LENGTH");
-    //                     MuseLog.Info(oldSkills.Count.ToString());
-    //                     var indices = new SortedDictionary<int, int>();
-    //
-    //                     MuseLog.Info("CURRENT LENGTH");
-    //                     MuseLog.Info(current.Count.ToString());
-    //                     
-    //                     for (int i = 0; i < current.Count; i++)
-    //                     {
-    //                         MuseLog.Info("ADDING KEY");
-    //                         MuseLog.Info(i.ToString());
-    //                         indices.Add(i, current.Keys[i]);
-    //                     }
-    //                     
-    //                     MuseLog.Info("INDICES LENGTH");
-    //                     MuseLog.Info(indices.Count.ToString());
-    //                     
-    //                     ___skills.Clear();
-    //                     oldSkills.Reverse();
-    //                     foreach (var skill in oldSkills)
-    //                     {
-    //                         ___skills.Add(skill);
-    //                     }
-                        
-                        // MuseLog.Info("SKILLS LENGTH");
-                        // MuseLog.Info(indices.Count.ToString());
-                        //
-                        // foreach (var t in indices)
-                        // {
-                        //     MuseLog.Info("ADDING SKILL");
-                        //     MuseLog.Info(t.Key.ToString());
-                        //     MuseLog.Info(t.Value.ToString());
-                        //     MuseLog.Info(oldSkills[t.Value].Name);
-                        //     try
-                        //     {
-                        //         var skill = oldSkills[t.Value];
-                        //         ___skills.Add(skill);
-                        //     }
-                        //     catch (ArgumentOutOfRangeException)
-                        //     {
-                        //     }
-                        // }
+    [HarmonyPatch(typeof(UINewAcceptLoadoutDialog), "Show")]
+    public class UINewAcceptLoadoutDialog_Show
+    {
+        public static void Postfix(IList<SkillConfig> ___skills)
+        {
+            var bg = UINewAcceptLoadoutDialog.Instance.transform.GetChild(2);
+
+            if (bg.gameObject.GetComponent<DropHandler>() is null)
+            {
+                var dh = bg.gameObject.AddComponent<DropHandler>();
+                dh.OnDropped +=
+                    (previous, current) =>
+                    {
+                        var oldSkills = new List<SkillConfig>(___skills);
+                        MuseLog.Info("OLD SKILLS LENGTH");
+                        MuseLog.Info(oldSkills.Count.ToString());
+
+                        LoadoutDnd.Skills.Clear();
+                        foreach (var kvp in current)
+                        {
+                            MuseLog.Info("PROCESSING SKILL");
+                            var oldIndex = previous.Keys[previous.IndexOfValue(kvp.Value)];
+                            var newIndex = current.IndexOfKey(kvp.Key);
+                            
+                            MuseLog.Info(oldIndex.ToString());
+                            MuseLog.Info(newIndex.ToString());
+                            
+                            try
+                            {
+                                LoadoutDnd.Skills.Add(newIndex, oldSkills[oldIndex]);
+                            }
+                            catch (Exception e)
+                            {
+                                MuseLog.Info(e.ToString());
+                            }
+                        }
+
+                        SubDataActions.OnAcceptLoadout += LoadoutDnd.AcceptCallback;
                     };
             }
         }

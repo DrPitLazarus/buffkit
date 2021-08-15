@@ -235,7 +235,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
+    <Compile Include="LoadoutDnd\LoadoutDnd.cs" />
     <Compile Include="LoadoutDnd\Patcher.cs" />
+    <Compile Include="RecommendEveryone\Patcher.cs" />
     <Compile Include="LobbyTimer\Patcher.cs" />
     <Compile Include="LobbyTimer\Timer.cs" />
     <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
