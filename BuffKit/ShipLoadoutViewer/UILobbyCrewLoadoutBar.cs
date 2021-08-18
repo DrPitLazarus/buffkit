@@ -33,13 +33,12 @@ namespace BuffKit.ShipLoadoutViewer
                 hlg = obSubBar.AddComponent<HorizontalLayoutGroup>();
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                hlg.spacing = 1;
+                hlg.spacing = 4;
                 subBars.Add(obSubBar);
                 for (var j = 0; j < 3; j++)
                 {
                     var slot = new GameObject($"slot{j}");
                     var im = slot.AddComponent<RawImage>();
-                    //im.enabled = false;
                     subImages.Add(im);
                     le = slot.AddComponent<LayoutElement>();
                     le.preferredWidth = 21;
@@ -179,7 +178,7 @@ namespace BuffKit.ShipLoadoutViewer
                         {
                             //_loadoutBarImages[i][j].enabled = true;
                             _loadoutBarImages[i][j].gameObject.SetActive(true);
-                            _loadoutBarImages[i][j].texture = GetTexture(data.AllIds[i][j]);
+                            _loadoutBarImages[i][j].texture = UI.Resources.GetSkillTexture(data.AllIds[i][j]);
                         }
                         for (var j = classItemCount; j < 3; j++)
                         {
@@ -200,13 +199,6 @@ namespace BuffKit.ShipLoadoutViewer
                 _spacer1.SetActive(false);
                 _spacer2.SetActive(false);
             }
-        }
-
-        private static Texture GetTexture(int skillId)
-        {
-            if (skillId == -1) return UIManager.IconForNullOrEmpty;
-            if (!ShipLoadoutViewer.skillIcons.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
-            return ShipLoadoutViewer.skillIcons[skillId];
         }
 
         //private static int _enabledToolSlots = 6;

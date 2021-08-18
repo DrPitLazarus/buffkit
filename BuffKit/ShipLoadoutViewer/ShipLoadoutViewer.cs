@@ -118,44 +118,7 @@ namespace BuffKit.ShipLoadoutViewer
             }
         }
 
-        public static Dictionary<int, Texture2D> gunIcons;
-        public static Dictionary<int, Texture2D> skillIcons;
-        public static void LoadGunTextures()
-        {
-            // Load the actual icons
-            log.LogInfo("Loading gun icon textures");
-            gunIcons = new Dictionary<int, Texture2D>();
-            foreach (var gunId in GunIds)
-            {
-                var gunItem = CachedRepository.Instance.Get<GunItem>(gunId);
-                MuseBundleStore.Instance.LoadObject<Texture2D>(gunItem.GetIcon(), delegate (Texture2D t)
-                {
-                    gunIcons[gunId] = t;
-                    //log.LogInfo($"  Loaded icon texture for gun: {gunItem.NameText.En}");
-                    MarkShipBarsForRedraw();
-                }, 0, false);
-            }
-        }
-        public static void LoadSkillTextures()
-        {
-            log.LogInfo("Loading skill icon textures");
-            skillIcons = new Dictionary<int, Texture2D>();
-            var allSkills = CachedRepository.Instance.GetAll<SkillConfig>();
-            foreach (var sk in allSkills)
-            {
-                var id = sk.ActivationId;
-                MuseBundleStore.Instance.LoadObject<Texture2D>(sk.GetIcon(), delegate (Texture2D t)
-                {
-                    if (t != null)
-                    {
-                        skillIcons[id] = t;
-                        //log.LogInfo($"  Loaded icon texture for skill: {sk.NameText.En}");
-                        MarkCrewBarsForRedraw();
-                    }
-                }, 0, false);
-            }
-        }
-        static void MarkShipBarsForRedraw()
+        public static void MarkShipBarsForRedraw()
         {
             // This is called every time LoadGunTextures loads a texture
             // Should result in icon textures being drawn as soon as they are loaded instead of on next PaintLoadoutBars call
@@ -163,7 +126,7 @@ namespace BuffKit.ShipLoadoutViewer
                 foreach (var bar in barList)
                     bar.shipBar.MarkForRedraw = true;
         }
-        static void MarkCrewBarsForRedraw()
+        public static void MarkCrewBarsForRedraw()
         {
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)

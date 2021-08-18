@@ -37,10 +37,8 @@ namespace BuffKit.InfoPanels
         {
             if (!_useOverlay) return true;
             if (_obPanel == null) return true;
-            log.LogInfo($"DisplayGun called for {gunInfo.name}");
             var gunId = _infoNameToId[gunInfo.name];
             var gunItem = CachedRepository.Instance.Get<GunItem>(gunId);
-
 
             _lName.text = gunInfo.name;
             _lDamageDirect.text = $"{gunInfo.directDamage} {GetDamageTypeName(gunInfo.directDamageType)}";

@@ -18,7 +18,7 @@ namespace BuffKit.Settings
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
             Instance.LoadFromFile();
-            Util.Util.OnLobbyLoad += Instance.LoadIconTexture;
+            UI.Resources.RegisterSkillTextureCallback(delegate { Instance._icon.texture = UI.Resources.GetSkillTexture(16); });
             Instance.log.LogInfo("Settings initialized");
         }
 
@@ -165,14 +165,6 @@ namespace BuffKit.Settings
             button.transition = Selectable.Transition.ColorTint;
             button.colors = UI.Resources.ScrollBarColors;
             button.targetGraphic = _icon;
-        }
-
-        private void LoadIconTexture()
-        {
-            MuseBundleStore.Instance.LoadObject<Texture2D>(CachedRepository.Instance.Get<SkillConfig>(16).GetIcon(), delegate (Texture2D t)
-            {
-                _icon.texture = t;
-            }, 0, false);
         }
 
         private enum DataType

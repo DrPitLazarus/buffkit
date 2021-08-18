@@ -153,11 +153,8 @@ namespace BuffKit.ShipLoadoutViewer
         private RawImage _image;
         public void SetGun(int gunId)
         {
-            if (gunId == _gunId) return;
             _gunId = gunId;
-            if (gunId == -1) _image.texture = UIManager.IconForNullOrEmpty;
-            if (!ShipLoadoutViewer.gunIcons.ContainsKey(gunId)) _image.texture = UIManager.IconForNullOrEmpty;
-            _image.texture = ShipLoadoutViewer.gunIcons[gunId];
+            _image.texture = UI.Resources.GetGunTexture(gunId);
             _gunInfo = GunItemInfo.FromGunItem(CachedRepository.Instance.Get<GunItem>(_gunId));
         }
         private void Awake()

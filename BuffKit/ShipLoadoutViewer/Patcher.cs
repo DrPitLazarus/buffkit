@@ -12,8 +12,8 @@ namespace BuffKit.ShipLoadoutViewer
             if (_firstPrepare)
             {
                 ShipLoadoutViewer.CreateLog();
-                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadGunTextures;
-                Util.Util.OnLobbyLoad += ShipLoadoutViewer.LoadSkillTextures;
+                UI.Resources.RegisterGunTextureCallback(ShipLoadoutViewer.MarkShipBarsForRedraw);
+                UI.Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
                 Util.Util.OnGameInitialize += delegate
                 {
                     Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
@@ -40,8 +40,6 @@ namespace BuffKit.ShipLoadoutViewer
                         (int)UIShipLoadoutSlot.InfoDisplaySetting);
                     Settings.Settings.Instance.AddEntry("lobby gun tooltip display", delegate (Settings.EnumString enumString)
                     {
-                        var log = BepInEx.Logging.Logger.CreateLogSource("tooltipcallback");
-                        log.LogInfo($"Changing from {(int)UIShipLoadoutSlot.InfoDisplaySetting} to {enumString.SelectedValue}");
                         UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
                     }, lobbyGunTooltipDisplay);
 

@@ -11,25 +11,11 @@ namespace BuffKit.InfoPanels
     public static class ShipStatsPanel
     {
 
-        /*
-         * Important stats
-         *  Hull
-         *  Armor
-         *  Mass
-         *  Acceleration
-         *  Speed
-         *  Turning accel
-         *  Turning speed
-         *  Vertical accel
-         *  Vertical speed
-         */
-
-        private static BepInEx.Logging.ManualLogSource log;
-
         private static GameObject _obOriginal;
         private static GameObject _obPanel;
 
         private static TextMeshProUGUI _lHull, _lArmor, _lMass, _lAcc, _lSpeed, _lTurnAcc, _lTurnSpeed, _lVertAcc, _lVertSpeed;
+        private static TextMeshProUGUI _lRebuildHits;
         //private static TextMeshProUGUI _lThrust, _lTorque, _lLiftForce;
 
         private static Dictionary<int, Dictionary<GameType, Dictionary<string, float>>> _shipDataDict;
@@ -40,7 +26,10 @@ namespace BuffKit.InfoPanels
 
             _lHull.text = String.Format("{0:0.###}", data["hull"]);
             _lArmor.text = String.Format("{0:0.###}", data["armor"]);
-            _lMass.text = String.Format("{0:0.} tonnes", data["mass"]/1e3f);
+
+            _lRebuildHits.text = String.Format("{0:0}", data["rebuild"]);
+
+            _lMass.text = String.Format("{0:0.} tonnes", data["mass"] / 1e3f);
             _lAcc.text = String.Format("{0:0.###} m/s²", data["forward acceleration"]);
             _lSpeed.text = String.Format("{0:0.###} m/s", data["forward speed"]);
             _lTurnAcc.text = String.Format("{0:0.###} °/s²", data["turning acceleration"]);
@@ -72,6 +61,7 @@ namespace BuffKit.InfoPanels
 
             BuildRow(_obPanel.transform, "Hull", out _lHull);
             BuildRow(_obPanel.transform, "Armor", out _lArmor);
+            BuildRow(_obPanel.transform, "Required Rebuild", out _lRebuildHits);
             BuildRow(_obPanel.transform, "Mass", out _lMass);
             BuildRow(_obPanel.transform, "Acceleration", out _lAcc);
             BuildRow(_obPanel.transform, "Speed", out _lSpeed);
@@ -113,8 +103,6 @@ namespace BuffKit.InfoPanels
 
         public static void Initialize()
         {
-            log = BepInEx.Logging.Logger.CreateLogSource("ship-stat-panel");
-
             _obOriginal = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Profile Ship/Content/Ship Stats").gameObject;
             _obOriginal.SetActive(false);
             BuildPanel(_obOriginal.transform.parent);
@@ -126,11 +114,12 @@ namespace BuffKit.InfoPanels
                 var _currentShipDataDict = new Dictionary<GameType, Dictionary<string, float>>();
 
                 var model = CachedRepository.Instance.Get<ShipModel>(id);
-                foreach (var gameType in new List<GameType> { GameType.Skirmish, GameType.Coop, GameType.Practice })
+                foreach (var gameType in new List<GameType> { GameType.Skirmish, GameType.Coop })
                 {
                     var armor = (from part in model.Parts
                                  where part.Type == ShipStaticPartType.RIGGING
                                  select part).Sum((ShipStaticPartEntity part) => part.MaxHealth);
+                    var rebuild = Mathf.Max(1, (float)Math.Floor((3f + armor * 0.017f) * 3f));
                     var hull = (from part in model.Parts
                                 where part.Type == ShipStaticPartType.RIGGING
                                 select part).Sum((ShipStaticPartEntity part) => part.ArmorNum);
@@ -165,13 +154,14 @@ namespace BuffKit.InfoPanels
                     _currentGametypeShipDataDict.Add("torque", totalTorque);
                     _currentGametypeShipDataDict.Add("lift", lift);
 
+                    _currentGametypeShipDataDict.Add("rebuild", rebuild);
+
                     _currentShipDataDict.Add(gameType, _currentGametypeShipDataDict);
                 }
                 _shipDataDict.Add(id, _currentShipDataDict);
             }
 
             Settings.Settings.Instance.AddEntry("detailed ship stat panel", SetEnabled, true);
-            log.LogInfo("Initialized ShipStatsPanel");
         }
     }
 }

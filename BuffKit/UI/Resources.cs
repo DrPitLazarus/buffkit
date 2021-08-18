@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Muse.Goi2.Entity;
 
 namespace BuffKit.UI
 {
@@ -16,6 +18,7 @@ namespace BuffKit.UI
         public static RuntimeAnimatorController ButtonAnimatorController { get; private set; }
         public static ColorBlock ScrollBarColors { get; private set; }
         public static ColorBlock TextFieldColors { get; private set; }
+        public static ColorBlock MenuButtonColors { get; private set; }
         public static Color BackgroundColor { get; private set; }
         public static Color OutlineColor { get; private set; }
         public static Color MenuSelectableInteractable { get; private set; }
@@ -60,6 +63,15 @@ namespace BuffKit.UI
                 fadeDuration = .1f,
                 colorMultiplier = 1
             };
+            MenuButtonColors = new ColorBlock
+            {
+                normalColor = new Color32(0x80, 0x6B, 0x55, 0xFF),
+                highlightedColor = new Color32(0xF0, 0xF0, 0xF0, 0xFF),
+                pressedColor = new Color32(0x92, 0x7C, 0x64, 0xFF),
+                disabledColor = new Color32(0xC8, 0xC8, 0xC8, 0x80),
+                fadeDuration = .1f,
+                colorMultiplier = 1
+            };
 
             BackgroundColor = new Color32(0x10, 0x0A, 0x06, 0xFF);
             OutlineColor = new Color32(0xA8, 0x90, 0x79, 0xFF);
@@ -73,6 +85,61 @@ namespace BuffKit.UI
             if (PilotIcon == null) log.LogWarning("Could not find PilotIcon");
 
             //Builder.TestBuilder(GameObject.Find("/Menu UI/Standard Canvas/Main Menu/Main Screen Elements/Game logo")?.transform);
+
+            Util.Util.OnLobbyLoad += ReloadTextures;
+        }
+
+        private static Dictionary<int, Texture2D> _gunTextures;
+        private static event Util.Util.Notify _gunTextureLoadCallback;
+        public static Texture2D GetGunTexture(int gunId)
+        {
+            if (!_gunTextures.ContainsKey(gunId)) return UIManager.IconForNullOrEmpty;
+            return _gunTextures[gunId];
+        }
+        public static void RegisterGunTextureCallback(Util.Util.Notify gunTextureLoadCallback)
+        {
+            _gunTextureLoadCallback -= gunTextureLoadCallback;
+            _gunTextureLoadCallback += gunTextureLoadCallback;
+        }
+        private static Dictionary<int, Texture2D> _skillTextures;
+        private static event Util.Util.Notify _skillTextureLoadCallback;
+        public static Texture2D GetSkillTexture(int skillId)
+        {
+            if (!_skillTextures.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
+            return _skillTextures[skillId];
+        }
+        public static void RegisterSkillTextureCallback(Util.Util.Notify skillTextureLoadCallback)
+        {
+            _skillTextureLoadCallback -= skillTextureLoadCallback;
+            _skillTextureLoadCallback += skillTextureLoadCallback;
+        }
+        private static void ReloadTextures()
+        {
+            _gunTextures = new Dictionary<int, Texture2D>();
+            foreach (var id in Util.Util.GunIds)
+            {
+                var gunItem = CachedRepository.Instance.Get<GunItem>(id);
+                MuseBundleStore.Instance.LoadObject<Texture2D>(gunItem.GetIcon(), delegate (Texture2D t)
+                {
+                    _gunTextures[id] = t;
+                    _gunTextureLoadCallback?.Invoke();
+                }, 0, false);
+            }
+
+            _skillTextures = new Dictionary<int, Texture2D>();
+            var allSkills = CachedRepository.Instance.GetAll<SkillConfig>();
+            foreach (var sk in allSkills)
+            {
+                var id = sk.ActivationId;
+                MuseBundleStore.Instance.LoadObject<Texture2D>(sk.GetIcon(), delegate (Texture2D t)
+                {
+                    if (t != null)
+                    {
+                        _skillTextures[id] = t;
+                        _skillTextureLoadCallback?.Invoke();
+                    }
+                }, 0, false);
+            }
         }
     }
 }
