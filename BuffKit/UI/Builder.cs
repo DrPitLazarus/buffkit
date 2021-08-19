@@ -243,7 +243,7 @@ namespace BuffKit.UI
             rt = obLabel.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
             rt.anchorMax = new Vector2(1, 1);
-            rt.offsetMin = new Vector2(15, 0);
+            rt.offsetMin = new Vector2(0, 0);
             rt.offsetMax = new Vector2(0, 0);
 
             var obOutline = new GameObject("Outline");
