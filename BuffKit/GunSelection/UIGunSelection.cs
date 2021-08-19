@@ -55,14 +55,8 @@ namespace BuffKit.GunSelection
         }
         public bool Activated
         {
-            get
-            {
-                return gameObject.activeSelf;
-            }
-            set
-            {
-                gameObject.SetActive(value);
-            }
+            get { return gameObject.activeSelf; }
+            set { gameObject.SetActive(value); }
         }
 
         public void DisplayGunSelection(ShipPartSlotSize slotSize, Action<int> callback, List<int> availableGuns)
@@ -211,13 +205,19 @@ namespace BuffKit.GunSelection
             public void SetGunIds(List<int> id, Action<int> callback, int columnCount, List<int> availableGuns)
             {
                 _gridLayout.constraintCount = columnCount;
-                var idsToShow = Math.Min(id.Count, _gunSelectionItems.Count);
-                for (var i = 0; i < idsToShow; i++)
+
+                var idsToDisplay = new List<int>();
+                idsToDisplay.AddRange(id);
+                foreach (var v in availableGuns)
+                    if (!idsToDisplay.Contains(v))
+                        idsToDisplay.Add(v);
+
+                for (var i = 0; i < idsToDisplay.Count; i++)
                 {
-                    _gunSelectionItems[i].SetGun(id[i], callback, availableGuns.Contains(id[i]));
+                    _gunSelectionItems[i].SetGun(idsToDisplay[i], callback, availableGuns.Contains(idsToDisplay[i]));
                     _gunSelectionItems[i].gameObject.SetActive(true);
                 }
-                for (var i = idsToShow; i < _gunSelectionItems.Count; i++)
+                for (var i = idsToDisplay.Count; i < _gunSelectionItems.Count; i++)
                     _gunSelectionItems[i].gameObject.SetActive(false);
             }
 
