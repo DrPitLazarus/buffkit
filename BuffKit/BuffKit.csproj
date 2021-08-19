@@ -239,6 +239,8 @@
     <Compile Include="GunSelection\UIGunSelection.cs" />
     <Compile Include="InfoPanels\GunInfoOverlay.cs" />
     <Compile Include="InfoPanels\Patcher.cs" />
+    <Compile Include="ItemSelection\Patcher.cs" />
+    <Compile Include="ItemSelection\UICustomItemSelectionWindow.cs" />
     <Compile Include="LobbyTimer\Patcher.cs" />
     <Compile Include="LobbyTimer\Timer.cs" />
     <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
