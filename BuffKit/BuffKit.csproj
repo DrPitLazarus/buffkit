@@ -270,6 +270,7 @@
     <Compile Include="TitleSelection\Patcher.cs" />
     <Compile Include="TitleSelection\UICustomTitleSelection.cs" />
     <Compile Include="UI\Builder.cs" />
+    <Compile Include="UI\DropHandler.cs" />
     <Compile Include="UI\Resources.cs" />
     <Compile Include="Util\Patcher.cs" />
     <Compile Include="Util\Util.cs" />
