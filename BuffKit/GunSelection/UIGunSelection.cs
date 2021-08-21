@@ -26,11 +26,11 @@ namespace BuffKit.GunSelection
             vlg.childForceExpandWidth = false;
             vlg.childForceExpandHeight = false;
             vlg.padding = new RectOffset(7, 7, 7, 7);
-            vlg.spacing = 10;
+            vlg.spacing = 7;
             vlg.childAlignment = TextAnchor.MiddleCenter;
             gameObject.AddComponent<GraphicRaycaster>();
 
-            var obLabel = UI.Builder.BuildLabel(gameObject.transform, "Gun Selection", TextAnchor.MiddleCenter, 18);
+            var obLabel = UI.Builder.BuildLabel(gameObject.transform, "Gun Selection", TextAnchor.MiddleCenter, 20);
 
             _grid = UIGunSelectionGrid.Build(gameObject.transform, 20, 100);
 
@@ -38,8 +38,8 @@ namespace BuffKit.GunSelection
             var le = obCancel.AddComponent<LayoutElement>();
             le.preferredWidth = 100;
             le.preferredHeight = 34;
-            var hlg = obCancel.transform.Find("Label").GetComponent<HorizontalLayoutGroup>();
-            hlg.childAlignment = TextAnchor.MiddleLeft;
+            //var hlg = obCancel.transform.Find("Label").GetComponent<HorizontalLayoutGroup>();
+            //hlg.childAlignment = TextAnchor.MiddleLeft;
 
             UI.Resources.RegisterGunTextureCallback(MarkIconsForRedraw);
             Activated = false;
