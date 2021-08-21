@@ -87,6 +87,14 @@ namespace BuffKit.TitleSelection
             le.preferredWidth = 100;
             le.preferredHeight = 34;
 
+            var obDropShadow = GameObject.Instantiate(GameObject.Find("Menu UI/Standard Canvas/Common Elements/Item Selection Window/Item Selection Panel/Drop Shadow"), transform);
+            var rt = obDropShadow.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(.5f, .5f);
+            rt.anchorMax = new Vector2(.5f, .5f);
+            rt.offsetMin = new Vector2(-785, -389);
+            rt.offsetMax = new Vector2(785, 389);
+            obDropShadow.transform.SetAsFirstSibling();
+
             _titleEntries = new List<UITitleEntry>();
 
             gameObject.SetActive(false);

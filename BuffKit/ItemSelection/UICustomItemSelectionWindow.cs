@@ -108,6 +108,7 @@ namespace BuffKit.ItemSelection
         }
 
         private GameObject _obContent;
+        private LayoutElement _leMenuPanel;
         protected override void Awake()
         {
             base.Awake();
@@ -117,8 +118,7 @@ namespace BuffKit.ItemSelection
             var csf = gameObject.AddComponent<ContentSizeFitter>();
             csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             csf.verticalFit = ContentSizeFitter.FitMode.MinSize;
-            var le = gameObject.AddComponent<LayoutElement>();
-            le.minHeight = 500;
+            _leMenuPanel = gameObject.AddComponent<LayoutElement>();
             var vlg = gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.childForceExpandWidth = false;
             vlg.childForceExpandHeight = false;
@@ -131,7 +131,7 @@ namespace BuffKit.ItemSelection
             UI.Builder.BuildVerticalScrollViewFitContent(gameObject.transform, out var obContent);
 
             var obButton = UI.Builder.BuildButton(gameObject.transform, delegate { Cancel(); }, "Cancel");
-            le = obButton.AddComponent<LayoutElement>();
+            var le = obButton.AddComponent<LayoutElement>();
             le.minWidth = 100;
             le.minHeight = 34;
 
@@ -146,6 +146,14 @@ namespace BuffKit.ItemSelection
 
             _items = new List<UISelectionItem>();
 
+            var obDropShadow = GameObject.Instantiate(GameObject.Find("Menu UI/Standard Canvas/Common Elements/Item Selection Window/Item Selection Panel/Drop Shadow"), transform);
+            var rt = obDropShadow.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(.5f, .5f);
+            rt.anchorMax = new Vector2(.5f, .5f);
+            rt.offsetMin = new Vector2(-785, -389);
+            rt.offsetMax = new Vector2(785, 389);
+            obDropShadow.transform.SetAsFirstSibling();
+
             Hide();
         }
 
@@ -158,6 +166,7 @@ namespace BuffKit.ItemSelection
         {
             _lTitle.text = heading;
             var choiceCount = choices.Count();
+            _leMenuPanel.minHeight = choiceCount <= 10 ? 285 : 500;
             for (var i = _items.Count; i < choiceCount; i++)
             {
                 var obSelectionItem = GameObject.Instantiate(UISelectionWindow.Instance.sampleItem, _obContent.transform);
