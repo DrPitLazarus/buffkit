@@ -395,6 +395,30 @@ namespace BuffKit.UI
             return obButton;
         }
 
+        public static GameObject BuildMenuButton(Transform parent, out TextMeshProUGUI label, UnityAction callback, TMP_FontAsset font, int fontSize = 13)
+        {
+            var obButton = new GameObject("button");
+            obButton.transform.SetParent(parent, false);
+            var imgBackground = obButton.AddComponent<Image>();
+            imgBackground.color = Resources.MenuSelectableInteractable;
+            var hlg = obButton.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.spacing = 10;
+            hlg.padding = new RectOffset(3, 3, 3, 3);
+
+            var obLabel = BuildLabel(obButton.transform, out label, font, TextAnchor.MiddleLeft, fontSize);
+
+            var button = obButton.AddComponent<Button>();
+            button.image = imgBackground;
+            button.colors = Resources.ScrollBarColors;
+            button.transition = Selectable.Transition.ColorTint;
+            button.onClick.AddListener(callback);
+
+            return obButton;
+        }
+
         public static GameObject BuildMenuDropdown(Transform parent, string text, out GameObject obContent)
         {
             var obDropdown = new GameObject($"dropdown {text}");
@@ -410,7 +434,7 @@ namespace BuffKit.UI
             var obDropdownIcon = new GameObject("icon");
 
             var tmp = obContent;
-            var obDropdownButton = BuildMenuButton(obDropdown.transform, "dropdown", text, delegate 
+            var obDropdownButton = BuildMenuButton(obDropdown.transform, "dropdown", text, delegate
             {
                 var nextState = !tmp.activeSelf;
                 tmp.SetActive(nextState);

@@ -192,6 +192,8 @@ namespace BuffKit.ItemSelection
             _obItemSelectionWindow = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Item Selection Window");
 
             var obPanel = UI.Builder.BuildPanel(_obItemSelectionWindow.transform.parent);
+            obPanel.transform.SetSiblingIndex(_obItemSelectionWindow.transform.GetSiblingIndex() + 1);
+            obPanel.name = "Custom Item Selection";
 
             Instance = obPanel.AddComponent<UICustomItemSelectionWindow>();
         }
