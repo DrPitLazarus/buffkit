@@ -4,24 +4,13 @@ namespace BuffKit.AnnounceChanges
 {
     static class AnnounceChangesUtil
     {
-        static string TeamToString(int teamIndex)
-        {
-            switch (teamIndex)
-            {
-                case 0: return "Red";
-                case 1: return "Blue";
-                case 2: return "Yellow";
-                case 3: return "Purple";
-                default: return $"[Unknown team {teamIndex}]";
-            }
-        }
         public static string TeamShipToString(int teamIndex, int shipIndex)
         {
-            return $"{TeamToString(teamIndex)} {shipIndex + 1}";
+            return $"{Util.Util.GetTeamName(teamIndex)} {shipIndex + 1}";
         }
         public static string TeamShipToStringShort(int teamIndex, int shipIndex)
         {
-            return $"{TeamToString(teamIndex)} {shipIndex + 1}";
+            return $"{Util.Util.GetTeamName(teamIndex)} {shipIndex + 1}";
         }
         public static string GunStringListToString(List<string> gunList)
         {

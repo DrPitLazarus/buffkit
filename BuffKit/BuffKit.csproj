@@ -235,6 +235,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
+    <Compile Include="FirstKillAnnouncement\FirstKillAnnouncement.cs" />
+    <Compile Include="FirstKillAnnouncement\Patcher.cs" />
     <Compile Include="GunSelection\Patcher.cs" />
     <Compile Include="GunSelection\UIGunSelection.cs" />
     <Compile Include="InfoPanels\GunInfoOverlay.cs" />
