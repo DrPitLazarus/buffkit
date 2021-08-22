@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
@@ -8,6 +7,7 @@ namespace BuffKit.ShipLoadoutViewer
 {
     class UILobbyCrewLoadoutBar : MonoBehaviour
     {
+        private static Color sSpacerColor = new Color32(0x52, 0x3E, 0x3F, 0xFF);
         public bool MarkForRedraw { set; get; }
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
@@ -33,7 +33,7 @@ namespace BuffKit.ShipLoadoutViewer
                 hlg = obSubBar.AddComponent<HorizontalLayoutGroup>();
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                hlg.spacing = 4;
+                hlg.spacing =3;
                 subBars.Add(obSubBar);
                 for (var j = 0; j < 3; j++)
                 {
@@ -52,18 +52,18 @@ namespace BuffKit.ShipLoadoutViewer
             loadoutBar._loadoutBarObjects = subBars;
             loadoutBar._loadoutBarImages = subBarImages;
             loadoutBar._spacer1 = new GameObject("spacer");
-            img = loadoutBar._spacer1.AddComponent<Image>();
-            img.color = new Color32(0x7A, 0x7A, 0x7A, 0x80);
+            loadoutBar._imSpacer1 = loadoutBar._spacer1.AddComponent<Image>();
+            loadoutBar._imSpacer1.color = new Color(0, 0, 0, 0);
             le = loadoutBar._spacer1.AddComponent<LayoutElement>();
-            le.preferredWidth = 2;
+            le.preferredWidth = 1;
             le.preferredHeight = 21;
             loadoutBar._spacer1.transform.SetParent(obBar.transform, false);
             loadoutBar._spacer1.transform.SetSiblingIndex(1);
             loadoutBar._spacer2 = new GameObject("spacer");
-            img = loadoutBar._spacer2.AddComponent<Image>();
-            img.color = new Color32(0x7A, 0x7A, 0x7A, 0x80);
+            loadoutBar._imSpacer2 = loadoutBar._spacer2.AddComponent<Image>();
+            loadoutBar._imSpacer2.color = new Color(0, 0, 0, 0);
             le = loadoutBar._spacer2.AddComponent<LayoutElement>();
-            le.preferredWidth = 2;
+            le.preferredWidth = 1;
             le.preferredHeight = 21;
             loadoutBar._spacer2.transform.SetParent(obBar.transform, false);
             loadoutBar._spacer2.transform.SetSiblingIndex(3);
@@ -148,6 +148,8 @@ namespace BuffKit.ShipLoadoutViewer
 
         private GameObject _spacer1;
         private GameObject _spacer2;
+        private Image _imSpacer1;
+        private Image _imSpacer2;
         private List<GameObject> _loadoutBarObjects;
         private List<List<RawImage>> _loadoutBarImages;
         private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
@@ -156,6 +158,20 @@ namespace BuffKit.ShipLoadoutViewer
         {
             _loadoutDataLast = new PlayerLoadoutData(player);
             DisplayItemsFromData(_loadoutDataLast);
+        }
+
+        public void SetSeparatorVisibility(bool isVisible)
+        {
+            if (isVisible)
+            {
+                _imSpacer1.color = sSpacerColor;
+                _imSpacer2.color = sSpacerColor;
+            }
+            else
+            {
+                _imSpacer1.color = new Color(0, 0, 0, 0);
+                _imSpacer2.color = new Color(0, 0, 0, 0);
+            }
         }
 
         private void DisplayItemsFromData(PlayerLoadoutData data)

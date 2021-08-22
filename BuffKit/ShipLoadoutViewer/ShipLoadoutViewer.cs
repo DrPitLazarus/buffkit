@@ -170,5 +170,13 @@ namespace BuffKit.ShipLoadoutViewer
                 btn.SetActive(isVisible);
         }
 
+        public static void SetCrewLoadoutDisplaySeparator(bool isVisible)
+        {
+            foreach (var barList in loadoutBars)
+                foreach (var bar in barList)
+                    foreach (var crewBar in bar.crewBars)
+                        crewBar.SetSeparatorVisibility(isVisible);
+        }
+
     }
 }

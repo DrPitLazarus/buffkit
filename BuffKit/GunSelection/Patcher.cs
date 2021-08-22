@@ -73,4 +73,13 @@ namespace BuffKit.GunSelection
         }
     }
 
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    class UIPageFrame_HideAllElements
+    {
+        private static void Postfix()
+        {
+            UIGunSelection.Instance?.TryHide();
+        }
+    }
+
 }

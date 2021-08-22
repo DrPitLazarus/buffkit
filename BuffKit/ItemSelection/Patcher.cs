@@ -46,4 +46,13 @@ namespace BuffKit.ItemSelection
             __result = __result || UICustomItemSelectionWindow.Instance.TryCancel();
         }
     }
+
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    class UIPageFrame_HideAllElements
+    {
+        private static void Postfix()
+        {
+            UICustomItemSelectionWindow.Instance?.TryCancel();
+        }
+    }
 }

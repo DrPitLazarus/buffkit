@@ -75,4 +75,13 @@ namespace BuffKit.TitleSelection
             __result = __result || UICustomTitleSelection.Instance.TryHide();
         }
     }
+
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    class UIPageFrame_HideAllElements
+    {
+        private static void Postfix()
+        {
+            UICustomTitleSelection.Instance?.TryHide();
+        }
+    }
 }

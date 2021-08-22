@@ -42,7 +42,7 @@ namespace BuffKit.ShipLoadoutViewer
                     {
                         UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
                     }, lobbyGunTooltipDisplay);
-
+                    Settings.Settings.Instance.AddEntry("crew loadout display separator", ShipLoadoutViewer.SetCrewLoadoutDisplaySeparator, false);
                     Settings.Settings.Instance.AddEntry("crew profile button visibility", ShipLoadoutViewer.SetCrewProfileButtonVisibility, true);
                 };
 
