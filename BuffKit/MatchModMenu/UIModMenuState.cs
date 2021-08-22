@@ -1,5 +1,6 @@
-﻿using System.Linq;
-using MuseBase.Multiplayer.Unity;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using static BuffKit.Util.Util;
 
 namespace BuffKit.MatchModMenu
@@ -10,6 +11,7 @@ namespace BuffKit.MatchModMenu
         public const int OvertimeDuration = 180;
         public static UIModMenuState Instance = new UIModMenuState();
         private bool _needRepaint;
+        private bool _mainTimerStarted = false;
         public override UIManager.UIState BackState => UIManager.UIMatchMenuState.instance.BackState;
 
         public override void Enter(UIManager.UIState previous, UIManager.UIContext uiContext)
@@ -92,23 +94,69 @@ namespace BuffKit.MatchModMenu
                     }
                     else
                     {
-                        dm.AddButton("Start the timer", string.Empty, UIMenuItem.Size.Small, false, false,
-                            delegate
-                            {
-                                _needRepaint = true;
-                                MatchActions.StartCountdown(TimerDuration);
-                                ForceSendMessage("REF: TIMER STARTED");
-                                UIManager.TransitionToState(state);
-                            });
-                        dm.AddButton("Start overtime", string.Empty, UIMenuItem.Size.Small, false, false,
-                            delegate
-                            {
-                                _needRepaint = true;
-                                MatchActions.StartCountdown(OvertimeDuration);
-                                ForceSendMessage("REF: OVERTIME STARTED");
-                                UIManager.TransitionToState(state);
-                            });
+                        if (!_mainTimerStarted)
+                        {
+                            dm.AddButton("Start timer (20 minutes)", string.Empty, UIMenuItem.Size.Small, false, false,
+                                delegate
+                                {
+                                    _needRepaint = true;
+                                    _mainTimerStarted = true;
+                                    MatchActions.StartCountdown(TimerDuration);
+                                    ForceSendMessage("REF: TIMER STARTED");
+                                    UIManager.TransitionToState(state);
+                                });
+                        }
+                        else if (_mainTimerStarted)
+                        {
+                            dm.AddButton("Start overtime (3 minutes)", string.Empty, UIMenuItem.Size.Small, false,
+                                false,
+                                delegate
+                                {
+                                    _needRepaint = true;
+                                    MatchActions.StartCountdown(OvertimeDuration);
+                                    ForceSendMessage("REF: OVERTIME STARTED");
+                                    UIManager.TransitionToState(state);
+                                });
+                        }
                     }
+                    
+                    dm.AddButton("Custom timer", string.Empty, UIMenuItem.Size.Small, false, false,
+                        delegate
+                        {
+                            _needRepaint = true;
+                            var options = new List<int>
+                            {
+                                10,
+                                30,
+                                60,
+                                120,
+                                180,
+                                300,
+                                480,
+                                600,
+                                720,
+                                900,
+                                1200
+                            };
+                            
+                            UINewModalDialog.Select("Select duration", string.Empty, UINewModalDialog.DropdownSetting.CreateSetting(options, t => TimeSpan.FromSeconds(t).ToString()), index =>
+                            {
+                                if (index < 0) return;
+
+                                if (msv.ModCountdown > 0.0)
+                                {
+                                    MatchActions.ExtendCountdown(options[index]);
+                                    ForceSendMessage("REF: TIMER EXTENDED");
+                                }
+                                else
+                                {
+                                    MatchActions.StartCountdown(options[index]);
+                                    ForceSendMessage("REF: TIMER STARTED");
+                                }
+                                
+                                UIManager.TransitionToState(state);
+                            });
+                        });
                 }
                 else
                 {
