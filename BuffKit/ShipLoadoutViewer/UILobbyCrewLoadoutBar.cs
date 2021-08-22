@@ -84,6 +84,7 @@ namespace BuffKit.ShipLoadoutViewer
             btn.interactable = false;                   // Switch to disabled colour (and prevent highlighting)
 
             obBar.transform.SetParent(parent);
+            obBar.transform.SetSiblingIndex(obBar.transform.GetSiblingIndex() - 1);
             return obBar;
         }
 
@@ -178,6 +179,8 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (data.PlayerClass != -1)
             {
+                gameObject.SetActive(true);
+
                 int column = data.PlayerClass;
 
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
@@ -210,10 +213,11 @@ namespace BuffKit.ShipLoadoutViewer
             }
             else
             {
-                for (var i = 0; i < 3; i++)
-                    _loadoutBarObjects[i].SetActive(false);
-                _spacer1.SetActive(false);
-                _spacer2.SetActive(false);
+                gameObject.SetActive(false);
+                //for (var i = 0; i < 3; i++)
+                //    _loadoutBarObjects[i].SetActive(false);
+                //_spacer1.SetActive(false);
+                //_spacer2.SetActive(false);
             }
         }
 
