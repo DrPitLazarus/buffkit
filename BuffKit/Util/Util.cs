@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using Muse.Common;
@@ -95,6 +96,19 @@ namespace BuffKit.Util
                     return "Unknown";
                 //case DamageType.ARMORONLY:
                 //    return "Armour only";
+            }
+        }
+
+        public static string GetTeamName(int teamIndex)
+        {
+            switch (teamIndex)
+            {
+                case 0: return "Red";
+                case 1: return "Blue";
+                case 2: return "Yellow";
+                case 3: return "Purple";
+                default:
+                    throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
             }
         }
 
