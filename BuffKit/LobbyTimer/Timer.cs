@@ -50,7 +50,7 @@ namespace BuffKit.LobbyTimer
             switch (CurrentState)
             {
                 case State.Startup:
-                    _tbc.SetStatus("WAITING FOR THE TIMER TO START");
+                    _tbc.SetStatus("");
                     _tbc.SetCountdown("-:--");
                         
                     _tbc.StartButton.interactable = true;
@@ -60,8 +60,10 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = false;
                     _tbc.RefPauseButton.onClick.AddListener(() => Transition(State.RefPause));
-
+                    _tbc.ResetButton.interactable = false;
+                    _tbc.ResetButton.onClick.AddListener(() => Transition(State.Startup));
                     break;
+                
                 case State.Main:
                     _tbc.SetStatus("PICKING");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
@@ -70,7 +72,9 @@ namespace BuffKit.LobbyTimer
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.LoadoutSetup:
                     _tbc.SetStatus("LOCKED");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
@@ -82,7 +86,9 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.onClick.AddListener(() => Transition(State.Overtime));
                     _tbc.ExtendButton.SetHoverTooltip("Start overtime");
                     _tbc.RefPauseButton.interactable = true;
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.LoadoutSetupEnd:
                     _tbc.SetStatus("AWAITING REF DECISION");
                     _tbc.SetCountdown("-:--");
@@ -93,8 +99,10 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.onClick.RemoveAllListeners();
                     _tbc.ExtendButton.onClick.AddListener(() => Transition(State.Overtime));
                     _tbc.ExtendButton.SetHoverTooltip("Start overtime");
-                    _tbc.RefPauseButton.interactable = false;                    
+                    _tbc.RefPauseButton.interactable = false;
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.Overtime:
                     _tbc.SetStatus("OVERTIME");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
@@ -103,8 +111,9 @@ namespace BuffKit.LobbyTimer
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
-
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.OvertimeLoadoutSetup:
                     _tbc.SetStatus("LOCKED");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
@@ -113,7 +122,9 @@ namespace BuffKit.LobbyTimer
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.End:
                     _tbc.SetStatus("STARTING MATCH");
                     _tbc.SetCountdown("-:--");
@@ -122,7 +133,9 @@ namespace BuffKit.LobbyTimer
                     _tbc.PauseButton.interactable = false;
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = false;
+                    _tbc.ResetButton.interactable = true;
                     break;
+                
                 case State.Pause:
                     _tbc.StartButton.interactable = true;
                     _tbc.StartButton.onClick.RemoveAllListeners();
@@ -131,6 +144,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.interactable = PausesLeft > 0;
                     _tbc.ExtendButton.SetHoverTooltip("Extend pause");
                     _tbc.RefPauseButton.interactable = true;
+                    _tbc.ResetButton.interactable = true;
                     
                     if (PausesLeft > 0)
                     {
@@ -147,6 +161,7 @@ namespace BuffKit.LobbyTimer
                     
                     _tbc.SetStatus("PAUSED");
                     break;
+                
                 case State.RefPause:
                     _tbc.StartButton.interactable = true;
                     _tbc.StartButton.onClick.RemoveAllListeners();
@@ -154,11 +169,12 @@ namespace BuffKit.LobbyTimer
                     _tbc.PauseButton.interactable = false;
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = false;
+                    _tbc.ResetButton.interactable = true;
                     
                     _tbc.SetStatus("PAUSED INDEFINITELY");
                     _tbc.SetCountdown("-:--");
-
                     break;
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -179,6 +195,12 @@ namespace BuffKit.LobbyTimer
         {
             switch (newState)
             {
+                //Any -> Startup, used for reset
+                case State.Startup:
+                    StopAllCoroutines();
+                    Repaint();
+                    ForceSendMessage(TimerStrings.TimerReset);
+                    break;
                 //Startup -> Main, initial startup
                 case State.Main when CurrentState is State.Startup:
                     SecondsLeft = MainDuration;

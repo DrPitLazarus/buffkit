@@ -13,6 +13,7 @@ namespace BuffKit.LobbyTimer
         public Button PauseButton;
         public Button RefPauseButton;
         public Button ExtendButton;
+        public Button ResetButton;
         public Text StatusLabel;
         public Text CountdownLabel;
         public static TimerButtonContainer Instance { get; set; }
@@ -31,9 +32,8 @@ namespace BuffKit.LobbyTimer
             LayoutGroup.childForceExpandHeight = false;
             LayoutGroup.childForceExpandWidth = false;
             
-            
             var statusGo = new GameObject("Status Label");
-            statusGo.transform.parent = gameObject.transform;
+            statusGo.transform.parent = transform;
             statusGo.SetActive(false);
             
             var statusLe = statusGo.AddComponent<LayoutElement>();
@@ -60,7 +60,7 @@ namespace BuffKit.LobbyTimer
 
             //TODO: figure out how to do this better
             var icons = new Dictionary<string, Texture2D>();
-            var assetPath = @"BepInEx\plugins\BuffKit\Assets\Timer";
+            const string assetPath = @"BepInEx\plugins\BuffKit\Assets\Timer";
             var gp = Directory.GetCurrentDirectory();
             var path = Path.Combine(gp, assetPath);
             var files = Directory.GetFiles(path);
@@ -72,33 +72,40 @@ namespace BuffKit.LobbyTimer
                 icons.Add(Path.GetFileNameWithoutExtension(file), texture);
             }
             
-            StartButton = Instantiate(prototype, gameObject.transform);
+            StartButton = Instantiate(prototype, transform);
             StartButton.name = "Start Timer Button";
-            StartButton.gameObject.GetComponent<UIHoverTooltipTarget>()
+            StartButton.GetComponent<UIHoverTooltipTarget>()
                 .tooltip = "Start the timer (or resume if currently paused)";
-            StartButton.transform.FindChild("Icon").gameObject.GetComponent<Image>()
+            StartButton.transform.FindChild("Icon").GetComponent<Image>()
                 .sprite = CreateSprite(icons["start"]);
             
-            PauseButton = Instantiate(prototype, gameObject.transform);
+            PauseButton = Instantiate(prototype, transform);
             PauseButton.name = "Pause Timer Button";
-            PauseButton.gameObject.GetComponent<UIHoverTooltipTarget>()
+            PauseButton.GetComponent<UIHoverTooltipTarget>()
                 .tooltip = "Pause the timer, uses one of the 2 available 2 minute long pauses";
-            PauseButton.transform.FindChild("Icon").gameObject.GetComponent<Image>()
+            PauseButton.transform.FindChild("Icon").GetComponent<Image>()
                 .sprite = CreateSprite(icons["pause"]);
             
-            ExtendButton = Instantiate(prototype, gameObject.transform);
+            ExtendButton = Instantiate(prototype, transform);
             ExtendButton.name = "Extend Timer Button";
-            ExtendButton.gameObject.GetComponent<UIHoverTooltipTarget>()
+            ExtendButton.GetComponent<UIHoverTooltipTarget>()
                 .tooltip = "Extend the pause, uses one of the 2 available 2 minute long pauses";
-            ExtendButton.transform.FindChild("Icon").gameObject.GetComponent<Image>()
+            ExtendButton.transform.FindChild("Icon").GetComponent<Image>()
                 .sprite = CreateSprite(icons["extend"]);
             
-            RefPauseButton = Instantiate(prototype, gameObject.transform);
+            RefPauseButton = Instantiate(prototype, transform);
             RefPauseButton.name = "Ref Pause Timer Button";
-            RefPauseButton.gameObject.GetComponent<UIHoverTooltipTarget>()
+            RefPauseButton.GetComponent<UIHoverTooltipTarget>()
                 .tooltip = "Stop the timer until manually resumed";
-            RefPauseButton.transform.FindChild("Icon").gameObject.GetComponent<Image>()
+            RefPauseButton.transform.FindChild("Icon").GetComponent<Image>()
                 .sprite = CreateSprite(icons["halt"]);
+            
+            ResetButton = Instantiate(prototype, transform);
+            ResetButton.name = "Reset Timer Button";
+            ResetButton.GetComponent<UIHoverTooltipTarget>()
+                .tooltip = "Reset the timer";
+            ResetButton.transform.FindChild("Icon").GetComponent<Image>()
+                .sprite = CreateSprite(icons["restart"]);
         }
 
         private static Sprite CreateSprite(Texture2D icon)
@@ -115,6 +122,7 @@ namespace BuffKit.LobbyTimer
             PauseButton?.gameObject?.SetActive(true);
             RefPauseButton?.gameObject?.SetActive(true);
             ExtendButton?.gameObject?.SetActive(true);
+            ResetButton?.gameObject?.SetActive(true);
         }
         
         public void SetStatus(string status)

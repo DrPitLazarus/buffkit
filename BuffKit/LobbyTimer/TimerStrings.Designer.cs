@@ -170,6 +170,15 @@ namespace BuffKit {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TIMER: Timer has been reset and is not running anymore.
+        /// </summary>
+        internal static string TimerReset {
+            get {
+                return ResourceManager.GetString("TimerReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TIMER: Timer resumed, {0} remaining.
         /// </summary>
         internal static string TimerResumed {
