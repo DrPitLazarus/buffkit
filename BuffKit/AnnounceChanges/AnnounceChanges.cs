@@ -126,7 +126,7 @@ namespace BuffKit.AnnounceChanges
         public static void LobbyDataChanged(MatchLobbyView mlv)
         {
             // Skip if match is running or the component is disabled in settings
-            if (mlv.Running || !IsEnabled) return;
+            if (mlv.Running || !IsEnabled || !HasModPrivilege(mlv)) return;
 
             MatchData matchDataNew = new MatchData(mlv);
 
