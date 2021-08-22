@@ -58,4 +58,7 @@
     <data name="RefPauseStart">
         <value>PAUSE: The ref has stopped the timer indefinitely</value>
     </data>
+    <data name="TimerReset" xml:space="preserve">
+        <value>TIMER: Timer has been reset and is not running anymore</value>
+    </data>
 </root>
