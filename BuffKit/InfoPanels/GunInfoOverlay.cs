@@ -269,7 +269,7 @@ namespace BuffKit.InfoPanels
 
         public static void Initialize()
         {
-            Settings.Settings.Instance.AddEntry("detailed gun info", delegate (bool v)
+            Settings.Settings.Instance.AddEntry("info panels", "detailed gun info", delegate (bool v)
             {
                 if (!v) Hide();
                 _useOverlay = v;

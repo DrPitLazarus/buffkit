@@ -20,7 +20,7 @@ namespace BuffKit.ItemSelection
                 Util.Util.OnGameInitialize += delegate
                 {
                     UICustomItemSelectionWindow.Initialize();
-                    Settings.Settings.Instance.AddEntry<bool>("item selection panel", delegate (bool v)
+                    Settings.Settings.Instance.AddEntry<bool>("item selection", "item selection panel", delegate (bool v)
                     {
                         _useCustom = v;
                         if (v) UICustomItemSelectionWindow.Instance.SetEnabled();

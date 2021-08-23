@@ -16,8 +16,8 @@ namespace BuffKit.ShipLoadoutViewer
                 UI.Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
                 Util.Util.OnGameInitialize += delegate
                 {
-                    Settings.Settings.Instance.AddEntry("ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
-                    Settings.Settings.Instance.AddEntry("crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true);
                     var gridIcons = new List<UnityEngine.Sprite>()
                     {
                         UI.Resources.PilotIcon,
@@ -32,18 +32,18 @@ namespace BuffKit.ShipLoadoutViewer
                         { false, true, true },
                         { false, true, true }
                     });
-                    Settings.Settings.Instance.AddEntry("crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
                     ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);
 
                     var lobbyGunTooltipDisplay = new Settings.EnumString(
                         typeof(UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer),
                         (int)UIShipLoadoutSlot.InfoDisplaySetting);
-                    Settings.Settings.Instance.AddEntry("lobby gun tooltip display", delegate (Settings.EnumString enumString)
-                    {
-                        UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
-                    }, lobbyGunTooltipDisplay);
-                    Settings.Settings.Instance.AddEntry("crew loadout display separator", ShipLoadoutViewer.SetCrewLoadoutDisplaySeparator, false);
-                    Settings.Settings.Instance.AddEntry("crew profile button visibility", ShipLoadoutViewer.SetCrewProfileButtonVisibility, true);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "lobby gun tooltip display", delegate (Settings.EnumString enumString)
+                     {
+                         UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
+                     }, lobbyGunTooltipDisplay);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout display separator", ShipLoadoutViewer.SetCrewLoadoutDisplaySeparator, false);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "crew profile button visibility", ShipLoadoutViewer.SetCrewProfileButtonVisibility, true);
                 };
 
                 _firstPrepare = false;

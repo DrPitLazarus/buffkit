@@ -63,7 +63,7 @@ namespace BuffKit.UI
             vlg.childAlignment = TextAnchor.LowerRight;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
-            vlg.spacing = 10;
+            vlg.spacing = 3;
 
             // Scroll View
             var obScrollView = new GameObject("Scroll View");

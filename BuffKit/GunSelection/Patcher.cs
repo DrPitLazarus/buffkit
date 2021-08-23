@@ -19,7 +19,7 @@ namespace BuffKit.GunSelection
                 Util.Util.OnGameInitialize += delegate
                 {
                     UIGunSelection.Initialize();
-                    Settings.Settings.Instance.AddEntry<bool>("gun selection panel", delegate (bool v)
+                    Settings.Settings.Instance.AddEntry<bool>("item selection", "gun selection panel", delegate (bool v)
                     {
                         _useCustom = v;
                         if (!v)

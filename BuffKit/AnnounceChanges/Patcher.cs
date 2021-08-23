@@ -13,7 +13,7 @@ namespace BuffKit.AnnounceChanges
                 AnnounceChanges.CreateLog();
                 Util.Util.OnGameInitialize += delegate
                 {
-                    Settings.Settings.Instance.AddEntry("announce changes", b => AnnounceChanges.IsEnabled = b, true);
+                    Settings.Settings.Instance.AddEntry("ref tools", "announce changes", b => AnnounceChanges.IsEnabled = b, true);
                 };
                 _firstPrepare = false;
             }

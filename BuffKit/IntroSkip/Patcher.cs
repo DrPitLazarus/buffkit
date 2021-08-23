@@ -17,7 +17,7 @@ namespace BuffKit.IntroSkip
             {
                 Util.Util.OnGameInitialize += delegate
                 {
-                    Settings.Settings.Instance.AddEntry("skip intro", delegate (bool v) { _enableSkip = v; }, _enableSkip);
+                    Settings.Settings.Instance.AddEntry("misc", "skip intro", delegate (bool v) { _enableSkip = v; }, _enableSkip);
                 };
                 _firstPrepare = false;
             }

@@ -159,7 +159,7 @@ namespace BuffKit.Settings
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 1;
             vlg.childForceExpandHeight = false;
-            vlg.padding = new RectOffset(3, 3, 3, 3);
+            vlg.padding = new RectOffset(30, 0, 2, 0);
 
             var obGridIconBar = new GameObject("icon bar");
             obGridIconBar.transform.SetParent(obContent.transform, false);
@@ -297,7 +297,7 @@ namespace BuffKit.Settings
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 3;
             vlg.childForceExpandHeight = false;
-            vlg.padding = new RectOffset(3, 3, 3, 3);
+            vlg.padding = new RectOffset(30, 0, 2, 0);
 
             var toggleGroup = obContent.AddComponent<ToggleGroup>();
             toggleGroup.allowSwitchOff = true;
