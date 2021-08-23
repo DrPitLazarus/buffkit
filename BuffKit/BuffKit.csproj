@@ -234,6 +234,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoStartTimer\AutoStartTimer.cs" />
+    <Compile Include="AutoStartTimer\Patcher.cs" />
     <Compile Include="BuffKit.cs" />
     <Compile Include="FirstKillAnnouncement\FirstKillAnnouncement.cs" />
     <Compile Include="FirstKillAnnouncement\Patcher.cs" />
