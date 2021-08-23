@@ -26,13 +26,13 @@ namespace BuffKit.Settings
 
         private Dictionary<string, BaseSettingType> _entries = new Dictionary<string, BaseSettingType>();
 
-        public void AddEntry<T>(string entry, Action<T> callback, T defaultValue)
+        public void AddEntry<T>(string header, string entry, Action<T> callback, T defaultValue)
         {
             bool callCallback = false;
             if (!_entries.ContainsKey(entry))
             {
                 log.LogInfo($"Adding entry: {entry}");
-                if (AddEntryElement<T>(entry, entry, defaultValue, out callCallback))
+                if (AddEntryElement<T>(header.ToUpper(), entry, entry, defaultValue, out callCallback))
                 {
                     SaveToFile();
                 }
@@ -68,12 +68,12 @@ namespace BuffKit.Settings
         }
 
         // Returns true if the entry should be saved to file
-        private bool AddEntryElement<T>(string entry, string text, object value, out bool callCallback)
+        private bool AddEntryElement<T>(string header, string entry, string text, object value, out bool callCallback)
         {
             bool r = true;
             callCallback = false;
 
-            Transform parent = _panel.GetContent();
+            Transform parent = _panel.GetHeaderContent(header);
             BaseSettingType settingEntry;
             if (typeof(T) == typeof(bool))
                 settingEntry = new SettingToggle(parent, entry, text, (bool)value);
@@ -107,9 +107,9 @@ namespace BuffKit.Settings
         }
 
         // Concenience function for adding a button entry (no need to use Dummy)
-        public void AddEntry(string entry, Action callback)
+        public void AddEntry(string header, string entry, Action callback)
         {
-            AddEntry<Dummy>(entry, delegate { callback(); }, null);
+            AddEntry<Dummy>(header, entry, delegate { callback(); }, null);
         }
 
         private UISettingsPanel _panel;

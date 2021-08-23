@@ -161,7 +161,7 @@ namespace BuffKit.InfoPanels
                 _shipDataDict.Add(id, _currentShipDataDict);
             }
 
-            Settings.Settings.Instance.AddEntry("detailed ship stat panel", SetEnabled, true);
+            Settings.Settings.Instance.AddEntry("info panels", "detailed ship stat panel", SetEnabled, true);
         }
     }
 }

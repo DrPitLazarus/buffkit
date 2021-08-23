@@ -84,6 +84,7 @@ namespace BuffKit.ShipLoadoutViewer
             btn.interactable = false;                   // Switch to disabled colour (and prevent highlighting)
 
             obBar.transform.SetParent(parent);
+            obBar.transform.SetSiblingIndex(obBar.transform.GetSiblingIndex() - 1);
             return obBar;
         }
 
@@ -178,6 +179,8 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (data.PlayerClass != -1)
             {
+                gameObject.SetActive(true);
+
                 int column = data.PlayerClass;
 
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
@@ -210,33 +213,14 @@ namespace BuffKit.ShipLoadoutViewer
             }
             else
             {
-                for (var i = 0; i < 3; i++)
-                    _loadoutBarObjects[i].SetActive(false);
-                _spacer1.SetActive(false);
-                _spacer2.SetActive(false);
+                gameObject.SetActive(false);
             }
         }
 
-        //private static int _enabledToolSlots = 6;
         private static bool[,] showTools;
         public static void SetEnabledToolSlotCount(bool[,] newShowTools)
         {
-            /*
-            var classCount = new int[] { 0, 0, 0 };
-            if (newShowTools[0, 0]) classCount[0] += 3;     // Pilot has 3 pilot tools
-            if (newShowTools[1, 0]) classCount[0] += 1;     // Pilot has 1 gunner tool
-            if (newShowTools[2, 0]) classCount[0] += 1;     // Pilot has 1 engineer tool
-            if (newShowTools[0, 1]) classCount[1] += 1;     // Gunner has 1 pilot tool
-            if (newShowTools[1, 1]) classCount[1] += 3;     // Gunner has 3 gunner tools
-            if (newShowTools[2, 1]) classCount[1] += 2;     // Gunner has 2 engineer tools
-            if (newShowTools[0, 2]) classCount[2] += 1;     // Engineer has 1 pilot tool
-            if (newShowTools[1, 2]) classCount[2] += 1;     // Engineer has 1 gunner tool
-            if (newShowTools[2, 2]) classCount[2] += 3;     // Engineer has 3 engineer tools
-            */
-
             showTools = newShowTools;
-
-            //_enabledToolSlots = Mathf.Max(classCount);
         }
     }
 }

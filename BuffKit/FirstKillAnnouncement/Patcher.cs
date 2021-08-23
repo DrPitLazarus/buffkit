@@ -13,7 +13,7 @@ namespace BuffKit.FirstKillAnnouncement
                 Util.Util.OnGameInitialize += delegate
                 {
                     FirstKillAnnouncement.Initialize();
-                    Settings.Settings.Instance.AddEntry("announce first kill", FirstKillAnnouncement.Instance.SetEnabled, false);
+                    Settings.Settings.Instance.AddEntry("ref tools", "announce first kill", FirstKillAnnouncement.Instance.SetEnabled, false);
                 };
                 _firstPrepare = false;
             }
@@ -23,14 +23,4 @@ namespace BuffKit.FirstKillAnnouncement
             FirstKillAnnouncement.Instance.OnMatchUpdate(__instance);
         }
     }
-    /*
-    [HarmonyPatch(typeof(Deathmatch), "RemoteInitialize")]
-    class Deathmatch_RemoteInitialize
-    {
-        private static void Postfix(Deathmatch __instance)
-        {
-            FirstKillAnnouncement.Instance.OnMatchInitialize(__instance);
-        }
-    }
-    */
 }
