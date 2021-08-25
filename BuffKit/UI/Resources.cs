@@ -22,6 +22,10 @@ namespace BuffKit.UI
         public static Color BackgroundColor { get; private set; }
         public static Color OutlineColor { get; private set; }
         public static Color MenuSelectableInteractable { get; private set; }
+        public static Color TeamRed { get { return new Color32(0x74, 0x35, 0x35, 0xFF); } }
+        public static Color TeamBlue { get { return new Color32(0x2F, 0x61, 0x7F, 0xFF); } }
+        public static Color TeamYellow { get { return new Color32(0xD8, 0x98, 0x40, 0xFF); } }
+        public static Color TeamPurple { get { return new Color32(0x5D, 0x2B, 0x70, 0xFF); } }
         public static Sprite EngineerIcon { get; private set; }
         public static Sprite GunnerIcon { get; private set; }
         public static Sprite PilotIcon { get; private set; }

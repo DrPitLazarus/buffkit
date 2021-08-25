@@ -94,8 +94,8 @@ namespace BuffKit.Util
                     return "Impact";
                 default:
                     return "Unknown";
-                //case DamageType.ARMORONLY:
-                //    return "Armour only";
+                    //case DamageType.ARMORONLY:
+                    //    return "Armour only";
             }
         }
 
@@ -107,6 +107,18 @@ namespace BuffKit.Util
                 case 1: return "Blue";
                 case 2: return "Yellow";
                 case 3: return "Purple";
+                default:
+                    throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
+            }
+        }
+        public static Color GetTeamColor(int teamIndex)
+        {
+            switch (teamIndex)
+            {
+                case 0: return UI.Resources.TeamRed;
+                case 1: return UI.Resources.TeamBlue;
+                case 2: return UI.Resources.TeamYellow;
+                case 3: return UI.Resources.TeamPurple;
                 default:
                     throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
             }
