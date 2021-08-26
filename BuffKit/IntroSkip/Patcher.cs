@@ -1,31 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using HarmonyLib;
+﻿using HarmonyLib;
+using UnityEngine.UI;
 
 namespace BuffKit.IntroSkip
 {
-    [HarmonyPatch(typeof(UIIntroScreen), "Activate")]
-    class UIIntroScreen_Activate
+    [HarmonyPatch(typeof(UIManager.UIInitialState), "Enter")]
+    class UIInitialState_Enter
     {
-        private static bool _firstPrepare = true;
-        private static bool _enableSkip = true;
-        private static void Prepare()
+        private static bool enableSkip = true;
+
+        private static void Postfix()
         {
-            if (_firstPrepare)
+            Util.Util.OnSettingsInitialize += () =>
             {
-                Util.Util.OnGameInitialize += delegate
-                {
-                    Settings.Settings.Instance.AddEntry("misc", "skip intro", delegate (bool v) { _enableSkip = v; }, _enableSkip);
-                };
-                _firstPrepare = false;
-            }
-        }
-        private static void Postfix(UIIntroScreen __instance)
-        {
-            if (_enableSkip)
-                __instance.Deactivate();
+                Settings.Settings.Instance.AddEntry("misc", "skip intro", v => enableSkip = v,
+                    enableSkip);
+
+                if (!enableSkip) return;
+                var t = UILauncherMainPanel.Instance.transform;
+                var button = t
+                    .FindChild(
+                        "Launcher Main Panel/Content/Bottom Panel/Bottom Panel Content/Play Button Panel/Play Button")
+                    .gameObject.GetComponent<Button>();
+
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(UILauncherMainPanel.ForceCloseWithoutCallback);
+            };
         }
     }
 }

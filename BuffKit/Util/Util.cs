@@ -12,10 +12,11 @@ namespace BuffKit.Util
 {
     public static class Util
     {
-
         public delegate void Notify();
-        public static event Notify OnGameInitialize;                // Called once before the launcher "Play" button can be pressed
-        public static event Notify OnLobbyLoad;                     // Called when the game loads to menu and after every match
+
+        public static event Notify OnSettingsInitialize; // Called after the settings are ready to be worked with
+        public static event Notify OnGameInitialize;     // Called once before the launcher "Play" button can be pressed
+        public static event Notify OnLobbyLoad;          // Called when the game loads to menu and after every match
 
         public static bool HasModPrivilege(MatchLobbyView mlv)
         {
@@ -35,6 +36,7 @@ namespace BuffKit.Util
             {
                 return;
             }
+
             MuseWorldClient.Instance.Client.SendChatMessage(msg, channel);
         }
 
@@ -46,23 +48,27 @@ namespace BuffKit.Util
                 t = t.parent;
                 s = t.name + "/" + s;
             }
+
             return s;
         }
 
         public static ShipViewObject GetShipVO(this MatchLobbyView mlv, string crewId)
         {
             foreach (var csvo in mlv.CrewShips)
-                if (csvo.CrewId == crewId) return ShipPreview.GetShipVO(csvo);
+                if (csvo.CrewId == crewId)
+                    return ShipPreview.GetShipVO(csvo);
             return null;
         }
 
-        public static HashSet<int> ShipIds { get; private set; }
-        public static HashSet<int> GunIds { get; private set; }
-        private static Dictionary<int, Dictionary<string, int>> _shipGunSlotLookup;
+        public static  HashSet<int>                             ShipIds { get; private set; }
+        public static  HashSet<int>                             GunIds  { get; private set; }
+        private static Dictionary<int, Dictionary<string, int>> shipGunSlotLookup;
+
         public static int GetGunSlotIndex(int shipClass, string gunSlotName)
         {
-            return _shipGunSlotLookup[shipClass][gunSlotName];
+            return shipGunSlotLookup[shipClass][gunSlotName];
         }
+
         public static int[] GetSortedGunIds(ShipModel shipModel, IList<ShipSlotViewObject> gunSlots)
         {
             var shipGunIds = new int[shipModel.GunSlots];
@@ -73,7 +79,8 @@ namespace BuffKit.Util
                 var slotIndex = GetGunSlotIndex(shipClass, slot.Name);
                 shipGunIds[slotIndex] = slot.GunId;
             }
-            return shipGunIds;//.ToList();
+
+            return shipGunIds; //.ToList();
         }
 
         public static string GetDamageTypeName(DamageType type)
@@ -112,10 +119,19 @@ namespace BuffKit.Util
             }
         }
 
-        public static void _OnLobbyLoadTrigger() { OnLobbyLoad?.Invoke(); }
-        public static void _Initialize()
+        public static void OnSettingsInitializeTrigger()
         {
-            SubDataActions.GetShipAndGuns(delegate (LitJson.JsonData data)
+            OnSettingsInitialize?.Invoke();
+        }
+
+        public static void OnLobbyLoadTrigger()
+        {
+            OnLobbyLoad?.Invoke();
+        }
+
+        public static void Initialize()
+        {
+            SubDataActions.GetShipAndGuns(delegate(LitJson.JsonData data)
             {
                 var allGunsJsonData = data["allguns"];
                 GunIds = new HashSet<int>();
@@ -127,7 +143,7 @@ namespace BuffKit.Util
                 var allShipModels = new List<ShipModel>();
                 foreach (var s in ShipIds) allShipModels.Add(CachedRepository.Instance.Get<ShipModel>(s));
                 // For each ShipModel create a dictionary from each gun slot name to its corresponding index in the ship loadout order
-                _shipGunSlotLookup = new Dictionary<int, Dictionary<string, int>>();
+                shipGunSlotLookup = new Dictionary<int, Dictionary<string, int>>();
                 foreach (var ship in allShipModels)
                 {
                     // Logic from UINewShipState.MainMode
@@ -145,24 +161,24 @@ namespace BuffKit.Util
                         };
                         gunSlots.Add(item);
                     }
+
                     var sortedSlots = (from slot in gunSlots
-                                       orderby slot.Size descending,
-                                       ship.Slots[slot.Name].Position.Z descending,
-                                       ship.Slots[slot.Name].Position.X descending,
-                                       ship.Slots[slot.Name].Position.Y,
-                                       slot.Name
-                                       select slot).ToList();
+                        orderby slot.Size descending,
+                            ship.Slots[slot.Name].Position.Z descending,
+                            ship.Slots[slot.Name].Position.X descending,
+                            ship.Slots[slot.Name].Position.Y,
+                            slot.Name
+                        select slot).ToList();
                     var shipDict = new Dictionary<string, int>();
 
                     for (int i = 0; i < sortedSlots.Count; i++)
                         shipDict[sortedSlots[i].Name] = i;
 
-                    _shipGunSlotLookup[ship.Id] = shipDict;
+                    shipGunSlotLookup[ship.Id] = shipDict;
                 }
-                UI.Resources._Initialize();
-                Settings.Settings._Initialize();
+
                 OnGameInitialize?.Invoke();
-                _OnLobbyLoadTrigger();
+                OnLobbyLoadTrigger();
             });
         }
     }

@@ -26,7 +26,7 @@ namespace BuffKit.UI
         public static Sprite GunnerIcon { get; private set; }
         public static Sprite PilotIcon { get; private set; }
 
-        public static void _Initialize()
+        public static void Initialize()
         {
             var log = BepInEx.Logging.Logger.CreateLogSource("resources");
             FontPenumbraHalfSerifStd = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
