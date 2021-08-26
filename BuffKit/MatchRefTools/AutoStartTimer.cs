@@ -1,4 +1,4 @@
-﻿namespace BuffKit.AutoStartTimer
+﻿namespace BuffKit.MatchRefTools
 {
     public static class AutoStartTimer
     {
