@@ -12,14 +12,15 @@ namespace BuffKit.Settings
     public class Settings
     {
         public static Settings Instance { get; private set; }
-        public static void _Initialize()
+        public static void Initialize()
         {
             Instance = new Settings();
             Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
             Instance.CreatePanel();
             Instance.LoadFromFile();
-            UI.Resources.RegisterSkillTextureCallback(delegate { Instance._icon.texture = UI.Resources.GetSkillTexture(16); });
+            UI.Resources.RegisterSkillTextureCallback(() => Instance._icon.texture = UI.Resources.GetSkillTexture(16));
             Instance.log.LogInfo("Settings initialized");
+            Util.Util.OnSettingsInitializeTrigger();
         }
 
         private BepInEx.Logging.ManualLogSource log;
@@ -106,7 +107,7 @@ namespace BuffKit.Settings
             return r;
         }
 
-        // Concenience function for adding a button entry (no need to use Dummy)
+        // Convenience function for adding a button entry (no need to use Dummy)
         public void AddEntry(string header, string entry, Action callback)
         {
             AddEntry<Dummy>(header, entry, delegate { callback(); }, null);
@@ -305,9 +306,6 @@ namespace BuffKit.Settings
             {
                 log.LogInfo($"Failed to read settings file:\n{e.Message}");
             }
-            //foreach (var kvp in _loadedSettings)
-            //    log.LogInfo($"{kvp.Key}:{kvp.Value}");
         }
-
     }
 }

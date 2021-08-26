@@ -5,16 +5,27 @@ namespace BuffKit.Util
     [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
     public class UILoadingLobbyState_Exit
     {
-        static bool _firstCall = true;
+        static bool firstCall = true;
+
         private static void Postfix()
         {
-            if (_firstCall)
+            if (firstCall)
             {
-                _firstCall = false;
-                Util._Initialize();
+                firstCall = false;
+                Util.Initialize();
             }
             else
-                Util._OnLobbyLoadTrigger();     // Util._Initialize calls this
+                Util._OnLobbyLoadTrigger(); // Util._Initialize calls this
+        }
+    }
+
+    [HarmonyPatch(typeof(UIManager.UIInitialState), "Exit")]
+    public class UIInitialState_Exit
+    {
+        private static void Postfix()
+        {
+            UI.Resources.Initialize();
+            Settings.Settings.Initialize();
         }
     }
 }
