@@ -173,8 +173,8 @@ namespace BuffKit.ChaosRandomizer
                     allPlayers.Add(player.Name.Substring(0, player.Name.Length - 5));
 
             // Add fake players (for testing)
-            for (var i = 0; i < 20; i++)
-                allPlayers.Add($"player {i}");
+            //for (var i = 0; i < 20; i++)
+            //    allPlayers.Add($"player {i}");
 
             if (Randomize(allPlayers, mlv))
             {
