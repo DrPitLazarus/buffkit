@@ -179,8 +179,6 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (data.PlayerClass != -1)
             {
-                gameObject.SetActive(true);
-
                 int column = data.PlayerClass;
 
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
