@@ -15,7 +15,7 @@ namespace BuffKit.Util
                 Util.Initialize();
             }
             else
-                Util._OnLobbyLoadTrigger(); // Util._Initialize calls this
+                Util.OnLobbyLoadTrigger(); // Util._Initialize calls this
         }
     }
 

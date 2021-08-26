@@ -124,7 +124,7 @@ namespace BuffKit.Util
             OnSettingsInitialize?.Invoke();
         }
 
-        public static void _OnLobbyLoadTrigger()
+        public static void OnLobbyLoadTrigger()
         {
             OnLobbyLoad?.Invoke();
         }
@@ -178,7 +178,7 @@ namespace BuffKit.Util
                 }
 
                 OnGameInitialize?.Invoke();
-                _OnLobbyLoadTrigger();
+                OnLobbyLoadTrigger();
             });
         }
     }
