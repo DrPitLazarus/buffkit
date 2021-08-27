@@ -118,6 +118,18 @@ namespace BuffKit.Util
                     throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
             }
         }
+        public static Color GetTeamColor(int teamIndex)
+        {
+            switch (teamIndex)
+            {
+                case 0: return UI.Resources.TeamRed;
+                case 1: return UI.Resources.TeamBlue;
+                case 2: return UI.Resources.TeamYellow;
+                case 3: return UI.Resources.TeamPurple;
+                default:
+                    throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
+            }
+        }
 
         public static void OnSettingsInitializeTrigger()
         {
