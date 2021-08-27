@@ -33,7 +33,7 @@ namespace BuffKit.ShipLoadoutViewer
                 hlg = obSubBar.AddComponent<HorizontalLayoutGroup>();
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                hlg.spacing =3;
+                hlg.spacing = 3;
                 subBars.Add(obSubBar);
                 for (var j = 0; j < 3; j++)
                 {
@@ -135,6 +135,11 @@ namespace BuffKit.ShipLoadoutViewer
                 }
                 AllIds = new List<List<int>> { pilotIds, gunnerIds, engineerIds };
             }
+        }
+
+        public void SetVisible(bool isVisible)
+        {
+            gameObject.SetActive(isVisible);
         }
 
 

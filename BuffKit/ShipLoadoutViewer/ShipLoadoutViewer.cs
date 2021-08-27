@@ -57,8 +57,8 @@ namespace BuffKit.ShipLoadoutViewer
             }
             public void ShowShipBar() { shipBar.gameObject.SetActive(true); }
             public void HideShipBar() { shipBar.gameObject.SetActive(false); }
-            public void ShowCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(true); }
-            public void HideCrewBars() { foreach (var b in crewBars) b.gameObject.SetActive(false); }
+            public void ShowCrewBars() { foreach (var b in crewBars) b.SetVisible(true); }
+            public void HideCrewBars() { foreach (var b in crewBars) b.SetVisible(false); }
         }
 
         static List<GameObject> crewProfileButtons;
@@ -136,6 +136,7 @@ namespace BuffKit.ShipLoadoutViewer
 
         public static void SetShipBarVisibility(bool isVisible)
         {
+            _paintShipBars = isVisible;
             log.LogInfo($"Setting ship bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
@@ -148,6 +149,7 @@ namespace BuffKit.ShipLoadoutViewer
         }
         public static void SetCrewBarVisibility(bool isVisible)
         {
+            _paintGunBars = isVisible;
             log.LogInfo($"Setting crew bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
