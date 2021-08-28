@@ -11,21 +11,21 @@ namespace BuffKit.Settings
 {
     public class Settings
     {
-        public static Settings Instance { get; private set; }
-        public static void Initialize()
+        private static Settings _instance = new Settings();
+        private Settings()
         {
-            Instance = new Settings();
-            Instance.log = BepInEx.Logging.Logger.CreateLogSource("settings");
-            Instance.CreatePanel();
-            Instance.LoadFromFile();
-            UI.Resources.RegisterSkillTextureCallback(() => Instance._icon.texture = UI.Resources.GetSkillTexture(16));
-            Instance.log.LogInfo("Settings initialized");
-            Util.Util.OnSettingsInitializeTrigger();
+            log = BepInEx.Logging.Logger.CreateLogSource("settings");
+            LoadFromFile();
+            log.LogInfo("Settings initialized");
         }
+        public static Settings Instance { get { return _instance; } }
 
         private BepInEx.Logging.ManualLogSource log;
 
         private Dictionary<string, BaseSettingType> _entries = new Dictionary<string, BaseSettingType>();
+        private Dictionary<string, string> _entryHeaders = new Dictionary<string, string>();
+
+        private bool _menuInitialized = false;
 
         public void AddEntry<T>(string header, string entry, Action<T> callback, T defaultValue)
         {
@@ -33,7 +33,7 @@ namespace BuffKit.Settings
             if (!_entries.ContainsKey(entry))
             {
                 log.LogInfo($"Adding entry: {entry}");
-                if (AddEntryElement<T>(header.ToUpper(), entry, entry, defaultValue, out callCallback))
+                if (AddEntryElement<T>(header.ToUpper(), entry, defaultValue, out callCallback))
                 {
                     SaveToFile();
                 }
@@ -69,21 +69,20 @@ namespace BuffKit.Settings
         }
 
         // Returns true if the entry should be saved to file
-        private bool AddEntryElement<T>(string header, string entry, string text, object value, out bool callCallback)
+        private bool AddEntryElement<T>(string header, string entry, object value, out bool callCallback)
         {
             bool r = true;
             callCallback = false;
 
-            Transform parent = _panel.GetHeaderContent(header);
             BaseSettingType settingEntry;
             if (typeof(T) == typeof(bool))
-                settingEntry = new SettingToggle(parent, entry, text, (bool)value);
+                settingEntry = new SettingToggle((bool)value);
             else if (typeof(T) == typeof(Dummy))
-                settingEntry = new SettingButton(parent, entry, text);
+                settingEntry = new SettingButton();
             else if (typeof(T) == typeof(ToggleGrid))
-                settingEntry = new SettingToggleGrid(parent, entry, text, (ToggleGrid)value);
+                settingEntry = new SettingToggleGrid((ToggleGrid)value);
             else if (typeof(T) == typeof(EnumString))
-                settingEntry = new SettingEnumString(parent, entry, text, (EnumString)value);
+                settingEntry = new SettingEnumString((EnumString)value);
             else
                 throw new NotSupportedException($"No entry type exists for {typeof(T)}");
 
@@ -100,9 +99,15 @@ namespace BuffKit.Settings
                 }
                 _loadedSettings.Remove(entry);
             }
-
-            _panel.AddSetting(settingEntry, entry);
             _entries.Add(entry, settingEntry);
+            _entryHeaders.Add(entry, header);
+
+            if (_menuInitialized)
+            {
+                Transform parent = _panel.GetHeaderContent(header);
+                settingEntry.CreateUIElement(parent, entry);
+                _panel.AddSetting(settingEntry, entry);
+            }
 
             return r;
         }
@@ -115,7 +120,7 @@ namespace BuffKit.Settings
 
         private UISettingsPanel _panel;
         private RawImage _icon;
-        private void CreatePanel()
+        public void CreatePanel()
         {
             // Font
             var font = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
@@ -166,6 +171,19 @@ namespace BuffKit.Settings
             button.transition = Selectable.Transition.ColorTint;
             button.colors = UI.Resources.ScrollBarColors;
             button.targetGraphic = _icon;
+
+            // Previously created entries
+            foreach (var kvp in _entries)
+            {
+                var entry = kvp.Value;
+                var entryString = kvp.Key;
+                Transform parent = _panel.GetHeaderContent(_entryHeaders[entryString]);
+                entry.CreateUIElement(parent, entryString);
+                _panel.AddSetting(entry, entryString);
+            }
+
+            UI.Resources.RegisterSkillTextureCallback(() => _icon.texture = UI.Resources.GetSkillTexture(16));
+            _menuInitialized = true;
         }
 
         private enum DataType

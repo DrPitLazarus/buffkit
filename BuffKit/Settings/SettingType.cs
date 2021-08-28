@@ -15,6 +15,8 @@ namespace BuffKit.Settings
         public abstract bool SetUnknownValue(object value);
         // Used when saving settings to value
         public abstract object GetUnknownValue();
+        // Used when creating menu entry
+        public abstract void CreateUIElement(Transform parent, string entry);
     }
     public abstract class SettingType<T> : BaseSettingType
     {
@@ -49,37 +51,42 @@ namespace BuffKit.Settings
     public class SettingToggle : SettingType<bool>
     {
         private Toggle _toggle;
-        public SettingToggle(Transform parent, string entry, string text, bool value)
+        public SettingToggle(bool value)
         {
             _value = value;
-            UI.Builder.BuildMenuToggle(parent, out _toggle, text, _value,
-                delegate (bool v) { Settings.Instance.SetEntry(entry, v); });
         }
         public override bool SetValue(bool value)
         {
             if (value != _value)
             {
                 _value = value;
-                _toggle.isOn = value;
+                if (_toggle != null)
+                    _toggle.isOn = value;
                 return true;
             }
             return false;
         }
         public override bool IsSameValue(bool value) { return _value == value; }
         public override bool IsCompatible(object value) { return (value is bool); }
+        public override void CreateUIElement(Transform parent, string entry)
+        {
+            UI.Builder.BuildMenuToggle(parent, out _toggle, entry, _value,
+                delegate (bool v) { Settings.Instance.SetEntry(entry, v); });
+        }
     }
 
     public class Dummy { }
     public class SettingButton : SettingType<Dummy>
     {
-        public SettingButton(Transform parent, string entry, string text)
-        {
-            UI.Builder.BuildMenuButton(parent, entry, text,
-                delegate { Settings.Instance.SetEntry<Dummy>(entry, null); });
-        }
+        public SettingButton() { }
         public override bool SetValue(Dummy value) { return true; }
         public override bool IsSameValue(Dummy value) { return true; }
         public override bool IsCompatible(object value) { return false; }
+        public override void CreateUIElement(Transform parent, string entry)
+        {
+            UI.Builder.BuildMenuButton(parent, entry, entry,
+                delegate { Settings.Instance.SetEntry<Dummy>(entry, null); });
+        }
     }
 
     [Serializable]
@@ -147,15 +154,46 @@ namespace BuffKit.Settings
     public class SettingToggleGrid : SettingType<ToggleGrid>
     {
         private Toggle[,] _toggles;
-        public SettingToggleGrid(Transform parent, string entry, string title, ToggleGrid value)
+        public SettingToggleGrid(ToggleGrid value)
         {
             _value = value;
-
+        }
+        public override bool SetValue(ToggleGrid value)
+        {
+            if (value.Cols != _value.Cols || value.Rows != _value.Rows)
+                return false;
+            bool didChange = false;
+            for (var r = 0; r < value.Rows; r++)
+                for (var c = 0; c < value.Cols; c++)
+                {
+                    var newVal = value.GetValue(r, c);
+                    if (_value.GetValue(r, c) != newVal)
+                    {
+                        _value.SetValue(r, c, newVal);
+                        if (_toggles != null)
+                            _toggles[r, c].isOn = newVal;
+                        didChange = true;
+                    }
+                }
+            return didChange;
+        }
+        public override bool IsSameValue(ToggleGrid value) { return _value.IsEqual(value); }
+        public override bool IsCompatible(object value)
+        {
+            if (value is ToggleGrid)
+            {
+                var v = value as ToggleGrid;
+                return (v.Rows == _value.Rows && v.Cols == _value.Cols);
+            }
+            return false;
+        }
+        public override void CreateUIElement(Transform parent, string entry)
+        {
             LayoutElement le;
 
-            _toggles = new Toggle[value.Rows, value.Cols];
+            _toggles = new Toggle[_value.Rows, _value.Cols];
 
-            UI.Builder.BuildMenuDropdown(parent, title, out var obContent);
+            UI.Builder.BuildMenuDropdown(parent, entry, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 1;
             vlg.childForceExpandHeight = false;
@@ -167,7 +205,7 @@ namespace BuffKit.Settings
             hlg.spacing = 1;
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
-            foreach (var s in value.Icons)
+            foreach (var s in _value.Icons)
             {
                 var obIcon = new GameObject("icon");
                 obIcon.transform.SetParent(obGridIconBar.transform, false);
@@ -190,10 +228,10 @@ namespace BuffKit.Settings
             le = obSpacer.AddComponent<LayoutElement>();
             le.flexibleWidth = 1;
 
-            for (var r = 0; r < value.Rows; r++)
+            for (var r = 0; r < _value.Rows; r++)
             {
                 // Add row object
-                var currentLabel = value.Labels[r];
+                var currentLabel = _value.Labels[r];
                 var obRow = new GameObject($"row {currentLabel}");
                 obRow.transform.SetParent(obContent.transform, false);
                 hlg = obRow.AddComponent<HorizontalLayoutGroup>();
@@ -201,12 +239,12 @@ namespace BuffKit.Settings
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
                 hlg.childAlignment = TextAnchor.MiddleLeft;
-                for (var c = 0; c < value.Cols; c++)
+                for (var c = 0; c < _value.Cols; c++)
                 {
                     // Add toggle button
                     var row = r;
                     var col = c;
-                    UI.Builder.BuildMenuToggle(obRow.transform, out var toggle, value.Values[r, c],
+                    UI.Builder.BuildMenuToggle(obRow.transform, out var toggle, _value.Values[r, c],
                         delegate (bool v)
                         {
                             var newSettings = new ToggleGrid(_value);
@@ -219,34 +257,6 @@ namespace BuffKit.Settings
                 // Add label
                 UI.Builder.BuildLabel(obRow.transform, currentLabel, TextAnchor.MiddleLeft, 13);
             }
-        }
-        public override bool SetValue(ToggleGrid value)
-        {
-            if (value.Cols != _value.Cols || value.Rows != _value.Rows)
-                return false;
-            bool didChange = false;
-            for (var r = 0; r < value.Rows; r++)
-                for (var c = 0; c < value.Cols; c++)
-                {
-                    var newVal = value.GetValue(r, c);
-                    if (_value.GetValue(r, c) != newVal)
-                    {
-                        _value.SetValue(r, c, newVal);
-                        _toggles[r, c].isOn = newVal;
-                        didChange = true;
-                    }
-                }
-            return didChange;
-        }
-        public override bool IsSameValue(ToggleGrid value) { return _value.IsEqual(value); }
-        public override bool IsCompatible(object value)
-        {
-            if (value is ToggleGrid)
-            {
-                var v = value as ToggleGrid;
-                return (v.Rows == _value.Rows && v.Cols == _value.Cols);
-            }
-            return false;
         }
     }
 
@@ -287,36 +297,9 @@ namespace BuffKit.Settings
     public class SettingEnumString : SettingType<EnumString>
     {
         private List<Toggle> _toggles;
-        public SettingEnumString(Transform parent, string entry, string title, EnumString value)
+        public SettingEnumString(EnumString value)
         {
             _value = value;
-
-            _toggles = new List<Toggle>();
-
-            UI.Builder.BuildMenuDropdown(parent, title, out var obContent);
-            var vlg = obContent.AddComponent<VerticalLayoutGroup>();
-            vlg.spacing = 3;
-            vlg.childForceExpandHeight = false;
-            vlg.padding = new RectOffset(30, 0, 2, 0);
-
-            var toggleGroup = obContent.AddComponent<ToggleGroup>();
-            toggleGroup.allowSwitchOff = true;
-
-            for (var i = 0; i < value.Count; i++)
-            {
-                var val = value.GetEnumValue(i);
-                var name = value.GetEnumName(i);
-                UI.Builder.BuildMenuToggle(obContent.transform, out var toggle, name, false, delegate (bool v)
-                {
-                    if (v)
-                        Settings.Instance.SetEntry(entry, new EnumString(val));
-                });
-                toggle.isOn = (val == value.SelectedValue);
-                toggle.group = toggleGroup;
-                _toggles.Add(toggle);
-            }
-
-            toggleGroup.allowSwitchOff = false;
         }
         public override bool IsCompatible(object value)
         {
@@ -326,12 +309,10 @@ namespace BuffKit.Settings
             }
             return false;
         }
-
         public override bool IsSameValue(EnumString value)
         {
             return (_value.SelectedValue == value.SelectedValue);
         }
-
         public override bool SetValue(EnumString value)
         {
             if (IsSameValue(value))
@@ -340,9 +321,39 @@ namespace BuffKit.Settings
             }
             _value.SelectedValue = value.SelectedValue;
             var ind = _value.GetSelectedIndex();
-            for (var i = 0; i < _toggles.Count; i++)
-                _toggles[i].isOn = (i == ind);
+            if (_toggles != null)
+                for (var i = 0; i < _toggles.Count; i++)
+                    _toggles[i].isOn = (i == ind);
             return true;
+        }
+        public override void CreateUIElement(Transform parent, string entry)
+        {
+            _toggles = new List<Toggle>();
+
+            UI.Builder.BuildMenuDropdown(parent, entry, out var obContent);
+            var vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            vlg.spacing = 3;
+            vlg.childForceExpandHeight = false;
+            vlg.padding = new RectOffset(30, 0, 2, 0);
+
+            var toggleGroup = obContent.AddComponent<ToggleGroup>();
+            toggleGroup.allowSwitchOff = true;
+
+            for (var i = 0; i < _value.Count; i++)
+            {
+                var val = _value.GetEnumValue(i);
+                var name = _value.GetEnumName(i);
+                UI.Builder.BuildMenuToggle(obContent.transform, out var toggle, name, false, delegate (bool v)
+                {
+                    if (v)
+                        Settings.Instance.SetEntry(entry, new EnumString(val));
+                });
+                toggle.isOn = (val == _value.SelectedValue);
+                toggle.group = toggleGroup;
+                _toggles.Add(toggle);
+            }
+
+            toggleGroup.allowSwitchOff = false;
         }
     }
 }

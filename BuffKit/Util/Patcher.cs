@@ -25,7 +25,7 @@ namespace BuffKit.Util
         private static void Postfix()
         {
             UI.Resources.Initialize();
-            Settings.Settings.Initialize();
+            Settings.Settings.Instance.CreatePanel();
         }
     }
 }

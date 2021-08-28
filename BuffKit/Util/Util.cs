@@ -14,7 +14,6 @@ namespace BuffKit.Util
     {
         public delegate void Notify();
 
-        public static event Notify OnSettingsInitialize; // Called after the settings are ready to be worked with
         public static event Notify OnGameInitialize;     // Called once before the launcher "Play" button can be pressed
         public static event Notify OnLobbyLoad;          // Called when the game loads to menu and after every match
 
@@ -129,11 +128,6 @@ namespace BuffKit.Util
                 default:
                     throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
             }
-        }
-
-        public static void OnSettingsInitializeTrigger()
-        {
-            OnSettingsInitialize?.Invoke();
         }
 
         public static void OnLobbyLoadTrigger()
