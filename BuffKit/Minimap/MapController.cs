@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using MuseBase;
-using MuseBase.Steam.Wrapper;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 namespace BuffKit.Minimap
 {
@@ -12,7 +8,7 @@ namespace BuffKit.Minimap
         Minimap,
         Full
     }
-    
+
     public class MapController : MonoBehaviour
     {
         private State _state;
@@ -21,77 +17,121 @@ namespace BuffKit.Minimap
             get => _state;
             set => _state = value;
         }
-        
-        private struct ShipLabel
-        {
-            public string Name;
-            public string Number;
-            public Transform Transform;
-        }
 
         public bool MinimapEnabled = true;
         public static MapController Instance;
 
-        private Transform _container;
-        private Transform _background;
-        private RectTransform _rt;
-        private List<ShipLabel> _labels = new List<ShipLabel>();
-        private Vector2 _initialAnchorMin;
-        private Vector2 _initialAnchorMax;
-        private Vector2 _initialOffsetMin; 
-        private Vector2 _initialOffsetMax; 
-        
+        private static Transform _container;
+        private static Transform _background;
+        private static Transform _grid;
+        private static Transform _labels;
+        private static RectTransform _rt;
+        // private static List<ShipLabel> _labels = new List<ShipLabel>();
+        private static Vector2 _initialAnchorMin;
+        private static Vector2 _initialAnchorMax;
+        private static Vector2 _initialOffsetMin;
+        private static Vector2 _initialOffsetMax;
 
+        private static int _size = 300;
+        private static int _offset = 10;
+        private static float _labelScale = 1.0f;
+        private static bool _showLabels = true;
+        private static bool _showGrid = true;
+
+        private static bool _settingsChanged = true;
+        private static bool _initialized = false;
+        private static KeyBinding _kb;
+
+        public void Start()
+        {
+            _kb = new KeyBinding(KeyCode.F5);
+        }
+        
+        public void Update()
+        {
+            if (_kb.GetDown())
+            {
+                MinimapEnabled = !MinimapEnabled;
+            }
+        }        
         public static void Initialize()
         {
-            if (!(Instance is null))
-                DestroyImmediate(Instance);
-            
+            if (_initialized) return;
+
             Instance = UIMapSpawnDisplay.instance.gameObject.AddComponent<MapController>();
 
-            Instance._container = Instance.transform.FindChild("Map Container");
-            Instance._background = Instance.transform.FindChild("Background");
-            Instance._labels.Clear();
-            var labelsContainer = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
-            for (int i = 0; i < labelsContainer.childCount; i++)
+            _container = Instance.transform.FindChild("Map Container");
+            _background = Instance.transform.FindChild("Background");
+            _grid = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Lines");
+            _labels = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
+
+            _rt = _container.GetComponent<RectTransform>();
+            _initialAnchorMin = _rt.anchorMin;
+            _initialAnchorMax = _rt.anchorMax;
+            _initialOffsetMin = _rt.offsetMin;
+            _initialOffsetMax = _rt.offsetMax;
+            _initialized = true;
+        }
+
+        private void UpdateMiniSettings()
+        {
+            _labels.gameObject.SetActive(_showLabels);
+            _grid.gameObject.SetActive(_showGrid);
+            for (int i = 0; i < _labels.childCount; i++)
             {
-                var l = labelsContainer.GetChild(i);
-                Instance._labels.Add(new ShipLabel
-                {
-                    Name = l.GetComponent<Text>().text,
-                    Number = i.ToString(),
-                    Transform = l
-                });
+                var l = _labels.GetChild(i);
+                l.GetComponent<RectTransform>().localScale = new Vector3(_labelScale, _labelScale);
             }
-            Instance._rt = Instance._container.GetComponent<RectTransform>();
-            Instance._initialAnchorMin = Instance._rt.anchorMin;
-            Instance._initialAnchorMax = Instance._rt.anchorMax;
-            Instance._initialOffsetMin = Instance._rt.offsetMin;
-            Instance._initialOffsetMax = Instance._rt.offsetMax;
+            _settingsChanged = false;
+        }
+
+        private void SetFullSettings()
+        {
+            _labels.gameObject.SetActive(true);
+            _grid.gameObject.SetActive(true);
+            for (int i = 0; i < _labels.childCount; i++)
+            {
+                var l = _labels.GetChild(i);
+                l.GetComponent<RectTransform>().localScale = Vector3.one;
+            }
         }
 
         public void Full()
         {
-            _state = State.Full;
-            Instance._rt.anchorMin = _initialAnchorMin;
-            Instance._rt.anchorMax = _initialAnchorMax;
-            Instance._rt.offsetMin = _initialOffsetMin;
-            Instance._rt.offsetMax = _initialOffsetMax;
+            if (_state != State.Full)
+            {
+                _state = State.Full;
+                _background.gameObject.SetActive(true);
+                _rt.anchorMin = _initialAnchorMin;
+                _rt.anchorMax = _initialAnchorMax;
+                _rt.offsetMin = _initialOffsetMin;
+                _rt.offsetMax = _initialOffsetMax;
+                SetFullSettings();
+            }
+
             UIMapDisplay.Activate();
         }
 
         public void Minimap()
         {
-            
-            _state = State.Minimap;
-            Instance._background.gameObject.SetActive(false);
-            Instance._rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 10, 300);
-            Instance._rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 10, 300);
+            if (_state != State.Minimap || _settingsChanged)
+            {
+                _state = State.Minimap;
+                _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, _offset, _size);
+                _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, _offset, _size);
+                UpdateMiniSettings();
+            }
+            UIMapDisplay.Activate();
+            _background.gameObject.SetActive(false);
         }
 
         public void Disabled()
         {
-            _state = State.Disabled;
+            if (_state != State.Disabled)
+            {
+                _background.gameObject.SetActive(false);
+                _state = State.Disabled;
+            }
             UIMapDisplay.Deactivate();
         }
     }
