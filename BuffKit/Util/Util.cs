@@ -19,8 +19,15 @@ namespace BuffKit.Util
 
         public static bool HasModPrivilege(MatchLobbyView mlv)
         {
-            return mlv != null && mlv.Moderated && NetworkedPlayer.Local.Privilege >= UserPrivilege.Referee ||
-                   NetworkedPlayer.Local.Privilege.IsModerator();
+            try
+            {
+                return mlv.Moderated && NetworkedPlayer.Local.Privilege >= UserPrivilege.Referee ||
+                       NetworkedPlayer.Local.Privilege.IsModerator();
+            }
+            catch (NullReferenceException)
+            {
+                return false;
+            }
         }
 
         public static void TrySendMessage(string message, string channel = "match")
@@ -59,8 +66,8 @@ namespace BuffKit.Util
             return null;
         }
 
-        public static  HashSet<int>                             ShipIds { get; private set; }
-        public static  HashSet<int>                             GunIds  { get; private set; }
+        public static HashSet<int> ShipIds { get; private set; }
+        public static HashSet<int> GunIds { get; private set; }
         private static Dictionary<int, Dictionary<string, int>> shipGunSlotLookup;
 
         public static int GetGunSlotIndex(int shipClass, string gunSlotName)
@@ -137,7 +144,7 @@ namespace BuffKit.Util
 
         public static void Initialize()
         {
-            SubDataActions.GetShipAndGuns(delegate(LitJson.JsonData data)
+            SubDataActions.GetShipAndGuns(delegate (LitJson.JsonData data)
             {
                 var allGunsJsonData = data["allguns"];
                 GunIds = new HashSet<int>();
@@ -169,12 +176,12 @@ namespace BuffKit.Util
                     }
 
                     var sortedSlots = (from slot in gunSlots
-                        orderby slot.Size descending,
-                            ship.Slots[slot.Name].Position.Z descending,
-                            ship.Slots[slot.Name].Position.X descending,
-                            ship.Slots[slot.Name].Position.Y,
-                            slot.Name
-                        select slot).ToList();
+                                       orderby slot.Size descending,
+                                           ship.Slots[slot.Name].Position.Z descending,
+                                           ship.Slots[slot.Name].Position.X descending,
+                                           ship.Slots[slot.Name].Position.Y,
+                                           slot.Name
+                                       select slot).ToList();
                     var shipDict = new Dictionary<string, int>();
 
                     for (int i = 0; i < sortedSlots.Count; i++)
