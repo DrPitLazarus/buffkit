@@ -100,8 +100,8 @@ namespace BuffKit.Util
                     return "Impact";
                 default:
                     return "Unknown";
-                //case DamageType.ARMORONLY:
-                //    return "Armour only";
+                    //case DamageType.ARMORONLY:
+                    //    return "Armour only";
             }
         }
 
