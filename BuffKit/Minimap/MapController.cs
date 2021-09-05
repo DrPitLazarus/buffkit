@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BuffKit.Minimap
 {
@@ -19,24 +21,27 @@ namespace BuffKit.Minimap
         }
 
         public bool MinimapEnabled = true;
-        public static MapController Instance;
+        public static MapController Instance { get; private set; }
 
-        private static Transform _container;
-        private static Transform _background;
-        private static Transform _grid;
-        private static Transform _labels;
-        private static RectTransform _rt;
-        // private static List<ShipLabel> _labels = new List<ShipLabel>();
-        private static Vector2 _initialAnchorMin;
-        private static Vector2 _initialAnchorMax;
-        private static Vector2 _initialOffsetMin;
-        private static Vector2 _initialOffsetMax;
+        private Transform _container;
+        private Transform _background;
+        private Transform _grid;
+        private Transform _labels;
+        private RectTransform _rt;
+        private CanvasScaler _scaler;
+        private List<Transform> _gridLabels = new List<Transform>();
+        private List<RectTransform> _verticalGridLines = new List<RectTransform>();
+        private List<RectTransform> _horizontalGridLines = new List<RectTransform>();
+        private Vector2 _initialAnchorMin;
+        private Vector2 _initialAnchorMax;
+        private Vector2 _initialOffsetMin;
+        private Vector2 _initialOffsetMax;
 
-        private static int _size = 300;
-        private static int _offset = 10;
-        private static float _labelScale = 1.0f;
-        private static bool _showLabels = true;
-        private static bool _showGrid = true;
+        private int _size = 300;
+        private int _offset = 10;
+        private float _labelScale = 1.0f;
+        private bool _showLabels = true;
+        private bool _showGrid = true;
 
         private static bool _settingsChanged = true;
         private static bool _initialized = false;
@@ -60,40 +65,64 @@ namespace BuffKit.Minimap
 
             Instance = UIMapSpawnDisplay.instance.gameObject.AddComponent<MapController>();
 
-            _container = Instance.transform.FindChild("Map Container");
-            _background = Instance.transform.FindChild("Background");
-            _grid = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Lines");
-            _labels = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
+            Instance._container = Instance.transform.FindChild("Map Container");
+            Instance._background = Instance.transform.FindChild("Background");
+            Instance._grid = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Lines");
+            Instance._labels = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
+            Instance._scaler = Instance.transform.parent.GetComponent<CanvasScaler>();
+            Instance._rt = Instance._container.GetComponent<RectTransform>();
 
-            _rt = _container.GetComponent<RectTransform>();
-            _initialAnchorMin = _rt.anchorMin;
-            _initialAnchorMax = _rt.anchorMax;
-            _initialOffsetMin = _rt.offsetMin;
-            _initialOffsetMax = _rt.offsetMax;
+            for (int i = 0; i < Instance._grid.childCount; i++)
+            {
+                var c = Instance._grid.GetChild(i);
+                if (c.name.Contains("Text"))
+                    Instance._gridLabels.Add(c);
+                else if (c.name.Contains("Vertical"))
+                    Instance._verticalGridLines.Add(c.GetComponent<RectTransform>());
+                else if (c.name.Contains("Horizontal"))
+                    Instance._horizontalGridLines.Add(c.GetComponent<RectTransform>());
+            }
+            
+            Instance._initialAnchorMin = Instance._rt.anchorMin;
+            Instance._initialAnchorMax = Instance._rt.anchorMax;
+            Instance._initialOffsetMin = Instance._rt.offsetMin;
+            Instance._initialOffsetMax = Instance._rt.offsetMax;
+
             _initialized = true;
         }
 
-        private void UpdateMiniSettings()
+        private void SetGridLabelScale(float scale)
         {
-            _labels.gameObject.SetActive(_showLabels);
-            _grid.gameObject.SetActive(_showGrid);
-            for (int i = 0; i < _labels.childCount; i++)
-            {
-                var l = _labels.GetChild(i);
-                l.GetComponent<RectTransform>().localScale = new Vector3(_labelScale, _labelScale);
-            }
-            _settingsChanged = false;
+            foreach (var label in _gridLabels) 
+                label.localScale = new Vector3(scale, scale);
+        }
+        
+        private void SetGridLinesToOnePixel()
+        {
+            float scale = _scaler.referenceResolution.x / Screen.width; 
+
+            var horizontalScale = new Vector3(1f, scale);
+            var verticalScale = new Vector3(scale, 1f);
+            
+            foreach (var line in _verticalGridLines) 
+                line.localScale = verticalScale;
+
+            foreach (var line in _horizontalGridLines) 
+                line.localScale = horizontalScale;
         }
 
-        private void SetFullSettings()
+        private void SetGridLinesToNormal()
         {
-            _labels.gameObject.SetActive(true);
-            _grid.gameObject.SetActive(true);
-            for (int i = 0; i < _labels.childCount; i++)
+            foreach (var line in _verticalGridLines)
             {
-                var l = _labels.GetChild(i);
-                l.GetComponent<RectTransform>().localScale = Vector3.one;
+                line.localScale = Vector3.one;
             }
+            
+            foreach (var line in _horizontalGridLines)
+            {
+                line.localScale = Vector3.one;
+            }
+
         }
 
         public void Full()
@@ -102,11 +131,15 @@ namespace BuffKit.Minimap
             {
                 _state = State.Full;
                 _background.gameObject.SetActive(true);
+                _labels.gameObject.SetActive(true);
+                _grid.gameObject.SetActive(true);
+                
                 _rt.anchorMin = _initialAnchorMin;
                 _rt.anchorMax = _initialAnchorMax;
                 _rt.offsetMin = _initialOffsetMin;
                 _rt.offsetMax = _initialOffsetMax;
-                SetFullSettings();
+                SetGridLabelScale(1f);
+                SetGridLinesToNormal();
             }
 
             UIMapDisplay.Activate();
@@ -119,10 +152,14 @@ namespace BuffKit.Minimap
                 _state = State.Minimap;
                 _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, _offset, _size);
                 _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, _offset, _size);
-                UpdateMiniSettings();
+                _labels.gameObject.SetActive(false);
+                _grid.gameObject.SetActive(_showGrid);
+                SetGridLabelScale(0.7f);
+                _settingsChanged = false;
             }
             UIMapDisplay.Activate();
             _background.gameObject.SetActive(false);
+            SetGridLinesToOnePixel();
         }
 
         public void Disabled()
