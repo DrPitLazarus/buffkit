@@ -234,13 +234,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoStartTimer\AutoStartTimer.cs" />
-    <Compile Include="AutoStartTimer\Patcher.cs" />
     <Compile Include="BuffKit.cs" />
+    <Compile Include="MatchRefTools\AutoStartTimer.cs" />
+    <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />
+    <Compile Include="MatchRefTools\Patcher.cs" />
     <Compile Include="ChaosRandomizer\ChaosRandomizer.cs" />
     <Compile Include="ChaosRandomizer\Patcher.cs" />
-    <Compile Include="FirstKillAnnouncement\FirstKillAnnouncement.cs" />
-    <Compile Include="FirstKillAnnouncement\Patcher.cs" />
     <Compile Include="GunSelection\Patcher.cs" />
     <Compile Include="GunSelection\UIGunSelection.cs" />
     <Compile Include="InfoPanels\GunInfoOverlay.cs" />

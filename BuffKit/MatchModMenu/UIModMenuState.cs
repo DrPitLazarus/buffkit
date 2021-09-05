@@ -80,7 +80,7 @@ namespace BuffKit.MatchModMenu
                             {
                                 _needRepaint = true;
                                 MatchActions.ExtendCountdown(0);
-                                ForceSendMessage("REF: GAME RESTARTED");
+                                ForceSendMessage("REF: GAME RESUMED");
                                 UIManager.TransitionToState(state);
                             });
 

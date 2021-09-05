@@ -1,4 +1,4 @@
-﻿namespace BuffKit.AutoStartTimer
+﻿namespace BuffKit.MatchRefTools
 {
     public static class AutoStartTimer
     {
@@ -17,6 +17,7 @@
             if (Util.Util.HasModPrivilege(MatchLobbyView.Instance))
             {
                 MatchActions.StartCountdown(20 * 60);
+                Util.Util.ForceSendMessage("REF: TIMER STARTED");
                 log.LogInfo("Called StartCountdown");
             }
             else

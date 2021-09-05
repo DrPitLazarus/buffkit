@@ -1,4 +1,4 @@
-﻿namespace BuffKit.FirstKillAnnouncement
+﻿namespace BuffKit.MatchRefTools
 {
     public class FirstKillAnnouncement
     {
