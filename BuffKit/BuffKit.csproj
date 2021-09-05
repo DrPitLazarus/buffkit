@@ -234,12 +234,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MatchRefTools\AutoStartTimer.cs" />
-    <Compile Include="MatchRefTools\Patcher.cs" />
+    <Compile Include="AutoStartTimer\AutoStartTimer.cs" />
+    <Compile Include="AutoStartTimer\Patcher.cs" />
     <Compile Include="BuffKit.cs" />
     <Compile Include="ChaosRandomizer\ChaosRandomizer.cs" />
     <Compile Include="ChaosRandomizer\Patcher.cs" />
-    <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />
+    <Compile Include="FirstKillAnnouncement\FirstKillAnnouncement.cs" />
+    <Compile Include="FirstKillAnnouncement\Patcher.cs" />
     <Compile Include="GunSelection\Patcher.cs" />
     <Compile Include="GunSelection\UIGunSelection.cs" />
     <Compile Include="InfoPanels\GunInfoOverlay.cs" />
@@ -260,6 +261,8 @@
     <Compile Include="MapPicker\ScrollEventPassthrough.cs" />
     <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
     <Compile Include="MatchModMenu\UIModMenuState.cs" />
+    <Compile Include="Minimap\MapController.cs" />
+    <Compile Include="Minimap\Patcher.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Settings\SettingType.cs" />
     <Compile Include="Settings\UISettingsPanel.cs" />
@@ -293,7 +296,6 @@
     <Content Include="Assets\Timer\start.png" />
     <Content Include="GamePath.txt" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
   </Target>
