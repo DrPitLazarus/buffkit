@@ -23,7 +23,7 @@ namespace BuffKit.Minimap
                 }
                 else
                 {
-                    if (MapController.Instance.MinimapEnabled)
+                    if (MapController.Instance.MinimapEnabled && NetworkedPlayer.Local.IsSpectator)
                     {
                         MapController.Instance.Minimap();
                     }
