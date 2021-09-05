@@ -32,6 +32,7 @@ namespace BuffKit.Minimap
         private List<Transform> _gridLabels = new List<Transform>();
         private List<RectTransform> _verticalGridLines = new List<RectTransform>();
         private List<RectTransform> _horizontalGridLines = new List<RectTransform>();
+        private List<RectTransform> _markers = new List<RectTransform>();
         private Vector2 _initialAnchorMin;
         private Vector2 _initialAnchorMax;
         private Vector2 _initialOffsetMin;
@@ -39,8 +40,6 @@ namespace BuffKit.Minimap
 
         private int _size = 300;
         private int _offset = 10;
-        private float _labelScale = 1.0f;
-        private bool _showLabels = true;
         private bool _showGrid = true;
 
         private static bool _settingsChanged = true;
@@ -83,6 +82,10 @@ namespace BuffKit.Minimap
                     Instance._horizontalGridLines.Add(c.GetComponent<RectTransform>());
             }
             
+            var markersContainer = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Markers");
+            for (int i = 0; i < markersContainer.childCount; i++)
+                Instance._markers.Add(markersContainer.GetChild(i).GetComponent<RectTransform>());
+
             Instance._initialAnchorMin = Instance._rt.anchorMin;
             Instance._initialAnchorMax = Instance._rt.anchorMax;
             Instance._initialOffsetMin = Instance._rt.offsetMin;
@@ -125,6 +128,18 @@ namespace BuffKit.Minimap
 
         }
 
+        private void SetMarkerSize(int size)
+        {
+            var newSize = new Vector2(size, size);
+            foreach (var marker in _markers)
+                marker.sizeDelta = newSize;
+        }
+
+        private void SetSpectatorMarkerStatus(bool status)
+        {
+            _markers[_markers.Count - 1].gameObject.SetActive(status);
+        }
+
         public void Full()
         {
             if (_state != State.Full)
@@ -140,6 +155,8 @@ namespace BuffKit.Minimap
                 _rt.offsetMax = _initialOffsetMax;
                 SetGridLabelScale(1f);
                 SetGridLinesToNormal();
+                SetMarkerSize(30);
+                SetSpectatorMarkerStatus(true);
             }
 
             UIMapDisplay.Activate();
@@ -155,11 +172,13 @@ namespace BuffKit.Minimap
                 _labels.gameObject.SetActive(false);
                 _grid.gameObject.SetActive(_showGrid);
                 SetGridLabelScale(0.7f);
+                SetMarkerSize(24);
+                SetSpectatorMarkerStatus(false);
+                SetGridLinesToOnePixel();
                 _settingsChanged = false;
             }
             UIMapDisplay.Activate();
             _background.gameObject.SetActive(false);
-            SetGridLinesToOnePixel();
         }
 
         public void Disabled()
