@@ -52,15 +52,8 @@ namespace BuffKit.Minimap
     {
         private static void Postfix()
         {
-            MapController.Initialize();
-            if (MapController.Instance.MinimapEnabled)
-            {
-                MapController.Instance.Minimap();
-            }
-            else
-            {
-                MapController.Instance.Disabled();
-            }
+            MapController.Initialize(); 
+            MapController.Instance.Disabled();
         }
     }
 }
