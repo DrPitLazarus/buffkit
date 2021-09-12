@@ -11,7 +11,7 @@ namespace BuffKit.MatchModMenu
         public const int OvertimeDuration = 180;
         public static UIModMenuState Instance = new UIModMenuState();
         private bool _needRepaint;
-        private bool _mainTimerStarted = false;
+        public bool MainTimerStarted = false;
         public override UIManager.UIState BackState => UIManager.UIMatchMenuState.instance.BackState;
 
         public override void Enter(UIManager.UIState previous, UIManager.UIContext uiContext)
@@ -84,7 +84,7 @@ namespace BuffKit.MatchModMenu
                                 UIManager.TransitionToState(state);
                             });
 
-                        dm.AddButton("Stop the timer", string.Empty, UIMenuItem.Size.Small, false, false,
+                        dm.AddButton("Stop timer", string.Empty, UIMenuItem.Size.Small, false, false,
                             delegate
                             {
                                 _needRepaint = true;
@@ -94,19 +94,19 @@ namespace BuffKit.MatchModMenu
                     }
                     else
                     {
-                        if (!_mainTimerStarted)
+                        if (!MainTimerStarted)
                         {
                             dm.AddButton("Start timer (20 minutes)", string.Empty, UIMenuItem.Size.Small, false, false,
                                 delegate
                                 {
                                     _needRepaint = true;
-                                    _mainTimerStarted = true;
+                                    MainTimerStarted = true;
                                     MatchActions.StartCountdown(TimerDuration);
                                     ForceSendMessage("REF: TIMER STARTED");
                                     UIManager.TransitionToState(state);
                                 });
                         }
-                        else if (_mainTimerStarted)
+                        else if (MainTimerStarted)
                         {
                             dm.AddButton("Start overtime (3 minutes)", string.Empty, UIMenuItem.Size.Small, false,
                                 false,

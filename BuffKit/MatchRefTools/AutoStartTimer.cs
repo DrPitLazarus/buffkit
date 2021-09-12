@@ -1,4 +1,6 @@
-﻿namespace BuffKit.MatchRefTools
+﻿using BuffKit.MatchModMenu;
+
+namespace BuffKit.MatchRefTools
 {
     public static class AutoStartTimer
     {
@@ -19,6 +21,7 @@
                 MatchActions.StartCountdown(20 * 60);
                 Util.Util.ForceSendMessage("REF: TIMER STARTED");
                 log.LogInfo("Called StartCountdown");
+                UIModMenuState.Instance.MainTimerStarted = true;
             }
             else
             {
