@@ -54,13 +54,18 @@ namespace BuffKit.LobbyTimer
                     _tbc.SetCountdown("-:--");
                         
                     _tbc.StartButton.interactable = true;
+                    _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(State.Main));
                     _tbc.PauseButton.interactable = false;
+                    _tbc.PauseButton.onClick.RemoveAllListeners();
                     _tbc.PauseButton.onClick.AddListener(() => Transition(State.Pause));
                     _tbc.ExtendButton.interactable = false;
+                    _tbc.ExtendButton.onClick.RemoveAllListeners();
                     _tbc.RefPauseButton.interactable = false;
+                    _tbc.RefPauseButton.onClick.RemoveAllListeners();
                     _tbc.RefPauseButton.onClick.AddListener(() => Transition(State.RefPause));
                     _tbc.ResetButton.interactable = false;
+                    _tbc.ResetButton.onClick.RemoveAllListeners();
                     _tbc.ResetButton.onClick.AddListener(() => Transition(State.Startup));
                     break;
                 
