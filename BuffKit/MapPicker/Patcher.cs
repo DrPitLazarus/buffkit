@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static BuffKit.Util.Util;
 
@@ -9,6 +7,22 @@ namespace BuffKit.MapPicker
     [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "PaintFooterButtons")]
     class UINewMatchLobbyState_PaintFooterButtons
     {
+        private static bool _firstPrepare = true;
+        private static void Prepare()
+        {
+            if (!_firstPrepare) return;
+            
+            OnGameInitialize += delegate
+            {
+                Settings.Settings.Instance.AddEntry("map picker", "only show DM maps", delegate (bool v)
+                {
+                    MapPicker.FilterNonDM = v;
+                }, MapPicker.FilterNonDM);
+            };
+
+            _firstPrepare = false;
+        }
+        
         public static bool Prefix()
         {
             var mlv = MatchLobbyView.Instance;

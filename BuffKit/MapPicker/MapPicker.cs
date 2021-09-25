@@ -6,6 +6,7 @@ namespace BuffKit.MapPicker
 {
     public static class MapPicker
     {
+        public static bool FilterNonDM = true;
         public static bool Paint()
         {
             var comparer = new IntArrayEqualityComparer();
@@ -18,13 +19,16 @@ namespace BuffKit.MapPicker
                         comparer.Equals(r.NonEmptyTeamSize, mlv.Map.NonEmptyTeamSize)
                 );
 
-            //If playing on a DM map, only show DM maps except for Batcave
-            if (mlv.Map.GameMode == RegionGameMode.TEAM_MELEE)
-                rawMaps = rawMaps.Where(m => m.GameMode == RegionGameMode.TEAM_MELEE)
-                    .Where(m => !m.Name.Equals("Batcave"));
-            //If playing on a VIP DM map, only show VIP DM
-            else if (mlv.Map.GameMode == RegionGameMode.TEAM_MELEE_VIP)
-                rawMaps = rawMaps.Where(m => m.GameMode == RegionGameMode.TEAM_MELEE_VIP);
+            if (FilterNonDM)
+            {
+                //If playing on a DM map, only show DM maps except for Batcave
+                if (mlv.Map.GameMode == RegionGameMode.TEAM_MELEE)
+                    rawMaps = rawMaps.Where(m => m.GameMode == RegionGameMode.TEAM_MELEE)
+                        .Where(m => !m.Name.Equals("Batcave"));
+                //If playing on a VIP DM map, only show VIP DM
+                else if (mlv.Map.GameMode == RegionGameMode.TEAM_MELEE_VIP)
+                    rawMaps = rawMaps.Where(m => m.GameMode == RegionGameMode.TEAM_MELEE_VIP);
+            }
 
             var maps = rawMaps.OrderBy(m => m.GetLocalizedName()).ToArray();
 
@@ -37,6 +41,5 @@ namespace BuffKit.MapPicker
 
             return false;
         }
-        
     }
 }
