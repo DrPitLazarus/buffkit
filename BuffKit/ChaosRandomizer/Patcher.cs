@@ -2,7 +2,7 @@
 
 namespace BuffKit.ChaosRandomizer
 {
-    // [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
     public class UIManager_UINewMatchLobbyState_Enter
     {
         private static bool _firstPrepare = true;
@@ -14,18 +14,27 @@ namespace BuffKit.ChaosRandomizer
                 Util.Util.OnGameInitialize += delegate
                 {
                     ChaosRandomizer.Initialize();
-                    MatchLobbyView.enterMatchLobby += ChaosRandomizer.Instance.EnterLobby;
-                    MatchLobbyView.exitMatchLobby += ChaosRandomizer.Instance.ExitLobby;
+                    MatchLobbyView.enterMatchLobby += mlv =>
+                    {
+                        if (!ChaosRandomizer.Enabled) return;
+                        ChaosRandomizer.Instance.EnterLobby(mlv);
+                    };
+                    MatchLobbyView.exitMatchLobby += mlv =>
+                    {
+                        if (!ChaosRandomizer.Enabled) return;
+                        ChaosRandomizer.Instance.ExitLobby(mlv);
+                    };
                 };
             }
         }
         private static void Postfix()
         {
+            if (!ChaosRandomizer.Enabled) return;
             ChaosRandomizer.Instance.EnterLobby(MatchLobbyView.Instance);
         }
     }
 
-    // [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
+    [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
     class UIPageFrame_TryHideOverlay
     {
         private static void Postfix(ref bool __result)
@@ -34,7 +43,7 @@ namespace BuffKit.ChaosRandomizer
         }
     }
 
-    // [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
     class UIPageFrame_HideAllElements
     {
         private static void Postfix()

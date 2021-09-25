@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -8,6 +10,7 @@ namespace BuffKit.ChaosRandomizer
 {
     public class ChaosRandomizer
     {
+        public static bool Enabled = true;
         BepInEx.Logging.ManualLogSource log;
         private ChaosRandomizer()
         {
@@ -35,7 +38,7 @@ namespace BuffKit.ChaosRandomizer
         private GameObject _obUnassignedPlayers;
         private List<UIChaosShipDisplay> _listAssignedShipDisplays;
         private List<TextMeshProUGUI> _listUnassignedPlayerLabels;
-        private TextMeshProUGUI _lInfo;                                 // Info label giving feedback to user
+        private TextMeshProUGUI _lInfo; // Info label giving feedback to user
         private GameObject _obAssignedPlayersHeading;
         private GameObject _obUnassignedPlayersHeading;
         private bool _canAnnounce;
@@ -76,7 +79,8 @@ namespace BuffKit.ChaosRandomizer
             vlg.spacing = 5;
             vlg.padding = new RectOffset(5, 5, 5, 5);
 
-            UI.Builder.BuildLabel(_obContent.transform, out _lInfo, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            UI.Builder.BuildLabel(_obContent.transform, out _lInfo, UI.Resources.FontGaldeanoRegular,
+                TextAnchor.MiddleCenter, 13);
             SetInfoLabel(string.Empty);
 
             var obPlayerLists = new GameObject("player lists");
@@ -103,9 +107,11 @@ namespace BuffKit.ChaosRandomizer
             vlg.childAlignment = TextAnchor.MiddleLeft;
             _listUnassignedPlayerLabels = new List<TextMeshProUGUI>();
 
-            _obAssignedPlayersHeading = UI.Builder.BuildLabel(_obAssignedPlayers.transform, out var lAssignedTitle, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            _obAssignedPlayersHeading = UI.Builder.BuildLabel(_obAssignedPlayers.transform, out var lAssignedTitle,
+                UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
             lAssignedTitle.text = "Assigned Ships";
-            _obUnassignedPlayersHeading = UI.Builder.BuildLabel(_obUnassignedPlayers.transform, out var lUnassignedTitle, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            _obUnassignedPlayersHeading = UI.Builder.BuildLabel(_obUnassignedPlayers.transform,
+                out var lUnassignedTitle, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
             lUnassignedTitle.text = "Unassigned Players";
 
             var obButtons = new GameObject("buttons");
@@ -116,7 +122,8 @@ namespace BuffKit.ChaosRandomizer
             hlg.childForceExpandHeight = false;
             hlg.childAlignment = TextAnchor.MiddleCenter;
 
-            var obBtnRandomize = UI.Builder.BuildButton(obButtons.transform, delegate { Randomize(MatchLobbyView.Instance); }, "Randomize");
+            var obBtnRandomize = UI.Builder.BuildButton(obButtons.transform,
+                delegate { Randomize(MatchLobbyView.Instance); }, "Randomize");
             le = obBtnRandomize.AddComponent<LayoutElement>();
             le.preferredWidth = 130;
             le.preferredHeight = 30;
@@ -172,9 +179,9 @@ namespace BuffKit.ChaosRandomizer
                 foreach (var player in crew.CrewMembers)
                     allPlayers.Add(player.Name.Substring(0, player.Name.Length - 5));
 
-            // Add fake players (for testing)
-            //for (var i = 0; i < 20; i++)
-            //    allPlayers.Add($"player {i}");
+             // Add fake players (for testing)
+            // for (var i = 0; i < 27; i++)
+                // allPlayers.Add($"player {i}");
 
             if (Randomize(allPlayers, mlv))
             {
@@ -183,41 +190,54 @@ namespace BuffKit.ChaosRandomizer
                 _canAnnounce = true;
             }
         }
-
+        
         private List<string> _unassignedPlayers;
         private List<LobbyShip> _assignedShips;
         private bool Randomize(List<string> allPlayers, MatchLobbyView mlv)
         {
-            var requiredShipCount = mlv.FlatCrews.Count;
-
-            log.LogInfo($"Randomize invoked with {allPlayers.Count} players, requesting {requiredShipCount} out");
-            var playerCount = allPlayers.Count;
-            if (playerCount < requiredShipCount)
+            var teamSize = mlv.Crews[0].Count;
+            
+            // The minimum viable lobby size is 2 teams x 2 ships x 2 players
+            if (allPlayers.Count < 8)
             {
-                SetInfoLabel($"Not enough players in lobby: need {requiredShipCount} but only have {_unassignedPlayers.Count}");
+                SetInfoLabel(
+                    $"Not enough players in lobby: need at least 8, but only have {allPlayers.Count}");
                 return false;
             }
-            // Shuffle allPlayers into unassignedPlayers
-            _unassignedPlayers = new List<string>();
-            var rnd = new System.Random();
-            for (var i = 0; i < playerCount; i++)
+            
+            // If we can't fill 2 teams x 3 or 4 ships x 2 players, reduce the amount of ships
+            while (teamSize > 2)
             {
-                var ind = rnd.Next(allPlayers.Count);
-                _unassignedPlayers.Add(allPlayers[ind]);
-                allPlayers.RemoveAt(ind);
+                if (allPlayers.Count >= teamSize * 4)
+                    break;
+                teamSize--;
             }
-            // Take as many players as required
+
+            // We are trying to make full teams, not ships, leaving the rest unassigned
+            var teamsToFill = Math.Min((int)Math.Floor((double)allPlayers.Count / (teamSize * 2)), mlv.TeamCount);
+            MuseLog.Info($"Trying to fill {teamsToFill.ToString()} teams");
+
+            var rng = new System.Random();
+            _unassignedPlayers = allPlayers.OrderBy(p => rng.Next()).ToList();
             _assignedShips = new List<LobbyShip>();
+            
             var teamShipCounter = new int[mlv.TeamCount];
-            foreach (var crew in mlv.FlatCrews)
+            var crews = mlv.Crews.Take(teamsToFill).SelectMany(t => t.Take(teamSize));
+            
+            foreach (var crew in crews)
             {
-                var crewTeam = crew.Team;
-                var ship = new LobbyShip { crew1 = _unassignedPlayers[0], crew2 = _unassignedPlayers[1], team = crewTeam, teamShip = teamShipCounter[crewTeam] };
-                teamShipCounter[crewTeam]++;
+                _assignedShips.Add(new LobbyShip
+                {
+                    crew1 = _unassignedPlayers[0],
+                    crew2 = _unassignedPlayers[1],
+                    team = crew.Team,
+                    teamShip = teamShipCounter[crew.Team]
+                });
+                teamShipCounter[crew.Team]++;
                 _unassignedPlayers.RemoveAt(0);
                 _unassignedPlayers.RemoveAt(0);
-                _assignedShips.Add(ship);
             }
+
             return true;
         }
 
@@ -238,7 +258,8 @@ namespace BuffKit.ChaosRandomizer
             for (var i = 0; i < assignedCount; i++)
             {
                 var shipData = _assignedShips[i];
-                _listAssignedShipDisplays[i].SetValues(shipData.team, shipData.teamShip, shipData.crew1, shipData.crew2);
+                _listAssignedShipDisplays[i]
+                    .SetValues(shipData.team, shipData.teamShip, shipData.crew1, shipData.crew2);
             }
             // Hide any extra labels
             for (var i = assignedCount; i < _listAssignedShipDisplays.Count; i++)
@@ -249,7 +270,8 @@ namespace BuffKit.ChaosRandomizer
             // Build unassigned player labels if required
             for (var i = _listUnassignedPlayerLabels.Count; i < unassignedCount; i++)
             {
-                UI.Builder.BuildLabel(_obUnassignedPlayers.transform, out var label, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13);
+                UI.Builder.BuildLabel(_obUnassignedPlayers.transform, out var label, UI.Resources.FontGaldeanoRegular,
+                    TextAnchor.MiddleLeft, 13);
                 _listUnassignedPlayerLabels.Add(label);
             }
             // Fill unassigned player labels
