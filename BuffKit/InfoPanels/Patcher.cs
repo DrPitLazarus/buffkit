@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using UnityEngine;
 using Muse.Goi2.Entity.Vo;
+using UnityEngine;
 
 namespace BuffKit.InfoPanels
 {

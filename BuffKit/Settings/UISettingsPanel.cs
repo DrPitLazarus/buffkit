@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using BuffKit.UI;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace BuffKit.Settings
 {
@@ -11,7 +12,7 @@ namespace BuffKit.Settings
 
         public static GameObject BuildPanel(Transform parent, out UISettingsPanel panel)
         {
-            var obPanel = UI.Builder.BuildPanel(parent);
+            var obPanel = Builder.BuildPanel(parent);
             obPanel.name = "UI Settings Panel";
             var rt = obPanel.GetComponent<RectTransform>();
             rt.pivot = new Vector2(1, 0);
@@ -29,7 +30,7 @@ namespace BuffKit.Settings
             panel = obPanel.AddComponent<UISettingsPanel>();
             obPanel.AddComponent<GraphicRaycaster>();                       // Makes it have UI interaction on top of other UI (I think? It's complicated)
 
-            UI.Builder.BuildVerticalScrollViewFitContent(obPanel.transform, out panel._content);
+            Builder.BuildVerticalScrollViewFitContent(obPanel.transform, out panel._content);
 
             return obPanel;
         }
@@ -49,7 +50,7 @@ namespace BuffKit.Settings
         {
             if(!_headers.ContainsKey(header))
             {
-                UI.Builder.BuildMenuDropdown(_content.transform, header, out var obContent);
+                Builder.BuildMenuDropdown(_content.transform, header, out var obContent);
                 var vlg = obContent.AddComponent<VerticalLayoutGroup>();
                 vlg.spacing = 3;
                 vlg.childForceExpandHeight = false;

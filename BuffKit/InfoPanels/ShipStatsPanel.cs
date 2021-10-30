@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using BuffKit.UI;
+using Muse.Goi2.Entity;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Muse.Goi2.Entity;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.InfoPanels
 {
@@ -43,7 +45,7 @@ namespace BuffKit.InfoPanels
 
         private static void BuildPanel(Transform parent)
         {
-            _obPanel = UI.Builder.BuildPanel(parent);
+            _obPanel = Builder.BuildPanel(parent);
             _obPanel.name = "Custom Ship Stats";
             var le = _obPanel.AddComponent<LayoutElement>();
             le.ignoreLayout = true;
@@ -83,7 +85,7 @@ namespace BuffKit.InfoPanels
             hlg.childAlignment = TextAnchor.MiddleRight;
 
             TextMeshProUGUI tmp;
-            UI.Builder.BuildLabel(row.transform, out tmp, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label text";
+            Builder.BuildLabel(row.transform, out tmp, Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label text";
             tmp.text = name;
 
             var spacer = new GameObject("spacer");
@@ -92,7 +94,7 @@ namespace BuffKit.InfoPanels
             le.flexibleWidth = 1;
             le.minWidth = 20;
 
-            UI.Builder.BuildLabel(row.transform, out label, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label info";
+            Builder.BuildLabel(row.transform, out label, Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label info";
         }
 
         private static void SetEnabled(bool v)

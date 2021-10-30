@@ -1,11 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Muse.Goi2.Entity;
-using Newtonsoft.Json;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.Settings
 {
@@ -166,7 +166,7 @@ namespace BuffKit.Settings
             var button = obSettingsButtonGroup.AddComponent<Button>();
             button.onClick.AddListener(delegate { _panel.ToggleVisibility(); });
             button.transition = Selectable.Transition.ColorTint;
-            button.colors = UI.Resources.ScrollBarColors;
+            button.colors = Resources.ScrollBarColors;
             button.targetGraphic = _icon;
 
             // Previously created entries
@@ -179,7 +179,7 @@ namespace BuffKit.Settings
                 _panel.AddSetting(entry, entryString);
             }
 
-            UI.Resources.RegisterSkillTextureCallback(() => _icon.texture = UI.Resources.GetSkillTexture(16));
+            Resources.RegisterSkillTextureCallback(() => _icon.texture = Resources.GetSkillTexture(16));
             _menuInitialized = true;
         }
 

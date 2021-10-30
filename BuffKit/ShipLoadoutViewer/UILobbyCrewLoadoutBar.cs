@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Muse.Goi2.Entity;
 using UnityEngine;
 using UnityEngine.UI;
-using Muse.Goi2.Entity;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.ShipLoadoutViewer
 {
@@ -202,7 +203,7 @@ namespace BuffKit.ShipLoadoutViewer
                         {
                             //_loadoutBarImages[i][j].enabled = true;
                             _loadoutBarImages[i][j].gameObject.SetActive(true);
-                            _loadoutBarImages[i][j].texture = UI.Resources.GetSkillTexture(data.AllIds[i][j]);
+                            _loadoutBarImages[i][j].texture = Resources.GetSkillTexture(data.AllIds[i][j]);
                         }
                         for (var j = classItemCount; j < 3; j++)
                         {

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.ShipLoadoutViewer
 {
@@ -154,7 +155,7 @@ namespace BuffKit.ShipLoadoutViewer
         public void SetGun(int gunId)
         {
             _gunId = gunId;
-            _image.texture = UI.Resources.GetGunTexture(gunId);
+            _image.texture = Resources.GetGunTexture(gunId);
             _gunInfo = GunItemInfo.FromGunItem(CachedRepository.Instance.Get<GunItem>(_gunId));
         }
         private void Awake()

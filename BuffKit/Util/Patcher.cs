@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BuffKit.UI;
+using HarmonyLib;
 
 namespace BuffKit
 {
@@ -24,7 +25,7 @@ namespace BuffKit
     {
         private static void Postfix()
         {
-            UI.Resources.Initialize();
+            Resources.Initialize();
             Settings.Settings.Instance.CreatePanel();
         }
     }

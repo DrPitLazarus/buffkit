@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using BuffKit.Settings;
+using Muse.Goi2.Entity;
 using UnityEngine;
 using UnityEngine.UI;
-using Muse.Goi2.Entity;
-using static BuffKit.Util;
 
 namespace BuffKit.ShipLoadoutViewer
 {
@@ -150,7 +150,7 @@ namespace BuffKit.ShipLoadoutViewer
             PaintLoadoutBars(MatchLobbyView.Instance);
         }
 
-        public static void SetCrewBarOptions(Settings.ToggleGrid value)
+        public static void SetCrewBarOptions(ToggleGrid value)
         {
             UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(value.Values);
             PaintLoadoutBars(MatchLobbyView.Instance);

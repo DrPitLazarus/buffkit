@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using Muse.Goi2.Entity;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Muse.Goi2.Entity;
 
 namespace BuffKit.UI
 {

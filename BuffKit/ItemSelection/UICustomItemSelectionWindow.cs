@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BuffKit.UI;
+using Muse.Common;
+using Muse.Goi2.Entity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Muse.Common;
-using Muse.Goi2.Entity;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.ItemSelection
 {
@@ -126,11 +128,11 @@ namespace BuffKit.ItemSelection
             vlg.spacing = 7;
             vlg.childAlignment = TextAnchor.UpperCenter;
 
-            var obTitle = UI.Builder.BuildLabel(gameObject.transform, out _lTitle, UI.Resources.FontPenumbraHalfSerifStd, TextAnchor.MiddleCenter, 20);
+            var obTitle = Builder.BuildLabel(gameObject.transform, out _lTitle, Resources.FontPenumbraHalfSerifStd, TextAnchor.MiddleCenter, 20);
 
-            UI.Builder.BuildVerticalScrollViewFitContent(gameObject.transform, out var obContent);
+            Builder.BuildVerticalScrollViewFitContent(gameObject.transform, out var obContent);
 
-            var obButton = UI.Builder.BuildButton(gameObject.transform, delegate { Cancel(); }, "Cancel");
+            var obButton = Builder.BuildButton(gameObject.transform, delegate { Cancel(); }, "Cancel");
             var le = obButton.AddComponent<LayoutElement>();
             le.minWidth = 100;
             le.minHeight = 34;
@@ -200,7 +202,7 @@ namespace BuffKit.ItemSelection
         {
             _obItemSelectionWindow = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Item Selection Window");
 
-            var obPanel = UI.Builder.BuildPanel(_obItemSelectionWindow.transform.parent);
+            var obPanel = Builder.BuildPanel(_obItemSelectionWindow.transform.parent);
             obPanel.transform.SetSiblingIndex(_obItemSelectionWindow.transform.GetSiblingIndex() + 1);
             obPanel.name = "Custom Item Selection";
 

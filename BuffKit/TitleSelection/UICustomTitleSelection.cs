@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
-using UnityEngine.UI;
+using BuffKit.UI;
 using Muse.Goi2.Entity;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using Resources = BuffKit.UI.Resources;
+using Text = UnityEngine.UI.Text;
 
 namespace BuffKit.TitleSelection
 {
@@ -34,7 +36,7 @@ namespace BuffKit.TitleSelection
             vlg.spacing = 7;
             vlg.childAlignment = TextAnchor.MiddleCenter;
 
-            UI.Builder.BuildLabel(transform, "Select Title", TextAnchor.MiddleCenter, 20);
+            Builder.BuildLabel(transform, "Select Title", TextAnchor.MiddleCenter, 20);
 
             var obTopRow = new GameObject("top row");
             obTopRow.transform.SetParent(transform, false);
@@ -42,7 +44,7 @@ namespace BuffKit.TitleSelection
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
             hlg.spacing = 5;
-            var obSortAZ = UI.Builder.BuildButton(obTopRow.transform, SortByAZ, "A-Z", TextAnchor.MiddleCenter, 13);
+            var obSortAZ = Builder.BuildButton(obTopRow.transform, SortByAZ, "A-Z", TextAnchor.MiddleCenter, 13);
             le = obSortAZ.AddComponent<LayoutElement>();
             le.preferredWidth = 40;
             le.preferredHeight = 26;
@@ -50,7 +52,7 @@ namespace BuffKit.TitleSelection
             var obSearchField = GameObject.Instantiate(GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Create/Container/Options Panel/Scroll View/Viewport/Content/Password Option/Input Field"), obTopRow.transform);
             _searchField = obSearchField.GetComponent<InputField>();
             _searchField.onValueChanged.AddListener(SearchValueChanged);
-            var txtPlaceholder = _searchField.transform.Find("Placeholder").GetComponent<UnityEngine.UI.Text>();
+            var txtPlaceholder = _searchField.transform.Find("Placeholder").GetComponent<Text>();
             txtPlaceholder.text = "Search title";
             txtPlaceholder.fontSize = 15;
             _searchField.textComponent.fontSize = 15;
@@ -63,7 +65,7 @@ namespace BuffKit.TitleSelection
             le.preferredWidth = 300;
             le.preferredHeight = 500;
 
-            var obScrollview = UI.Builder.BuildVerticalScrollViewFitParent(obScrollviewHolder.transform, out var obContent);
+            var obScrollview = Builder.BuildVerticalScrollViewFitParent(obScrollviewHolder.transform, out var obContent);
             obScrollview.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
             _obContent = new GameObject("title list");
             _obContent.transform.SetParent(obContent.transform, false);
@@ -78,11 +80,11 @@ namespace BuffKit.TitleSelection
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
             hlg.spacing = 5;
-            var obSave = UI.Builder.BuildButton(obButtonGroup.transform, Save, "Save");
+            var obSave = Builder.BuildButton(obButtonGroup.transform, Save, "Save");
             le = obSave.AddComponent<LayoutElement>();
             le.preferredWidth = 100;
             le.preferredHeight = 34;
-            var obCancel = UI.Builder.BuildButton(obButtonGroup.transform, Cancel, "Cancel");
+            var obCancel = Builder.BuildButton(obButtonGroup.transform, Cancel, "Cancel");
             le = obCancel.AddComponent<LayoutElement>();
             le.preferredWidth = 100;
             le.preferredHeight = 34;
@@ -126,7 +128,7 @@ namespace BuffKit.TitleSelection
             {
                 var callbackIndex = i;
                 // Transform parent, out TextMeshProUGUI label, UnityAction callback, TMP_FontAsset font, int fontSize = 13
-                var obEntryButton = UI.Builder.BuildMenuButton(_obContent.transform, out var _, null, UI.Resources.FontGaldeanoRegular, 15);
+                var obEntryButton = Builder.BuildMenuButton(_obContent.transform, out var _, null, Resources.FontGaldeanoRegular, 15);
                 _titleEntries.Add(obEntryButton.AddComponent<UITitleEntry>());
             }
             DisplayCurrentTitles();
@@ -185,7 +187,7 @@ namespace BuffKit.TitleSelection
         {
             var obCommonElements = GameObject.Find("/Menu UI/Standard Canvas/Common Elements");
 
-            var obPanel = UI.Builder.BuildPanel(obCommonElements.transform);
+            var obPanel = Builder.BuildPanel(obCommonElements.transform);
             obPanel.name = "custom title selection";
 
             Instance = obPanel.AddComponent<UICustomTitleSelection>();

@@ -1,8 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using BuffKit.UI;
 using Newtonsoft.Json;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BuffKit.Settings
 {
@@ -70,7 +72,7 @@ namespace BuffKit.Settings
         public override bool IsCompatible(object value) { return (value is bool); }
         public override void CreateUIElement(Transform parent, string entry)
         {
-            UI.Builder.BuildMenuToggle(parent, out _toggle, entry, _value,
+            Builder.BuildMenuToggle(parent, out _toggle, entry, _value,
                 delegate (bool v) { Settings.Instance.SetEntry(entry, v); });
         }
     }
@@ -84,7 +86,7 @@ namespace BuffKit.Settings
         public override bool IsCompatible(object value) { return false; }
         public override void CreateUIElement(Transform parent, string entry)
         {
-            UI.Builder.BuildMenuButton(parent, entry, entry,
+            Builder.BuildMenuButton(parent, entry, entry,
                 delegate { Settings.Instance.SetEntry<Dummy>(entry, null); });
         }
     }
@@ -141,7 +143,7 @@ namespace BuffKit.Settings
         }
         public override string ToString()
         {
-            var s = new System.Text.StringBuilder();
+            var s = new StringBuilder();
             for (var r = 0; r < Rows; r++)
             {
                 s.Append("\n");
@@ -193,7 +195,7 @@ namespace BuffKit.Settings
 
             _toggles = new Toggle[_value.Rows, _value.Cols];
 
-            UI.Builder.BuildMenuDropdown(parent, entry, out var obContent);
+            Builder.BuildMenuDropdown(parent, entry, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 1;
             vlg.childForceExpandHeight = false;
@@ -244,7 +246,7 @@ namespace BuffKit.Settings
                     // Add toggle button
                     var row = r;
                     var col = c;
-                    UI.Builder.BuildMenuToggle(obRow.transform, out var toggle, _value.Values[r, c],
+                    Builder.BuildMenuToggle(obRow.transform, out var toggle, _value.Values[r, c],
                         delegate (bool v)
                         {
                             var newSettings = new ToggleGrid(_value);
@@ -255,7 +257,7 @@ namespace BuffKit.Settings
                     _toggles[r, c] = toggle;
                 }
                 // Add label
-                UI.Builder.BuildLabel(obRow.transform, currentLabel, TextAnchor.MiddleLeft, 13);
+                Builder.BuildLabel(obRow.transform, currentLabel, TextAnchor.MiddleLeft, 13);
             }
         }
     }
@@ -330,7 +332,7 @@ namespace BuffKit.Settings
         {
             _toggles = new List<Toggle>();
 
-            UI.Builder.BuildMenuDropdown(parent, entry, out var obContent);
+            Builder.BuildMenuDropdown(parent, entry, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 3;
             vlg.childForceExpandHeight = false;
@@ -343,7 +345,7 @@ namespace BuffKit.Settings
             {
                 var val = _value.GetEnumValue(i);
                 var name = _value.GetEnumName(i);
-                UI.Builder.BuildMenuToggle(obContent.transform, out var toggle, name, false, delegate (bool v)
+                Builder.BuildMenuToggle(obContent.transform, out var toggle, name, false, delegate (bool v)
                 {
                     if (v)
                         Settings.Instance.SetEntry(entry, new EnumString(val));

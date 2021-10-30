@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using BuffKit.UI;
 using HarmonyLib;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BuffKit.MatchRefTools
 {
@@ -15,7 +16,7 @@ namespace BuffKit.MatchRefTools
         {
             MuseLog.Info("In patch initialize");
 
-            _obToggle = UI.Builder.BuildMenuToggle(
+            _obToggle = Builder.BuildMenuToggle(
                 GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Button Group").transform,
                 out _toggle, "Auto ref match ", false, OnToggleChange);
 

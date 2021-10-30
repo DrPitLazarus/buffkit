@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Math = Muse.Math;
-using Transform = UnityEngine.Transform;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BuffKit.UI
 {

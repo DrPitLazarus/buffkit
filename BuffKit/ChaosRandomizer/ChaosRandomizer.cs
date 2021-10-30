@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using BuffKit.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using Random = System.Random;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.ChaosRandomizer
 {
@@ -43,7 +46,7 @@ namespace BuffKit.ChaosRandomizer
         private void CreatePanel()
         {
             var parent = GameObject.Find("/Menu UI/Standard Canvas/Common Elements").transform;
-            _obPanel = UI.Builder.BuildPanel(parent);
+            _obPanel = Builder.BuildPanel(parent);
             _obPanel.name = "Chaos Randomizer Panel";
             var rt = _obPanel.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(1, .5f);
@@ -56,7 +59,7 @@ namespace BuffKit.ChaosRandomizer
             hlg.padding = new RectOffset(7, 7, 7, 7);
             hlg.spacing = 7;
 
-            var obBtnShowHide = UI.Builder.BuildButton(_obPanel.transform, delegate
+            var obBtnShowHide = Builder.BuildButton(_obPanel.transform, delegate
             {
                 if (_isShown)
                     HidePanelContent();
@@ -77,7 +80,7 @@ namespace BuffKit.ChaosRandomizer
             vlg.spacing = 5;
             vlg.padding = new RectOffset(5, 5, 5, 5);
 
-            UI.Builder.BuildLabel(_obContent.transform, out _lInfo, UI.Resources.FontGaldeanoRegular,
+            Builder.BuildLabel(_obContent.transform, out _lInfo, Resources.FontGaldeanoRegular,
                 TextAnchor.MiddleCenter, 13);
             SetInfoLabel(string.Empty);
 
@@ -105,11 +108,11 @@ namespace BuffKit.ChaosRandomizer
             vlg.childAlignment = TextAnchor.MiddleLeft;
             _listUnassignedPlayerLabels = new List<TextMeshProUGUI>();
 
-            _obAssignedPlayersHeading = UI.Builder.BuildLabel(_obAssignedPlayers.transform, out var lAssignedTitle,
-                UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            _obAssignedPlayersHeading = Builder.BuildLabel(_obAssignedPlayers.transform, out var lAssignedTitle,
+                Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
             lAssignedTitle.text = "Assigned Ships";
-            _obUnassignedPlayersHeading = UI.Builder.BuildLabel(_obUnassignedPlayers.transform,
-                out var lUnassignedTitle, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            _obUnassignedPlayersHeading = Builder.BuildLabel(_obUnassignedPlayers.transform,
+                out var lUnassignedTitle, Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
             lUnassignedTitle.text = "Unassigned Players";
 
             var obButtons = new GameObject("buttons");
@@ -120,13 +123,13 @@ namespace BuffKit.ChaosRandomizer
             hlg.childForceExpandHeight = false;
             hlg.childAlignment = TextAnchor.MiddleCenter;
 
-            var obBtnRandomize = UI.Builder.BuildButton(obButtons.transform,
+            var obBtnRandomize = Builder.BuildButton(obButtons.transform,
                 delegate { Randomize(MatchLobbyView.Instance); }, "Randomize");
             le = obBtnRandomize.AddComponent<LayoutElement>();
             le.preferredWidth = 130;
             le.preferredHeight = 30;
 
-            var obBtnAnnounce = UI.Builder.BuildButton(obButtons.transform, AnnouncePlayers, "Announce");
+            var obBtnAnnounce = Builder.BuildButton(obButtons.transform, AnnouncePlayers, "Announce");
             le = obBtnAnnounce.AddComponent<LayoutElement>();
             le.preferredWidth = 130;
             le.preferredHeight = 30;
@@ -215,7 +218,7 @@ namespace BuffKit.ChaosRandomizer
             var teamsToFill = Math.Min((int)Math.Floor((double)allPlayers.Count / (teamSize * 2)), mlv.TeamCount);
             MuseLog.Info($"Trying to fill {teamsToFill.ToString()} teams");
 
-            var rng = new System.Random();
+            var rng = new Random();
             _unassignedPlayers = allPlayers.OrderBy(p => rng.Next()).ToList();
             _assignedShips = new List<LobbyShip>();
             
@@ -268,7 +271,7 @@ namespace BuffKit.ChaosRandomizer
             // Build unassigned player labels if required
             for (var i = _listUnassignedPlayerLabels.Count; i < unassignedCount; i++)
             {
-                UI.Builder.BuildLabel(_obUnassignedPlayers.transform, out var label, UI.Resources.FontGaldeanoRegular,
+                Builder.BuildLabel(_obUnassignedPlayers.transform, out var label, Resources.FontGaldeanoRegular,
                     TextAnchor.MiddleLeft, 13);
                 _listUnassignedPlayerLabels.Add(label);
             }
@@ -347,7 +350,7 @@ namespace BuffKit.ChaosRandomizer
                 var obShipLabel = new GameObject("label");
                 obShipLabel.transform.SetParent(obShip.transform, false);
                 _lShip = obShipLabel.AddComponent<TextMeshProUGUI>();
-                _lShip.font = UI.Resources.FontGaldeanoRegular;
+                _lShip.font = Resources.FontGaldeanoRegular;
                 _lShip.fontSize = 13;
                 _lShip.alignment = TextAlignmentOptions.Center;
 
@@ -361,13 +364,13 @@ namespace BuffKit.ChaosRandomizer
                 var obCrew1 = new GameObject("crew 1");
                 obCrew1.transform.SetParent(obCrew.transform, false);
                 _lCrew1 = obCrew1.AddComponent<TextMeshProUGUI>();
-                _lCrew1.font = UI.Resources.FontGaldeanoRegular;
+                _lCrew1.font = Resources.FontGaldeanoRegular;
                 _lCrew1.fontSize = 13;
 
                 var obCrew2 = new GameObject("crew 2");
                 obCrew2.transform.SetParent(obCrew.transform, false);
                 _lCrew2 = obCrew2.AddComponent<TextMeshProUGUI>();
-                _lCrew2.font = UI.Resources.FontGaldeanoRegular;
+                _lCrew2.font = Resources.FontGaldeanoRegular;
                 _lCrew2.fontSize = 13;
             }
             public void Hide()

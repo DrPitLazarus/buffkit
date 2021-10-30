@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using BuffKit.Settings;
 using HarmonyLib;
+using UnityEngine;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.ShipLoadoutViewer
 {
@@ -11,20 +14,20 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (_firstPrepare)
             {
-                UI.Resources.RegisterGunTextureCallback(ShipLoadoutViewer.MarkShipBarsForRedraw);
-                UI.Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
+                Resources.RegisterGunTextureCallback(ShipLoadoutViewer.MarkShipBarsForRedraw);
+                Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
                 Util.OnGameInitialize += delegate
                 {
                     Settings.Settings.Instance.AddEntry("loadout viewer", "ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true);
-                    var gridIcons = new List<UnityEngine.Sprite>()
+                    var gridIcons = new List<Sprite>()
                     {
-                        UI.Resources.PilotIcon,
-                        UI.Resources.GunnerIcon,
-                        UI.Resources.EngineerIcon
+                        Resources.PilotIcon,
+                        Resources.GunnerIcon,
+                        Resources.EngineerIcon
                     };
                     var gridLabels = new List<string> { "Show pilot tools", "Show gunner tools", "Show engineer tools" };
-                    var toggleGrid = new Settings.ToggleGrid(gridIcons, gridLabels, true);
+                    var toggleGrid = new ToggleGrid(gridIcons, gridLabels, true);
                     toggleGrid.SetValues(new bool[,]
                     {
                         { true, false, false },
@@ -34,10 +37,10 @@ namespace BuffKit.ShipLoadoutViewer
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
                     ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);
 
-                    var lobbyGunTooltipDisplay = new Settings.EnumString(
+                    var lobbyGunTooltipDisplay = new EnumString(
                         typeof(UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer),
                         (int)UIShipLoadoutSlot.InfoDisplaySetting);
-                    Settings.Settings.Instance.AddEntry("loadout viewer", "lobby gun tooltip display", delegate (Settings.EnumString enumString)
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "lobby gun tooltip display", delegate (EnumString enumString)
                      {
                          UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
                      }, lobbyGunTooltipDisplay);

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using HarmonyLib;
-using Muse.Goi2.Entity;
-using Muse.Goi2.Entity.Vo;
 
 namespace BuffKit.ItemSelection
 {

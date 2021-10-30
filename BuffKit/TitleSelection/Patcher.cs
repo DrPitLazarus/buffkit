@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using HarmonyLib;
-using Muse.Networking;
 using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
+using Muse.Networking;
+using Text = UnityEngine.UI.Text;
 
 namespace BuffKit.TitleSelection
 {
@@ -25,7 +23,7 @@ namespace BuffKit.TitleSelection
                 };
             }
         }
-        private static bool Prefix(UIProfilePanel __instance, UserProfile ___currentUser, UnityEngine.UI.Text ___titleLabel)
+        private static bool Prefix(UIProfilePanel __instance, UserProfile ___currentUser, Text ___titleLabel)
         {
             MuseLog.Info("In custom title selection");
             if (___currentUser == null || ___currentUser.Id != NetworkedPlayer.Local.UserId)

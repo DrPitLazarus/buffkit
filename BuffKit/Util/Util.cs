@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
+using LitJson;
 using Muse.Common;
 using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
-using MuseBase.Multiplayer.Unity;
 using MuseBase.Multiplayer.Photon;
+using MuseBase.Multiplayer.Unity;
+using UnityEngine;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit
 {
@@ -128,10 +130,10 @@ namespace BuffKit
         {
             switch (teamIndex)
             {
-                case 0: return UI.Resources.TeamRed;
-                case 1: return UI.Resources.TeamBlue;
-                case 2: return UI.Resources.TeamYellow;
-                case 3: return UI.Resources.TeamPurple;
+                case 0: return Resources.TeamRed;
+                case 1: return Resources.TeamBlue;
+                case 2: return Resources.TeamYellow;
+                case 3: return Resources.TeamPurple;
                 default:
                     throw new ArgumentOutOfRangeException($"Team index value {teamIndex} out of range 0 to 3");
             }
@@ -144,7 +146,7 @@ namespace BuffKit
 
         public static void Initialize()
         {
-            SubDataActions.GetShipAndGuns(delegate (LitJson.JsonData data)
+            SubDataActions.GetShipAndGuns(delegate (JsonData data)
             {
                 var allGunsJsonData = data["allguns"];
                 GunIds = new HashSet<int>();

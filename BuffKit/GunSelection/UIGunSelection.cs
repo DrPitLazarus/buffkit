@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using BuffKit.UI;
 using Muse.Goi2.Entity;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.GunSelection
 {
@@ -30,11 +32,11 @@ namespace BuffKit.GunSelection
             vlg.childAlignment = TextAnchor.MiddleCenter;
             gameObject.AddComponent<GraphicRaycaster>();
 
-            var obLabel = UI.Builder.BuildLabel(gameObject.transform, "Gun Selection", TextAnchor.MiddleCenter, 20);
+            var obLabel = Builder.BuildLabel(gameObject.transform, "Gun Selection", TextAnchor.MiddleCenter, 20);
 
             _grid = UIGunSelectionGrid.Build(gameObject.transform, 20, 100);
 
-            var obCancel = UI.Builder.BuildButton(gameObject.transform, delegate { Activated = false; _callback = null; }, "Cancel");
+            var obCancel = Builder.BuildButton(gameObject.transform, delegate { Activated = false; _callback = null; }, "Cancel");
             var le = obCancel.AddComponent<LayoutElement>();
             le.preferredWidth = 100;
             le.preferredHeight = 34;
@@ -47,7 +49,7 @@ namespace BuffKit.GunSelection
             rt.offsetMax = new Vector2(785, 389);
             obDropShadow.transform.SetAsFirstSibling();
 
-            UI.Resources.RegisterGunTextureCallback(MarkIconsForRedraw);
+            Resources.RegisterGunTextureCallback(MarkIconsForRedraw);
             Activated = false;
         }
         public bool TryHide()
@@ -162,7 +164,7 @@ namespace BuffKit.GunSelection
             }
 
             // Create custom gun selection window
-            var obPanel = UI.Builder.BuildPanel(_obItemSelectionWindow.transform.parent);
+            var obPanel = Builder.BuildPanel(_obItemSelectionWindow.transform.parent);
             obPanel.name = "Custom Gun Selection";
             obPanel.transform.SetSiblingIndex(_obItemSelectionWindow.transform.GetSiblingIndex() + 1);
             obPanel.AddComponent<UIGunSelection>();
@@ -238,7 +240,7 @@ namespace BuffKit.GunSelection
                 private Button _button;
                 public void FetchTexture()
                 {
-                    _image.texture = UI.Resources.GetGunTexture(_gunId);
+                    _image.texture = Resources.GetGunTexture(_gunId);
                 }
                 public void SetGun(int gunId, Action<int> callback, bool isEnabled)
                 {
@@ -246,7 +248,7 @@ namespace BuffKit.GunSelection
                     _gunInfo = GunItemInfo.FromGunItem(CachedRepository.Instance.Get<GunItem>(gunId));
                     if (_gunId != -1)
                     {
-                        _image.texture = UI.Resources.GetGunTexture(_gunId);
+                        _image.texture = Resources.GetGunTexture(_gunId);
                         transform.localScale = new Vector3(1, 1, 1);
                     }
                     else transform.localScale = new Vector3(0, 0, 0);
@@ -276,7 +278,7 @@ namespace BuffKit.GunSelection
 
                     _button = gameObject.AddComponent<Button>();
                     _button.transition = Selectable.Transition.ColorTint;
-                    _button.colors = UI.Resources.MenuButtonColors;
+                    _button.colors = Resources.MenuButtonColors;
                     _button.targetGraphic = imBackground;
                 }
 

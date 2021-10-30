@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using BuffKit.UI;
 using Muse.Goi2.Entity;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 using static BuffKit.Util;
+using Resources = BuffKit.UI.Resources;
+using Text = UnityEngine.UI.Text;
 
 namespace BuffKit.InfoPanels
 {
@@ -124,7 +127,7 @@ namespace BuffKit.InfoPanels
         private static void CreatePanel()
         {
             var parent = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/Info Overlay Window (don't hide)")?.transform;
-            _obPanel = UI.Builder.BuildPanel(parent);
+            _obPanel = Builder.BuildPanel(parent);
             _obPanel.name = "Custom Gun Tooltip";
             _rectPanel = _obPanel.GetComponent<RectTransform>();
             _defaultRectPivot = _rectPanel.pivot;
@@ -138,7 +141,7 @@ namespace BuffKit.InfoPanels
             vlg.padding = new RectOffset(6, 6, 5, 5);
 
             // Title
-            var obName = UI.Builder.BuildLabel(_obPanel.transform, out _lName, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 18);
+            var obName = Builder.BuildLabel(_obPanel.transform, out _lName, Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 18);
             obName.name = "name label";
             var le = obName.AddComponent<LayoutElement>();
             le.minWidth = 250;
@@ -174,23 +177,23 @@ namespace BuffKit.InfoPanels
                 // Get arc components, replacing Text components with TextMeshProUGUI
                 _arcLeftAngleImage = obArcDisplay.transform.GetChild(0).GetChild(0).GetComponent<Image>();
                 var obLabel = obArcDisplay.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
-                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                GameObject.DestroyImmediate(obLabel.GetComponent<Text>());
                 _arcLeftAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
                 _arcLeftAngleLabel.alignment = TextAlignmentOptions.Center;
 
                 _arcRightAngleImage = obArcDisplay.transform.GetChild(0).GetChild(1).GetComponent<Image>();
                 obLabel = obArcDisplay.transform.GetChild(0).GetChild(1).GetChild(0).gameObject;
-                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                GameObject.DestroyImmediate(obLabel.GetComponent<Text>());
                 _arcRightAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
 
                 _arcUpAngleImage = obArcDisplay.transform.GetChild(2).GetChild(0).GetComponent<Image>();
                 obLabel = obArcDisplay.transform.GetChild(2).GetChild(0).GetChild(0).gameObject;
-                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                GameObject.DestroyImmediate(obLabel.GetComponent<Text>());
                 _arcUpAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
 
                 _arcDownAngleImage = obArcDisplay.transform.GetChild(2).GetChild(1).GetComponent<Image>();
                 obLabel = obArcDisplay.transform.GetChild(2).GetChild(1).GetChild(0).gameObject;
-                GameObject.DestroyImmediate(obLabel.GetComponent<UnityEngine.UI.Text>());
+                GameObject.DestroyImmediate(obLabel.GetComponent<Text>());
                 _arcDownAngleLabel = obLabel.AddComponent<TextMeshProUGUI>();
 
                 // Remake row display with HLG
@@ -221,19 +224,19 @@ namespace BuffKit.InfoPanels
                 GameObject.Destroy(obArcDisplay.transform.GetChild(2).GetChild(3).gameObject);      // Destroy "Vertical" label object
 
                 // Set up TextMeshProUGUI components with wanted parameters
-                _arcLeftAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcLeftAngleLabel.font = Resources.FontGaldeanoRegular;
                 _arcLeftAngleLabel.fontSize = 13;
                 _arcLeftAngleLabel.enableWordWrapping = false;
                 _arcLeftAngleLabel.alignment = TextAlignmentOptions.BottomGeoAligned;
-                _arcRightAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcRightAngleLabel.font = Resources.FontGaldeanoRegular;
                 _arcRightAngleLabel.fontSize = 13;
                 _arcRightAngleLabel.enableWordWrapping = false;
                 _arcRightAngleLabel.alignment = TextAlignmentOptions.BottomGeoAligned;
-                _arcUpAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcUpAngleLabel.font = Resources.FontGaldeanoRegular;
                 _arcUpAngleLabel.fontSize = 13;
                 _arcUpAngleLabel.enableWordWrapping = false;
                 _arcUpAngleLabel.alignment = TextAlignmentOptions.Left;
-                _arcDownAngleLabel.font = UI.Resources.FontGaldeanoRegular;
+                _arcDownAngleLabel.font = Resources.FontGaldeanoRegular;
                 _arcDownAngleLabel.fontSize = 13;
                 _arcDownAngleLabel.enableWordWrapping = false;
                 _arcDownAngleLabel.alignment = TextAlignmentOptions.Left;
@@ -253,7 +256,7 @@ namespace BuffKit.InfoPanels
             hlg.childAlignment = TextAnchor.MiddleRight;
 
             TextMeshProUGUI tmp;
-            UI.Builder.BuildLabel(row.transform, out tmp, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label text";
+            Builder.BuildLabel(row.transform, out tmp, Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label text";
             tmp.text = name;
 
             var spacer = new GameObject("spacer");
@@ -262,7 +265,7 @@ namespace BuffKit.InfoPanels
             le.flexibleWidth = 1;
             le.minWidth = 10;
 
-            UI.Builder.BuildLabel(row.transform, out label, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label info";
+            Builder.BuildLabel(row.transform, out label, Resources.FontGaldeanoRegular, TextAnchor.MiddleLeft, 13).name = "label info";
         }
 
         public static void Initialize()
