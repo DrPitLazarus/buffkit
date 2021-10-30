@@ -12,13 +12,11 @@ namespace BuffKit.TitleSelection
     [HarmonyPatch(typeof(UIProfilePanel), "EditTitle")]
     class UIProfilePanel_EditTitle
     {
-        private static BepInEx.Logging.ManualLogSource log;
         private static bool _firstPrepare = true;
         private static void Prepare()
         {
             if (_firstPrepare)
             {
-                log = BepInEx.Logging.Logger.CreateLogSource("title-selection");
                 _firstPrepare = false;
 
                 Util.OnGameInitialize += delegate
@@ -29,7 +27,7 @@ namespace BuffKit.TitleSelection
         }
         private static bool Prefix(UIProfilePanel __instance, UserProfile ___currentUser, UnityEngine.UI.Text ___titleLabel)
         {
-            log.LogInfo("In custom title selection");
+            MuseLog.Info("In custom title selection");
             if (___currentUser == null || ___currentUser.Id != NetworkedPlayer.Local.UserId)
             {
                 return false;

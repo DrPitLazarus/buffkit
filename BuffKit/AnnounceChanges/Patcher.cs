@@ -10,7 +10,6 @@ namespace BuffKit.AnnounceChanges
         {
             if (_firstPrepare)
             {
-                AnnounceChanges.CreateLog();
                 Util.OnGameInitialize += delegate
                 {
                     Settings.Settings.Instance.AddEntry("ref tools", "announce changes", b => AnnounceChanges.IsEnabled = b, true);

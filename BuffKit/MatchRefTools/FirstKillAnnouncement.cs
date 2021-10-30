@@ -5,17 +5,12 @@
 
         public static FirstKillAnnouncement Instance;
 
-        private BepInEx.Logging.ManualLogSource log;
         private Deathmatch _currentMatch;
         private bool _canAnnounce = false;
-        private FirstKillAnnouncement()
-        {
-            log = BepInEx.Logging.Logger.CreateLogSource("fka");
-        }
 
         public void OnMatchInitialize(Deathmatch match)
         {
-            log.LogInfo("OnMatchInitialize");
+            MuseLog.Info("OnMatchInitialize");
             _currentMatch = match;
 
             var counter = 0;
@@ -34,7 +29,7 @@
                     {
                         if (Util.HasModPrivilege(MatchLobbyView.Instance) && _enabled)
                         {
-                            log.LogInfo("Announcing first kill");
+                            MuseLog.Info("Announcing first kill");
                             Util.ForceSendMessage($"REF: FIRST KILL {Util.GetTeamName(i).ToUpper()}");
                         }
                         _canAnnounce = false;
@@ -42,7 +37,7 @@
             }
             else
             {
-                log.LogInfo("OnMatchUpdate with different match than expected, re-initializing");
+                MuseLog.Info("OnMatchUpdate with different match than expected, re-initializing");
                 OnMatchInitialize(match);
             }
         }

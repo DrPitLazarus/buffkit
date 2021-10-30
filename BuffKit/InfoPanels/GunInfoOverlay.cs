@@ -10,8 +10,6 @@ namespace BuffKit.InfoPanels
 {
     public static class GunInfoOverlay
     {
-        private static BepInEx.Logging.ManualLogSource log;
-
         private static bool _useOverlay = true;                         // Test whether to use this overlay or regular one
 
         private static Dictionary<string, int> _infoNameToId;           // Convert from GunItemInfo.name to GunItem.id
@@ -240,7 +238,7 @@ namespace BuffKit.InfoPanels
                 _arcDownAngleLabel.enableWordWrapping = false;
                 _arcDownAngleLabel.alignment = TextAlignmentOptions.Left;
             }
-            else log.LogInfo("Failed to find sample arc display");
+            else MuseLog.Info("Failed to find sample arc display");
 
             _obPanel.SetActive(false);
         }
@@ -275,7 +273,6 @@ namespace BuffKit.InfoPanels
                 _useOverlay = v;
             }, _useOverlay);
 
-            log = BepInEx.Logging.Logger.CreateLogSource("guninfo");
 
             _infoNameToId = new Dictionary<string, int>();
             foreach (var id in GunIds)

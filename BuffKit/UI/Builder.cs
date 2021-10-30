@@ -460,8 +460,6 @@ namespace BuffKit.UI
 
         public static void TestBuilder(Transform parent)
         {
-            var log = BepInEx.Logging.Logger.CreateLogSource("builder");
-
             var obPanel = BuildPanel(parent);
             var hlg = obPanel.AddComponent<HorizontalLayoutGroup>();
             hlg.padding = new RectOffset(5, 5, 5, 5);
@@ -484,13 +482,13 @@ namespace BuffKit.UI
                 var v = i;
                 BuildLabel(obContent.transform, $"Label {i + 1}", TextAnchor.MiddleLeft, i + 13);
             }
-            var button1 = BuildButton(obContent.transform, delegate { log.LogInfo("My First Button callback"); }, "My First Button");
+            var button1 = BuildButton(obContent.transform, delegate { MuseLog.Info("My First Button callback"); }, "My First Button");
             le = button1.AddComponent<LayoutElement>();
             le.minHeight = 35;
-            var button2 = BuildButton(obContent.transform, delegate { log.LogInfo("My Second Button callback"); }, "My Second Button", TextAnchor.MiddleLeft);
+            var button2 = BuildButton(obContent.transform, delegate { MuseLog.Info("My Second Button callback"); }, "My Second Button", TextAnchor.MiddleLeft);
             le = button2.AddComponent<LayoutElement>();
             le.minHeight = 35;
-            var button3 = BuildButton(obContent.transform, delegate { log.LogInfo("My Third Button callback"); }, "My Third Button", TextAnchor.MiddleLeft, 13);
+            var button3 = BuildButton(obContent.transform, delegate { MuseLog.Info("My Third Button callback"); }, "My Third Button", TextAnchor.MiddleLeft, 13);
             le = button3.AddComponent<LayoutElement>();
             le.minHeight = 25;
         }

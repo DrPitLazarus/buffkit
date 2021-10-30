@@ -8,11 +8,10 @@ namespace BuffKit
     {
         private void Awake()
         {
-            var log = BepInEx.Logging.Logger.CreateLogSource("buffkit");
             var harmony = new Harmony("BuffKit");
             
             harmony.PatchAll();
-            log.LogInfo("Buff applied!");
+            MuseLog.Info("Buff applied!");
         }
     }
 }

@@ -9,15 +9,7 @@ namespace BuffKit.AnnounceChanges
 
     public class AnnounceChanges
     {
-        static BepInEx.Logging.ManualLogSource log;
-        public static bool IsEnabled = true; 
-        public static void CreateLog()
-        {
-            if (log == null)
-            {
-                log = BepInEx.Logging.Logger.CreateLogSource("AnnounceChanges");
-            }
-        }
+        public static bool IsEnabled = true;
 
         class ShipData
         {
@@ -135,7 +127,7 @@ namespace BuffKit.AnnounceChanges
                 // Check for any changes
                 var changeList = DetermineChanges(_matchDataLast, matchDataNew);
                 if (changeList.Count != 0)
-                    log.LogInfo("Changes occured");
+                    MuseLog.Info("Changes occured");
                 string msg = "";
                 bool first = true;
                 foreach (var c in changeList)
@@ -150,7 +142,7 @@ namespace BuffKit.AnnounceChanges
                     else
                         msg += ". ";
                     msg += c.GetDetailsShort();
-                    // log.LogInfo(c.ToString());
+                    // MuseLog.Info(c.ToString());
                 }
 
                 var timer = mlv.GetComponent<LobbyTimer.Timer>();

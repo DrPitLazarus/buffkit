@@ -11,22 +11,20 @@ namespace BuffKit.ChaosRandomizer
     public class ChaosRandomizer
     {
         public static bool Enabled = true;
-        BepInEx.Logging.ManualLogSource log;
         private ChaosRandomizer()
         {
-            log = BepInEx.Logging.Logger.CreateLogSource("chaosrandomizer");
             CreatePanel();
         }
         public void EnterLobby(MatchLobbyView mlv)
         {
-            log.LogInfo("Entered lobby");
+            MuseLog.Info("Entered lobby");
             _obPanel.SetActive(Util.HasModPrivilege(mlv));
             SetInfoLabel(string.Empty);
             _canAnnounce = false;
         }
         public void ExitLobby(MatchLobbyView mlv)
         {
-            log.LogInfo("Exited lobby");
+            MuseLog.Info("Exited lobby");
             HidePanelContent();
             ClearPanelContent();
             _obPanel.SetActive(false);
@@ -173,7 +171,7 @@ namespace BuffKit.ChaosRandomizer
 
         private void Randomize(MatchLobbyView mlv)
         {
-            log.LogInfo($"Chaos randomizer button pressed");
+            MuseLog.Info($"Chaos randomizer button pressed");
             var allPlayers = new List<string>();
             foreach (var crew in mlv.ValidCrews)
                 foreach (var player in crew.CrewMembers)
@@ -243,7 +241,7 @@ namespace BuffKit.ChaosRandomizer
 
         private void DisplayPlayers()
         {
-            log.LogInfo("Displaying players");
+            MuseLog.Info("Displaying players");
             var assignedCount = _assignedShips.Count;
             var unassignedCount = _unassignedPlayers.Count;
 
@@ -292,7 +290,7 @@ namespace BuffKit.ChaosRandomizer
 
         private void SetInfoLabel(string text)
         {
-            log.LogInfo($"Set info label text to {(text != string.Empty ? text : "[empty]")}");
+            MuseLog.Info($"Set info label text to {(text != string.Empty ? text : "[empty]")}");
             _lInfo.text = text;
             _lInfo.gameObject.SetActive(text != string.Empty);
         }

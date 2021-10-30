@@ -14,14 +14,11 @@ namespace BuffKit.Settings
         private static Settings _instance = new Settings();
         private Settings()
         {
-            log = BepInEx.Logging.Logger.CreateLogSource("settings");
             LoadFromFile();
-            log.LogInfo("Settings initialized");
+            MuseLog.Info("Settings initialized");
         }
         public static Settings Instance { get { return _instance; } }
-
-        private BepInEx.Logging.ManualLogSource log;
-
+        
         private Dictionary<string, BaseSettingType> _entries = new Dictionary<string, BaseSettingType>();
         private Dictionary<string, string> _entryHeaders = new Dictionary<string, string>();
 
@@ -32,7 +29,7 @@ namespace BuffKit.Settings
             bool callCallback = false;
             if (!_entries.ContainsKey(entry))
             {
-                log.LogInfo($"Adding entry: {entry}");
+                MuseLog.Info($"Adding entry: {entry}");
                 if (AddEntryElement<T>(header.ToUpper(), entry, defaultValue, out callCallback))
                 {
                     SaveToFile();
@@ -57,7 +54,7 @@ namespace BuffKit.Settings
             var setting = _entries[entry] as SettingType<T>;
             if (setting == null)
             {
-                log.LogInfo($"Setting {entry} of type {typeof(T)} not found");
+                MuseLog.Info($"Setting {entry} of type {typeof(T)} not found");
                 return;
             }
             var result = setting.SetValue(value);
@@ -124,20 +121,20 @@ namespace BuffKit.Settings
         {
             // Font
             var font = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
-            if (font == null) log.LogError("Font not found");
+            if (font == null) MuseLog.Error("Font not found");
 
 
             // Settings panel
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
-            if (parentTransform == null) log.LogError("Panel parent transform was not found");
+            if (parentTransform == null) MuseLog.Error("Panel parent transform was not found");
             UISettingsPanel.BuildPanel(parentTransform, out _panel);
             _panel.SetVisibility(false);
-            if (_panel == null) log.LogError("Panel is null");
+            if (_panel == null) MuseLog.Error("Panel is null");
 
 
             // Settings button
             var buttonParent = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group")?.transform;
-            if (buttonParent == null) log.LogError("Button parent transform was not found");
+            if (buttonParent == null) MuseLog.Error("Button parent transform was not found");
 
             var obSettingsButtonGroup = new GameObject("BuffKit Settings");
             var im = obSettingsButtonGroup.AddComponent<Image>();               // Invisible image to make the button clicking area cover the whole rect
@@ -285,7 +282,7 @@ namespace BuffKit.Settings
             var path = Path.Combine(gp, filePath);
             File.WriteAllText(path, dataString);
 
-            log.LogInfo("Saved settings to file");
+            MuseLog.Info("Saved settings to file");
         }
 
         private Dictionary<string, object> _loadedSettings;
@@ -318,11 +315,11 @@ namespace BuffKit.Settings
             }
             catch (FileNotFoundException)
             {
-                log.LogInfo("Settings file was not found");
+                MuseLog.Info("Settings file was not found");
             }
             catch (JsonReaderException e)
             {
-                log.LogInfo($"Failed to read settings file:\n{e.Message}");
+                MuseLog.Info($"Failed to read settings file:\n{e.Message}");
             }
         }
     }

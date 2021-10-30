@@ -11,7 +11,6 @@ namespace BuffKit.ShipLoadoutViewer
         {
             if (_firstPrepare)
             {
-                ShipLoadoutViewer.CreateLog();
                 UI.Resources.RegisterGunTextureCallback(ShipLoadoutViewer.MarkShipBarsForRedraw);
                 UI.Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
                 Util.OnGameInitialize += delegate

@@ -13,8 +13,7 @@ namespace BuffKit.MatchRefTools
 
         public static void Init()
         {
-            var log = BepInEx.Logging.Logger.CreateLogSource("patch");
-            log.LogInfo("In patch initialize");
+            MuseLog.Info("In patch initialize");
 
             _obToggle = UI.Builder.BuildMenuToggle(
                 GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Button Group").transform,
@@ -41,7 +40,7 @@ namespace BuffKit.MatchRefTools
                 var mlv = MatchLobbyView.Instance;
                 //if (mlv != null)
                 //{
-                //    log.LogInfo($"In enterMatchLobby - running: {mlv.Running}, started: {mlv.Started}, loading: {mlv.Loading}");
+                //    MuseLog.Info($"In enterMatchLobby - running: {mlv.Running}, started: {mlv.Started}, loading: {mlv.Loading}");
                 //}
                 if (mlv != null && !mlv.Started)
                     _toggle.isOn = false;
@@ -53,8 +52,7 @@ namespace BuffKit.MatchRefTools
         {
             FirstKillAnnouncement.Instance.SetEnabled(_enableFKA && v);
             AutoStartTimer.SetEnabled(_enableAutoTimer && v);
-            var log = BepInEx.Logging.Logger.CreateLogSource("reftools");
-            log.LogInfo($"Ref auto tools callback called with {v}");
+            MuseLog.Info($"Ref auto tools callback called with {v}");
         }
     }
     [HarmonyPatch(typeof(Deathmatch), "OnRemoteUpdate")]

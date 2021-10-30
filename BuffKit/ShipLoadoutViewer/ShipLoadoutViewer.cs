@@ -8,16 +8,6 @@ namespace BuffKit.ShipLoadoutViewer
 {
     class ShipLoadoutViewer
     {
-        static BepInEx.Logging.ManualLogSource log;
-        public static void CreateLog()
-        {
-            if (log == null)
-            {
-                log = BepInEx.Logging.Logger.CreateLogSource("shiploadoutviewer");
-            }
-        }
-
-
         public static void LobbyUIPreBuild(UIMatchLobby uiml)
         {
             // Edit the "Sample Crew" object to have a loadout panel
@@ -137,7 +127,7 @@ namespace BuffKit.ShipLoadoutViewer
         public static void SetShipBarVisibility(bool isVisible)
         {
             _paintShipBars = isVisible;
-            log.LogInfo($"Setting ship bar visibility to {isVisible}");
+            MuseLog.Info($"Setting ship bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     if (isVisible)
@@ -150,7 +140,7 @@ namespace BuffKit.ShipLoadoutViewer
         public static void SetCrewBarVisibility(bool isVisible)
         {
             _paintGunBars = isVisible;
-            log.LogInfo($"Setting crew bar visibility to {isVisible}");
+            MuseLog.Info($"Setting crew bar visibility to {isVisible}");
             foreach (var barList in loadoutBars)
                 foreach (var bar in barList)
                     if (isVisible)

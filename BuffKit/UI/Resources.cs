@@ -32,23 +32,22 @@ namespace BuffKit.UI
 
         public static void Initialize()
         {
-            var log = BepInEx.Logging.Logger.CreateLogSource("resources");
             FontPenumbraHalfSerifStd = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Footer/Footer Social Toggle Group/Options Button/Label")?.GetComponent<TextMeshProUGUI>()?.font;
-            if (FontPenumbraHalfSerifStd == null) log.LogWarning("Could not find Font");
+            if (FontPenumbraHalfSerifStd == null) MuseLog.Warn("Could not find Font");
             FontGaldeanoRegular = GameObject.Find("/Menu UI/Standard Canvas/Pages/Library/Book Selection Panel/Text Panel/Body Text")?.GetComponent<TextMeshProUGUI>()?.font;
-            if (FontGaldeanoRegular == null) log.LogWarning("Could not find FontGaldeanoRegular");
+            if (FontGaldeanoRegular == null) MuseLog.Warn("Could not find FontGaldeanoRegular");
             BlankIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button/Background")?.GetComponent<Image>()?.sprite;
-            if (BlankIcon == null) log.LogWarning("Could not find BlankIcon");
+            if (BlankIcon == null) MuseLog.Warn("Could not find BlankIcon");
             ButtonOutline = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button/Outline")?.GetComponent<Image>()?.sprite;
-            if (ButtonOutline == null) log.LogWarning("Could not find ButtonOutline");
+            if (ButtonOutline == null) MuseLog.Warn("Could not find ButtonOutline");
             Checkmark = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Create/Container/Options Panel/Scroll View/Viewport/Content/Password Option/Password Label Group/Checkbox Item/Checkbox /Checkmark")?.GetComponent<Image>()?.sprite;
-            if (Checkmark == null) log.LogWarning("Could not find Checkmark");
+            if (Checkmark == null) MuseLog.Warn("Could not find Checkmark");
             Dropdown = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Status Filter/Icon")?.GetComponent<Image>()?.sprite;
-            if (Dropdown == null) log.LogWarning("Could not find Dropdown");
+            if (Dropdown == null) MuseLog.Warn("Could not find Dropdown");
             BetaBanner = GameObject.Find("/Game UI/Menu Canvas/UI Prototype Banner/Banner Image")?.GetComponent<Image>()?.sprite;
-            if (BetaBanner == null) log.LogWarning("Could not find BetaBanner");
+            if (BetaBanner == null) MuseLog.Warn("Could not find BetaBanner");
             ButtonAnimatorController = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match List/Browse Match Panel/Match Information Content/Create Button")?.GetComponent<Animator>()?.runtimeAnimatorController;
-            if (BetaBanner == null) log.LogWarning("Could not find ButtonAnimatorController");
+            if (BetaBanner == null) MuseLog.Warn("Could not find ButtonAnimatorController");
             ScrollBarColors = new ColorBlock
             {
                 normalColor = new Color32(0x80, 0x6B, 0x55, 0xFF),
@@ -82,11 +81,11 @@ namespace BuffKit.UI
             MenuSelectableInteractable = new Color(1, 1, 1, .3f);
 
             EngineerIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Engineer Button/Icon")?.GetComponent<Image>()?.sprite;
-            if (EngineerIcon == null) log.LogWarning("Could not find EngineerIcon");
+            if (EngineerIcon == null) MuseLog.Warn("Could not find EngineerIcon");
             GunnerIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Gunner Button/Icon")?.GetComponent<Image>()?.sprite;
-            if (GunnerIcon == null) log.LogWarning("Could not find GunnerIcon");
+            if (GunnerIcon == null) MuseLog.Warn("Could not find GunnerIcon");
             PilotIcon = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Match Lobby/Lobby Main Panel/Team Group/Subnav Button Group/Pilot Button/Icon")?.GetComponent<Image>()?.sprite;
-            if (PilotIcon == null) log.LogWarning("Could not find PilotIcon");
+            if (PilotIcon == null) MuseLog.Warn("Could not find PilotIcon");
 
             //Builder.TestBuilder(GameObject.Find("/Menu UI/Standard Canvas/Main Menu/Main Screen Elements/Game logo")?.transform);
 
