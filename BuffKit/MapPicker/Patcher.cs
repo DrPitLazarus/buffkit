@@ -23,7 +23,7 @@ namespace BuffKit.MapPicker
             _firstPrepare = false;
         }
         
-        public static bool Prefix()
+        private static bool Prefix()
         {
             var mlv = MatchLobbyView.Instance;
             if (mlv == null || NetworkedPlayer.Local == null) return false;
@@ -40,9 +40,9 @@ namespace BuffKit.MapPicker
     }
 
     [HarmonyPatch(typeof(UINewModalDialog), "Awake")]
-    class UINewModalDialog_Select
+    class UINewModalDialog_Awake
     {
-        public static void Postfix()
+        private static void Postfix()
         {
             var dropdown = UIPageFrame.Instance.modalDialog.dropdown;
             var template = dropdown.transform.FindChild("Template");

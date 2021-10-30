@@ -3,7 +3,7 @@
 namespace BuffKit.AnnounceChanges
 {
     [HarmonyPatch(typeof(MatchLobbyView), "Awake")]
-    public class MatchLobbyView_Awake
+    class MatchLobbyView_Awake
     {
         private static bool _firstPrepare = true;
         private static void Prepare()

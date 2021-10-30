@@ -7,7 +7,7 @@ using Resources = BuffKit.UI.Resources;
 namespace BuffKit.ShipLoadoutViewer
 {
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
-    public class UIMatchLobby_Awake
+    class UIMatchLobby_Awake
     {
         private static bool _firstPrepare = true;
         private static void Prepare()
@@ -62,7 +62,7 @@ namespace BuffKit.ShipLoadoutViewer
     }
 
     [HarmonyPatch(typeof(UIMatchLobby), "SetData")]
-    public class UIMatchLobby_PaintCrews
+    class UIMatchLobby_PaintCrews
     {
         private static void Postfix(UIMatchLobby __instance, MatchLobbyView ___mlv)
         {

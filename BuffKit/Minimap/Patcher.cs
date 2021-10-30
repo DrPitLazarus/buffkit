@@ -3,7 +3,7 @@
 namespace BuffKit.Minimap
 {
     [HarmonyPatch(typeof(UIManager.UIGamePlayState), "HandleOverlayToggles")]
-    internal class Patcher
+    class UIGamePlayState_HandleOverlayToggles
     {
         private static bool Prefix(bool showOverlays = true)
         {
@@ -48,7 +48,7 @@ namespace BuffKit.Minimap
     }
 
     [HarmonyPatch(typeof(Mission), "Start")]
-    internal class Mission_Start
+    class Mission_Start
     {
         private static void Postfix()
         {

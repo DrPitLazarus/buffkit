@@ -4,7 +4,7 @@ using HarmonyLib;
 namespace BuffKit
 {
     [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
-    public class UILoadingLobbyState_Exit
+    class UILoadingLobbyState_Exit
     {
         static bool firstCall = true;
 
@@ -21,7 +21,7 @@ namespace BuffKit
     }
 
     [HarmonyPatch(typeof(UIManager.UIInitialState), "Exit")]
-    public class UIInitialState_Exit
+    class UIInitialState_Exit
     {
         private static void Postfix()
         {

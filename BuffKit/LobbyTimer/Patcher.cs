@@ -6,9 +6,9 @@ using static BuffKit.Util;
 namespace BuffKit.LobbyTimer
 {
     [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
-    public class UINewMatchLobbyState_Enter
+    class UINewMatchLobbyState_Enter
     {
-        public static void Postfix()
+        private static void Postfix()
         {
             var mlv = MatchLobbyView.Instance;
             var tbc = TimerButtonContainer.Instance;
@@ -23,9 +23,9 @@ namespace BuffKit.LobbyTimer
     }
     
     [HarmonyPatch(typeof(MatchLobbyView), "Start")]
-    public class MatchLobbyView_Start
+    class MatchLobbyView_Start
     {
-        public static void Postfix()
+        private static void Postfix()
         {
             var mlv = MatchLobbyView.Instance;
             var tbc = TimerButtonContainer.Instance;
@@ -44,9 +44,9 @@ namespace BuffKit.LobbyTimer
     }
     
     [HarmonyPatch(typeof(MatchLobbyView), "OnDisable")]
-    public class MatchLobbyView_OnDisable
+    class MatchLobbyView_OnDisable
     {
-        public static void Prefix(MatchLobbyView __instance)
+        private static void Prefix(MatchLobbyView __instance)
         {
             var lobbyTimer = __instance?.gameObject?.GetComponent<Timer>();
             if (lobbyTimer == null) return;
@@ -55,9 +55,9 @@ namespace BuffKit.LobbyTimer
     }
     
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
-    public class UIMatchLobby_Awake
+    class UIMatchLobby_Awake
     {
-        public static void Postfix()
+        private static void Postfix()
         {
             var lobby = UIMatchLobby.Instance;
 

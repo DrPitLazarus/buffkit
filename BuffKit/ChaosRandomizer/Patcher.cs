@@ -3,7 +3,7 @@
 namespace BuffKit.ChaosRandomizer
 {
     [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
-    public class UIManager_UINewMatchLobbyState_Enter
+    class UIManager_UINewMatchLobbyState_Enter
     {
         private static bool _firstPrepare = true;
         private static void Prepare()

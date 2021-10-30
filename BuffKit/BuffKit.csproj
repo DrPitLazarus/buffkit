@@ -235,6 +235,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
+    <Compile Include="MatchModMenu\Patcher.cs" />
     <Compile Include="MatchRefTools\AutoStartTimer.cs" />
     <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />
     <Compile Include="MatchRefTools\Patcher.cs" />
@@ -258,7 +259,6 @@
     <Compile Include="MapPicker\MapPicker.cs" />
     <Compile Include="MapPicker\Patcher.cs" />
     <Compile Include="MapPicker\ScrollEventPassthrough.cs" />
-    <Compile Include="MatchModMenu\Patchers\UIMatchMenuState_ModFeatures.cs" />
     <Compile Include="MatchModMenu\UIModMenuState.cs" />
     <Compile Include="Minimap\MapController.cs" />
     <Compile Include="Minimap\Patcher.cs" />

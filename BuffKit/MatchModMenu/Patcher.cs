@@ -1,10 +1,9 @@
-﻿using BuffKit.MatchModMenu;
-using HarmonyLib;
+﻿using HarmonyLib;
 
-namespace BuffKit.Patchers
+namespace BuffKit.MatchModMenu
 {
     [HarmonyPatch(typeof(UIManager.UIMatchMenuState), "ModFeatures")]
-    public static class UIMatchMenuState_ModFeatures
+    class UIMatchMenuState_ModFeatures
     {
         private static bool Prefix()
         {

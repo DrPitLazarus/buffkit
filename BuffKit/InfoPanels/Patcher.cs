@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BuffKit.InfoPanels
 {
     [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
-    public class UILoadingLobbyState_Exit
+    class UILoadingLobbyState_Exit
     {
         private static bool _firstPrepare = true;
         private static void Prepare()
@@ -20,7 +20,7 @@ namespace BuffKit.InfoPanels
     }
 
     [HarmonyPatch(typeof(UIGunTooltip), "RenderGun")]
-    public class UIGunTooltip_RenderGun
+    class UIGunTooltip_RenderGun
     {
         private static bool Prefix(GunItemInfo info, string additionalTipText)
         {
@@ -33,7 +33,7 @@ namespace BuffKit.InfoPanels
         }
     }
     [HarmonyPatch(typeof(UIOverlayPanel), "ShowAtScreenPosition")]
-    public class UIOverlayPanel_ShowAtScreenPosition
+    class UIOverlayPanel_ShowAtScreenPosition
     {
         private static bool Prefix(UIOverlayPanel __instance, Vector3 position, Vector2? pivot, float fade)
         {
@@ -48,7 +48,7 @@ namespace BuffKit.InfoPanels
         }
     }
     [HarmonyPatch(typeof(UIOverlayPanel), "Hide")]
-    public class UIOverlayPanel_Hide
+    class UIOverlayPanel_Hide
     {
         private static bool Prefix(UIOverlayPanel __instance)
         {
@@ -63,7 +63,7 @@ namespace BuffKit.InfoPanels
         }
     }
     [HarmonyPatch(typeof(UIShipCustomizationScreen), "SetActiveShip")]
-    public class UIShipCustomizationScreen_SetActiveShip
+    class UIShipCustomizationScreen_SetActiveShip
     {
         private static bool _firstPrepare = true;
         private static void Prepare()
