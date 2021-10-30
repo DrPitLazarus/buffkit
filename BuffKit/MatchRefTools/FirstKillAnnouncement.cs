@@ -32,10 +32,10 @@
                 for (var i = 0; i < match.numberOfTeams; i++)
                     if (match.Frags[i] > 0)
                     {
-                        if (Util.Util.HasModPrivilege(MatchLobbyView.Instance) && _enabled)
+                        if (Util.HasModPrivilege(MatchLobbyView.Instance) && _enabled)
                         {
                             log.LogInfo("Announcing first kill");
-                            Util.Util.ForceSendMessage($"REF: FIRST KILL {Util.Util.GetTeamName(i).ToUpper()}");
+                            Util.ForceSendMessage($"REF: FIRST KILL {Util.GetTeamName(i).ToUpper()}");
                         }
                         _canAnnounce = false;
                     }

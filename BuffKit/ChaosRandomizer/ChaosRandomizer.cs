@@ -20,7 +20,7 @@ namespace BuffKit.ChaosRandomizer
         public void EnterLobby(MatchLobbyView mlv)
         {
             log.LogInfo("Entered lobby");
-            _obPanel.SetActive(Util.Util.HasModPrivilege(mlv));
+            _obPanel.SetActive(Util.HasModPrivilege(mlv));
             SetInfoLabel(string.Empty);
             _canAnnounce = false;
         }
@@ -306,9 +306,9 @@ namespace BuffKit.ChaosRandomizer
                 sb.Append("Randomized lobby positions");
                 foreach (var ship in _assignedShips)
                 {
-                    sb.Append($"\n{Util.Util.GetTeamName(ship.team)} {ship.teamShip + 1}: {ship.crew1}, {ship.crew2}");
+                    sb.Append($"\n{Util.GetTeamName(ship.team)} {ship.teamShip + 1}: {ship.crew1}, {ship.crew2}");
                 }
-                Util.Util.ForceSendMessage(sb.ToString());
+                Util.ForceSendMessage(sb.ToString());
             }
             else
             {
@@ -378,7 +378,7 @@ namespace BuffKit.ChaosRandomizer
             }
             public void SetValues(int team, int ship, string crew1, string crew2)
             {
-                _background.color = Util.Util.GetTeamColor(team);
+                _background.color = Util.GetTeamColor(team);
                 _lShip.text = $"{ship + 1}";
                 _lCrew1.text = crew1;
                 _lCrew2.text = crew2;

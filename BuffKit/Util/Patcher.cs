@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BuffKit.Util
+namespace BuffKit
 {
     [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
     public class UILoadingLobbyState_Exit

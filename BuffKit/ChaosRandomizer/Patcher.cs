@@ -11,7 +11,7 @@ namespace BuffKit.ChaosRandomizer
             if (_firstPrepare)
             {
                 _firstPrepare = false;
-                Util.Util.OnGameInitialize += delegate
+                Util.OnGameInitialize += delegate
                 {
                     ChaosRandomizer.Initialize();
                     MatchLobbyView.enterMatchLobby += mlv =>

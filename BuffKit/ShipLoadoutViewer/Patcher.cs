@@ -14,7 +14,7 @@ namespace BuffKit.ShipLoadoutViewer
                 ShipLoadoutViewer.CreateLog();
                 UI.Resources.RegisterGunTextureCallback(ShipLoadoutViewer.MarkShipBarsForRedraw);
                 UI.Resources.RegisterSkillTextureCallback(ShipLoadoutViewer.MarkCrewBarsForRedraw);
-                Util.Util.OnGameInitialize += delegate
+                Util.OnGameInitialize += delegate
                 {
                     Settings.Settings.Instance.AddEntry("loadout viewer", "ship loadout viewer", ShipLoadoutViewer.SetShipBarVisibility, true);
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout viewer", ShipLoadoutViewer.SetCrewBarVisibility, true);

@@ -45,7 +45,7 @@ namespace BuffKit.MatchRefTools
                 //}
                 if (mlv != null && !mlv.Started)
                     _toggle.isOn = false;
-                _obToggle.SetActive(mlv != null && !mlv.Running && Util.Util.HasModPrivilege(mlv));
+                _obToggle.SetActive(mlv != null && !mlv.Running && Util.HasModPrivilege(mlv));
             };
         }
 
@@ -65,7 +65,7 @@ namespace BuffKit.MatchRefTools
         {
             if (_firstPrepare)
             {
-                Util.Util.OnGameInitialize += Patcher.Init;
+                Util.OnGameInitialize += Patcher.Init;
                 _firstPrepare = false;
             }
         }

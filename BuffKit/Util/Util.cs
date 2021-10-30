@@ -8,7 +8,7 @@ using Muse.Goi2.Entity.Vo;
 using MuseBase.Multiplayer.Unity;
 using MuseBase.Multiplayer.Photon;
 
-namespace BuffKit.Util
+namespace BuffKit
 {
     public static class Util
     {

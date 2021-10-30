@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using UnityEngine.UI;
-using static BuffKit.Util.Util;
+using static BuffKit.Util;
 
 namespace BuffKit.MapPicker
 {

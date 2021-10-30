@@ -16,10 +16,10 @@ namespace BuffKit.MatchRefTools
             }
             log.LogInfo("Attempting to start match timer");
             // TODO: check if timer is already running (find timer display, see how it is updated) - maybe not necessary?
-            if (Util.Util.HasModPrivilege(MatchLobbyView.Instance))
+            if (Util.HasModPrivilege(MatchLobbyView.Instance))
             {
                 MatchActions.StartCountdown(20 * 60);
-                Util.Util.ForceSendMessage("REF: TIMER STARTED");
+                Util.ForceSendMessage("REF: TIMER STARTED");
                 log.LogInfo("Called StartCountdown");
                 UIModMenuState.Instance.MainTimerStarted = true;
             }

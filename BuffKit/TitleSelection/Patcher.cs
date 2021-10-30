@@ -21,7 +21,7 @@ namespace BuffKit.TitleSelection
                 log = BepInEx.Logging.Logger.CreateLogSource("title-selection");
                 _firstPrepare = false;
 
-                Util.Util.OnGameInitialize += delegate
+                Util.OnGameInitialize += delegate
                 {
                     UICustomTitleSelection.Initialize();
                 };

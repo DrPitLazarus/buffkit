@@ -6,11 +6,11 @@ namespace BuffKit.AnnounceChanges
     {
         public static string TeamShipToString(int teamIndex, int shipIndex)
         {
-            return $"{Util.Util.GetTeamName(teamIndex)} {shipIndex + 1}";
+            return $"{Util.GetTeamName(teamIndex)} {shipIndex + 1}";
         }
         public static string TeamShipToStringShort(int teamIndex, int shipIndex)
         {
-            return $"{Util.Util.GetTeamName(teamIndex)} {shipIndex + 1}";
+            return $"{Util.GetTeamName(teamIndex)} {shipIndex + 1}";
         }
         public static string GunStringListToString(List<string> gunList)
         {

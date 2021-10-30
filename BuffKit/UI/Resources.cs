@@ -90,29 +90,29 @@ namespace BuffKit.UI
 
             //Builder.TestBuilder(GameObject.Find("/Menu UI/Standard Canvas/Main Menu/Main Screen Elements/Game logo")?.transform);
 
-            Util.Util.OnLobbyLoad += ReloadTextures;
+            Util.OnLobbyLoad += ReloadTextures;
         }
 
         private static Dictionary<int, Texture2D> _gunTextures;
-        private static event Util.Util.Notify _gunTextureLoadCallback;
+        private static event Util.Notify _gunTextureLoadCallback;
         public static Texture2D GetGunTexture(int gunId)
         {
             if (!_gunTextures.ContainsKey(gunId)) return UIManager.IconForNullOrEmpty;
             return _gunTextures[gunId];
         }
-        public static void RegisterGunTextureCallback(Util.Util.Notify gunTextureLoadCallback)
+        public static void RegisterGunTextureCallback(Util.Notify gunTextureLoadCallback)
         {
             _gunTextureLoadCallback -= gunTextureLoadCallback;
             _gunTextureLoadCallback += gunTextureLoadCallback;
         }
         private static Dictionary<int, Texture2D> _skillTextures;
-        private static event Util.Util.Notify _skillTextureLoadCallback;
+        private static event Util.Notify _skillTextureLoadCallback;
         public static Texture2D GetSkillTexture(int skillId)
         {
             if (!_skillTextures.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
             return _skillTextures[skillId];
         }
-        public static void RegisterSkillTextureCallback(Util.Util.Notify skillTextureLoadCallback)
+        public static void RegisterSkillTextureCallback(Util.Notify skillTextureLoadCallback)
         {
             _skillTextureLoadCallback -= skillTextureLoadCallback;
             _skillTextureLoadCallback += skillTextureLoadCallback;
@@ -120,7 +120,7 @@ namespace BuffKit.UI
         private static void ReloadTextures()
         {
             _gunTextures = new Dictionary<int, Texture2D>();
-            foreach (var id in Util.Util.GunIds)
+            foreach (var id in Util.GunIds)
             {
                 var gunItem = CachedRepository.Instance.Get<GunItem>(id);
                 MuseBundleStore.Instance.LoadObject<Texture2D>(gunItem.GetIcon(), delegate (Texture2D t)

@@ -12,7 +12,7 @@ namespace BuffKit.InfoPanels
         {
             if (_firstPrepare)
             {
-                Util.Util.OnGameInitialize += delegate { GunInfoOverlay.Initialize(); };
+                Util.OnGameInitialize += delegate { GunInfoOverlay.Initialize(); };
 
                 _firstPrepare = false;
             }
@@ -70,7 +70,7 @@ namespace BuffKit.InfoPanels
         {
             if (_firstPrepare)
             {
-                Util.Util.OnGameInitialize += delegate { ShipStatsPanel.Initialize(); };
+                Util.OnGameInitialize += delegate { ShipStatsPanel.Initialize(); };
 
                 _firstPrepare = false;
             }

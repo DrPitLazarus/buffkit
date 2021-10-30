@@ -135,7 +135,7 @@ namespace BuffKit.GunSelection
             _gunRows[GameType.Coop][ShipPartSlotSize.MEDIUM] = 5;
 
             // Add guns to damage categories
-            foreach (var id in Util.Util.GunIds)
+            foreach (var id in Util.GunIds)
             {
                 var gi = CachedRepository.Instance.Get<GunItem>(id);
 

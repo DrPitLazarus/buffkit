@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static BuffKit.Util.Util;
+using static BuffKit.Util;
 
 namespace BuffKit.MatchModMenu
 {

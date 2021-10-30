@@ -109,7 +109,7 @@ namespace BuffKit.InfoPanels
 
             _shipDataDict = new Dictionary<int, Dictionary<GameType, Dictionary<string, float>>>();
 
-            foreach (var id in Util.Util.ShipIds)
+            foreach (var id in Util.ShipIds)
             {
                 var _currentShipDataDict = new Dictionary<GameType, Dictionary<string, float>>();
 

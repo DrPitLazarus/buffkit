@@ -81,7 +81,7 @@ namespace BuffKit.ShipLoadoutViewer
                 {
                     shipClass = svo.ModelId;
                     availableSlots = svo.Model.GunSlots;
-                    shipGuns = Util.Util.GetSortedGunIds(svo.Model, svo.Presets[0].Guns);
+                    shipGuns = Util.GetSortedGunIds(svo.Model, svo.Presets[0].Guns);
                 }
             }
 

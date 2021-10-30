@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
-using static BuffKit.Util.Util;
+using static BuffKit.Util;
 
 namespace BuffKit.ShipLoadoutViewer
 {

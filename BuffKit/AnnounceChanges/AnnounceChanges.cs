@@ -2,7 +2,7 @@
 using System.Text;
 using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
-using static BuffKit.Util.Util;
+using static BuffKit.Util;
 
 namespace BuffKit.AnnounceChanges
 {
