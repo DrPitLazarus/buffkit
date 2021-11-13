@@ -1,9 +1,48 @@
-game_path = ''
+game_path = 'D:\Games\Steam\steamapps\common\Guns of Icarus Online'
 
-classes_to_patch = [
-  "UIManager",
-  "UICreateMatchPanel",
-  "UIMatchLobby",
-  "UINewModalDialog",
-  "UIMapDisplay"
+[[classes]]
+name = "UIManager"
+fields = []
+
+[[classes]]
+name = "UICreateMatchPanel"
+fields = []
+
+[[classes]]
+name = "UIMatchLobby"
+fields = []
+
+[[classes]]
+name = "UINewModalDialog"
+fields = []
+
+[[classes]]
+name = "UIMapDisplay"
+fields = []
+
+[[classes]]
+name = "UIMissionHUD"
+fields = [
+  "isActive"
+]
+
+[[classes]]
+name = "UISkirmishHUD"
+fields = [
+  "teamHuds"
+]
+
+[[classes]]
+name = "UIControlPointHUD"
+fields = [
+  "controlPoint",
+  "crazyKing",
+  "kingOfTheHill",
+  "countdownTimerText",
+  "centralControlPointText",
+  "centralControlPoint",
+  "countdownTimerText",
+  "countdownTimerContainer",
+  "currentlyActiveObjectiveIndex",
+  "lastActiveObjectiveIndex"
 ]

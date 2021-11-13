@@ -43,7 +43,7 @@ namespace Spanner
                 }
                 catch (Exception e)
                 {
-                    _logger.Fatal("Unable to parse the configuration file", e);
+                    _logger.Fatal("Unable to parse the configuration file");
                     return;
                 }
             }
@@ -79,7 +79,7 @@ namespace Spanner
             }
             catch (IOException e)
             {
-                _logger.Fatal("Can't get the parent directory\n{e}", e);
+                _logger.Fatal($"Can't get the parent directory\n{e}", e);
                 return;
             }
 
@@ -121,7 +121,7 @@ namespace Spanner
                 }
                 catch (Exception e)
                 {
-                    _logger.Fatal("Unable to backup the original assembly\n{e}", e);
+                    _logger.Fatal($"Unable to backup the original assembly\n{e}", e);
                     return;
                 }
             }
@@ -134,11 +134,13 @@ namespace Spanner
                 new ReaderParameters {AssemblyResolver = resolver});
 
             _logger.Information("Patching the main assembly");
-            var classesToPatch = configData["classes_to_patch"].AsArray;
-            foreach (var ctp in classesToPatch)
+            var classesToPatch = configData["classes"];
+            foreach (TomlTable ctp in classesToPatch)
             {
-                var name = ctp.ToString();
+                var name = ctp["name"].AsString.Value;
                 if (name is null) continue;
+
+                var fields = ctp["fields"].AsArray;
 
                 var type = assemblyToPatch.MainModule.Types.FirstOrDefault(t => t.Name.Equals(name));
                 if (type is null)
@@ -148,6 +150,23 @@ namespace Spanner
                 }
 
                 Nationalize(type);
+                foreach (TomlNode field in fields)
+                {
+                    var f = field.AsString.Value;
+                    if (f.Equals(string.Empty)) return;
+                
+                    FieldDefinition fd;
+                    try
+                    {
+                        fd = type.Fields.First(a => a.Name.Equals(f));
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"Unable to find the specified field {f}");
+                        continue;
+                    }
+                    Nationalize(fd);
+                }
                 _logger.Information($"Patched {name}");
             }
 
@@ -194,6 +213,17 @@ namespace Spanner
 
             method.Attributes &= ~MethodAttributes.Private;
             method.Attributes |= MethodAttributes.Public;
+        }
+
+        private static void Nationalize(FieldDefinition field)
+        {
+            if (field.IsPublic) return;
+            _logger.Debug($"Deprivatizing field {field.FullName}");
+
+            field.Attributes &= ~FieldAttributes.Private;
+            field.Attributes &= ~FieldAttributes.Assembly;
+            field.Attributes &= ~FieldAttributes.Family;
+            field.Attributes |= FieldAttributes.Public;
         }
     }
 }
