@@ -235,6 +235,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuffKit.cs" />
+    <Compile Include="KothUiFix\KothUiFix.cs" />
+    <Compile Include="KothUiFix\Patcher.cs" />
     <Compile Include="MatchModMenu\Patcher.cs" />
     <Compile Include="MatchRefTools\AutoStartTimer.cs" />
     <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />
