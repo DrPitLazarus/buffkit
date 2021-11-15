@@ -2,7 +2,7 @@
 
 namespace BuffKit.ChaosRandomizer
 {
-    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    // [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
     class UIManager_UINewMatchLobbyState_Enter
     {
         private static bool _firstPrepare = true;
@@ -34,7 +34,7 @@ namespace BuffKit.ChaosRandomizer
         }
     }
 
-    [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
+    // [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
     class UIPageFrame_TryHideOverlay
     {
         private static void Postfix(ref bool __result)
@@ -43,7 +43,7 @@ namespace BuffKit.ChaosRandomizer
         }
     }
 
-    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    // [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
     class UIPageFrame_HideAllElements
     {
         private static void Postfix()
