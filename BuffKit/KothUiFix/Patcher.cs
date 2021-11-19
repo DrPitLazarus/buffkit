@@ -12,6 +12,18 @@ namespace BuffKit.KothUiFix
         }
     }
 
+    [HarmonyPatch(typeof(ControlPoint), "Start")]
+    class ControlPoint_Start
+    {
+        static void Postfix(ControlPoint __instance)
+        {
+            if (__instance.numberOfTeams <= 2)
+                KothUiFix.SetUiToTwoTeams();
+            else
+                KothUiFix.SetUiToFourTeams();
+        }
+    }
+    
     [HarmonyPatch(typeof(UIControlPointHUD), "OnUpdate")]
     class UIControlPointHUD_OnUpdate
     {
@@ -82,7 +94,7 @@ namespace BuffKit.KothUiFix
         {
             if (isActive)
             {
-                if (controllingTeam == 0 || controllingTeam == 1 || controllingTeam == 2 || controllingTeam == 3)
+                if (controllingTeam != -1)
                 {
                     if (controlProgress == 0f && capturingTeam == -1)
                     {
@@ -91,7 +103,7 @@ namespace BuffKit.KothUiFix
                     controlPointIcon.Fill(controlProgress, TeamColors.GetColor(controllingTeam));
                     controlPointIcon.RecolorCenter(TeamColors.GetColor(controllingTeam));
                 }
-                else if (capturingTeam == 0 || capturingTeam == 1 || capturingTeam == 2  || capturingTeam == 3)
+                else if (capturingTeam != -1)
                 {
                     controlPointIcon.Fill(controlProgress, TeamColors.GetColor(capturingTeam));
                     controlPointIcon.RecolorCenter(Color.clear);
