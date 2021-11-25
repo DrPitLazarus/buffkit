@@ -22,6 +22,7 @@
         {
             MuseLog.Info("KOTH Announcer Initialized");
             _currentMatch = match;
+            _previousTeam = -1;
         }
 
         public void OnMatchUpdate(CrazyKing match)
