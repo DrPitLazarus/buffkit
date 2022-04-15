@@ -22,9 +22,9 @@ namespace BuffKit.InfoPanels
     [HarmonyPatch(typeof(UIGunTooltip), "RenderGun")]
     class UIGunTooltip_RenderGun
     {
-        private static bool Prefix(GunItemInfo info, string additionalTipText)
+        private static bool Prefix(UIGunTooltip __instance, GunItemInfo info, string additionalTipText)
         {
-            if (info != null && !string.IsNullOrEmpty(info.name))
+            if (info != null && !string.IsNullOrEmpty(info.name) && __instance.name != "Gun Information Panel")
             {
                 return GunInfoOverlay.DisplayGun(info);
             }
