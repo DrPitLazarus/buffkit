@@ -62,7 +62,6 @@ namespace BuffKit.SpectatorShipDisplay
 
             // Sort guns by slot index (same as in ship builder)
             var shipModelId = UIManager.UIOrbitState.Instance.TargetShip.ShipModelId;
-            // NetworkedPlayer.Local.CurrentShip.ShipModelId;
 
             gun_repairables.Sort(
                 (x, y) => Util.GetGunSlotIndex(shipModelId, x.SlotName).CompareTo(Util.GetGunSlotIndex(shipModelId, y.SlotName))
