@@ -234,6 +234,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoAcceptLoadout\Patcher.cs" />
     <Compile Include="BuffKit.cs" />
     <Compile Include="MatchModMenu\Patcher.cs" />
     <Compile Include="MatchRefTools\AutoStartTimer.cs" />
