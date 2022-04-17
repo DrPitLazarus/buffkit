@@ -99,7 +99,7 @@ namespace BuffKit.Minimap
         public void OnDisable()
         {
             MuseLog.Info("Destroying the minimap controller");
-            _background.gameObject.SetActive(true);
+            _background.gameObject.SetActive(false);
             _labels.gameObject.SetActive(true);
             _grid.gameObject.SetActive(true);
                 
