@@ -274,6 +274,7 @@
     <Compile Include="AnnounceChanges\Patcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InfoPanels\ShipStatsPanel.cs" />
+    <Compile Include="SpectatorShipDisplay\Patcher.cs" />
     <Compile Include="TitleSelection\Patcher.cs" />
     <Compile Include="TitleSelection\UICustomTitleSelection.cs" />
     <Compile Include="UI\Builder.cs" />
