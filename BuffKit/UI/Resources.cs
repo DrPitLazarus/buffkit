@@ -96,6 +96,11 @@ namespace BuffKit.UI
         private static event Util.Notify _gunTextureLoadCallback;
         public static Texture2D GetGunTexture(int gunId)
         {
+            if (_gunTextures == null)
+            {
+                MuseLog.Warn("Attempted to get gun texture (" + gunId + ") before textures are loaded.");
+                return UIManager.IconForNullOrEmpty;
+            }
             if (!_gunTextures.ContainsKey(gunId)) return UIManager.IconForNullOrEmpty;
             return _gunTextures[gunId];
         }
@@ -108,6 +113,11 @@ namespace BuffKit.UI
         private static event Util.Notify _skillTextureLoadCallback;
         public static Texture2D GetSkillTexture(int skillId)
         {
+            if (_skillTextures == null)
+            {
+                MuseLog.Warn("Attempted to get skill texture (" + skillId + ") before textures are loaded");
+                return UIManager.IconForNullOrEmpty;
+            }
             if (!_skillTextures.ContainsKey(skillId)) return UIManager.IconForNullOrEmpty;
             return _skillTextures[skillId];
         }

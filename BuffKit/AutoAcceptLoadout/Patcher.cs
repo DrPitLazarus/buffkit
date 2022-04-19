@@ -14,7 +14,7 @@ namespace BuffKit.AutoAcceptLoadout
         {
             if (firstPrepare)
             {
-                Settings.Settings.Instance.AddEntry("misc", "auto accept loadouts", v => enableAutoAccept = v, enableAutoAccept);
+                Settings.Settings.Instance.AddEntry("loadout manager", "auto accept loadouts", v => enableAutoAccept = v, enableAutoAccept);
                 firstPrepare = false;
             }
         }

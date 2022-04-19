@@ -209,6 +209,40 @@ namespace BuffKit.UI
             return obLabel;
         }
 
+        public static GameObject BuildImageLabel(Transform parent, out RawImage cImage, float width, float height)
+        {
+            var obImageLabel = new GameObject("Image Label");
+            var le = obImageLabel.AddComponent<LayoutElement>();
+            le.minWidth = width;
+            le.minHeight = height;
+            le.preferredWidth = width;
+            le.preferredHeight = height;
+            var img = obImageLabel.AddComponent<Image>();
+            img.sprite = Resources.BlankIcon;
+            img.color = new Color(0.22f, 0.192f, 0.18f);
+
+            var obImage = new GameObject("Image");
+            cImage = obImage.AddComponent<RawImage>();
+            obImage.transform.SetParent(obImageLabel.transform, false);
+            var rt = obImage.GetOrCreateComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.sizeDelta = new Vector2(0, 0);
+
+            var obOutline = new GameObject("Outline");
+            obOutline.transform.SetParent(obImageLabel.transform, false);
+            rt = obOutline.GetOrCreateComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.sizeDelta = new Vector2(0, 0);
+            img = obOutline.AddComponent<Image>();
+            img.sprite = Resources.ButtonOutline;
+            img.color = new Color(0.584f, 0.502f, 0.42f);
+
+            obImageLabel.transform.SetParent(parent, false);
+            return obImageLabel;
+        }
+
         public static GameObject BuildPanel(Transform parent)
         {
             var obPanel = new GameObject("Panel");
@@ -382,7 +416,7 @@ namespace BuffKit.UI
             hlg.childForceExpandWidth = false;
             hlg.childAlignment = TextAnchor.MiddleLeft;
             hlg.spacing = 10;
-            hlg.padding = new RectOffset(3, 3, 3, 3);
+            hlg.padding = new RectOffset(3, 3, 5, 5);
 
             var label = BuildLabel(obButton.transform, text, TextAnchor.MiddleLeft, fontSize);
 

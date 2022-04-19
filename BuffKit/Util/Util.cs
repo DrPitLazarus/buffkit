@@ -68,6 +68,9 @@ namespace BuffKit
             return null;
         }
 
+        public static List<int> PilotSkillIds { get; private set; }
+        public static List<int> GunnerSkillIds { get; private set; }
+        public static List<int> EngineerSkillIds { get; private set; }
         public static HashSet<int> ShipIds { get; private set; }
         public static HashSet<int> GunIds { get; private set; }
         private static Dictionary<int, Dictionary<string, int>> shipGunSlotLookup;
@@ -195,6 +198,34 @@ namespace BuffKit
                 OnGameInitialize?.Invoke();
                 OnLobbyLoadTrigger();
             });
+
+            PilotSkillIds = new List<int>();
+            GunnerSkillIds = new List<int>();
+            EngineerSkillIds = new List<int>();
+
+            var skills = CachedRepository.Instance.GetAll<SkillConfig>();
+            foreach (var skill in skills)
+            {
+                if (skill.Public)
+                {
+                    switch (skill.Type)
+                    {
+                        case SkillType.Helm:
+                            PilotSkillIds.Add(skill.ActivationId);
+                            break;
+                        case SkillType.Gun:
+                            GunnerSkillIds.Add(skill.ActivationId);
+                            break;
+                        case SkillType.Repair:
+                            EngineerSkillIds.Add(skill.ActivationId);
+                            break;
+                    }
+                }
+            }
+            PilotSkillIds.Sort();
+            GunnerSkillIds.Sort();
+            EngineerSkillIds.Sort();
         }
+
     }
 }
