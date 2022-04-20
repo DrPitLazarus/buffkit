@@ -1,10 +1,11 @@
-﻿using BuffKit.UI;
-using HarmonyLib;
+﻿using HarmonyLib;
+using System.Collections.Generic;
+using Muse.Goi2.Entity;
 
 namespace BuffKit.LoadoutSort
 {
-    [HarmonyPatch(typeof(UIManager.UILoadingLobbyState), "Exit")]
-    class UILoadingLobbyState_Exit
+    [HarmonyPatch(typeof(LoadoutQueryData), "GetChangedSkill")]
+    class LoadoutQueryData_GetChangedSkills
     {
         static bool firstCall = true;
 
@@ -17,4 +18,9 @@ namespace BuffKit.LoadoutSort
             }
         }
     }
+
+    // TODO: add description label to panel
+    //       specific class toolset overrides
+    //          UI panel button to open new panel (vertical scrollbar, add new (+), delete (-?))
+    //       remove LoadoutSort and move behaviour into UILoadoutSortPanel?
 }

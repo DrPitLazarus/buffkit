@@ -20,6 +20,17 @@ namespace BuffKit.LoadoutSort
             Instance.SetVisibility(false);
 
             Settings.Settings.Instance.AddEntry("loadout manager", "change order", delegate (Settings.Dummy _) { Instance.SetVisibility(true); }, new Settings.Dummy());
+            Settings.Settings.Instance.AddEntry("loadout manager", "sort recommended loadouts", v => Instance.doSort = v, Instance.doSort);
+
+            SubDataActions.OnAcceptLoadout += delegate (AvatarClass clazz, IList<int> skills)
+            {
+                if (!Instance.doSort) return;
+                Instance.SortSkills(skills, out var ps, out var gs, out var es);
+                var sortedSkillString = Instance.GetSkillChangeString(clazz, ps, gs, es);
+                var skillDict = new Dictionary<string, string>();
+                skillDict.Add("skill", sortedSkillString);
+                SubDataActions.ChangeSkills(skillDict);
+            };
         }
 
         public static void BuildPanel(Transform parent)
@@ -188,6 +199,8 @@ namespace BuffKit.LoadoutSort
             LoadoutSort.SaveToFile(_pilotToolOrder, _gunnerToolOrder, _engineerToolOrder);
         }
 
+        private bool doSort = false;
+
         private Dictionary<string, int> _transformNameToPilotSkillId = new Dictionary<string, int>();
         private Dictionary<string, int> _transformNameToGunnerSkillId = new Dictionary<string, int>();
         private Dictionary<string, int> _transformNameToEngineerSkillId = new Dictionary<string, int>();
@@ -222,6 +235,73 @@ namespace BuffKit.LoadoutSort
         public void SetVisibility(bool visible)
         {
             gameObject.SetActive(visible);
+        }
+
+        public void SortSkills(IList<int> skills, out List<int> sortedPilotSkills, out List<int> sortedGunnerSkills, out List<int> sortedEngineerSkills)
+        {
+            var pilotSkills = new List<int>();
+            var gunnerSkills = new List<int>();
+            var engineerSkills = new List<int>();
+
+            foreach (var id in skills)
+            {
+                var skillConfig = CachedRepository.Instance.Get<SkillConfig>(id);
+                if (skillConfig != null)
+                    switch (skillConfig.Type)
+                    {
+                        case SkillType.Helm:
+                            pilotSkills.Add(id);
+                            break;
+                        case SkillType.Gun:
+                            gunnerSkills.Add(id);
+                            break;
+                        case SkillType.Repair:
+                            engineerSkills.Add(id);
+                            break;
+                        default:
+                            MuseLog.Warn("Failed to sort unexpected skill: (" + id + ") " + skillConfig.NameText.En);
+                            break;
+                    }
+            }
+
+            sortedPilotSkills = pilotSkills.OrderBy(id => _pilotToolOrder.IndexOf(id)).ToList();
+            sortedGunnerSkills = gunnerSkills.OrderBy(id => _gunnerToolOrder.IndexOf(id)).ToList();
+            sortedEngineerSkills = engineerSkills.OrderBy(id => _engineerToolOrder.IndexOf(id)).ToList();
+        }
+
+        public string GetSkillChangeString(AvatarClass clazz, List<int> pilotSkills, List<int> gunnerSkills, List<int> engineerSkills)
+        {
+            var skillEntries = new List<string>();
+
+            switch (clazz)
+            {
+                case AvatarClass.Pilot:
+                    skillEntries.Add("Pilot/-1/0/" + pilotSkills[0]);
+                    skillEntries.Add("Pilot/-1/1/" + pilotSkills[1]);
+                    skillEntries.Add("Pilot/-1/2/" + pilotSkills[2]);
+                    skillEntries.Add("Pilot/-1/3/" + gunnerSkills[0]);
+                    skillEntries.Add("Pilot/-1/4/" + engineerSkills[0]);
+                    break;
+                case AvatarClass.Gunner:
+                    skillEntries.Add("Gunner/-1/0/" + gunnerSkills[0]);
+                    skillEntries.Add("Gunner/-1/1/" + gunnerSkills[1]);
+                    skillEntries.Add("Gunner/-1/2/" + gunnerSkills[2]);
+                    skillEntries.Add("Gunner/-1/3/" + pilotSkills[0]);
+                    skillEntries.Add("Gunner/-1/4/" + engineerSkills[0]);
+                    skillEntries.Add("Gunner/-1/6/" + engineerSkills[1]);
+                    break;
+                case AvatarClass.Engineer:
+                    skillEntries.Add("Engineer/-1/0/" + engineerSkills[0]);
+                    skillEntries.Add("Engineer/-1/1/" + engineerSkills[1]);
+                    skillEntries.Add("Engineer/-1/2/" + engineerSkills[2]);
+                    skillEntries.Add("Engineer/-1/3/" + pilotSkills[0]);
+                    skillEntries.Add("Engineer/-1/4/" + gunnerSkills[0]);
+                    break;
+            }
+
+            var str = string.Join(",", skillEntries.ToArray());
+
+            return str;
         }
     }
 }
