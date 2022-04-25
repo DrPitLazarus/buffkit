@@ -239,6 +239,7 @@
     <Compile Include="LoadoutSort\LoadoutSort.cs" />
     <Compile Include="LoadoutSort\Patcher.cs" />
     <Compile Include="LoadoutSort\UILoadoutSortPanel.cs" />
+    <Compile Include="LoadoutSort\UILoadoutSpecificSortPanel.cs" />
     <Compile Include="MatchModMenu\Patcher.cs" />
     <Compile Include="MatchRefTools\AutoStartTimer.cs" />
     <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />

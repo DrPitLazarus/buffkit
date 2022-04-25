@@ -126,6 +126,20 @@ namespace BuffKit.UI
             _skillTextureLoadCallback -= skillTextureLoadCallback;
             _skillTextureLoadCallback += skillTextureLoadCallback;
         }
+        public static Sprite GetClassIcon(AvatarClass? clazz)
+        {
+            switch (clazz)
+            {
+                case AvatarClass.Pilot:
+                    return PilotIcon;
+                case AvatarClass.Gunner:
+                    return GunnerIcon;
+                case AvatarClass.Engineer:
+                    return EngineerIcon;
+                default:
+                    return BlankIcon;
+            }
+        }
         private static void ReloadTextures()
         {
             _gunTextures = new Dictionary<int, Texture2D>();

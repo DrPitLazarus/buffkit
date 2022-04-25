@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using System.Collections.Generic;
-using Muse.Goi2.Entity;
 
 namespace BuffKit.LoadoutSort
 {
@@ -19,8 +17,22 @@ namespace BuffKit.LoadoutSort
         }
     }
 
-    // TODO: add description label to panel
-    //       specific class toolset overrides
-    //          UI panel button to open new panel (vertical scrollbar, add new (+), delete (-?))
-    //       remove LoadoutSort and move behaviour into UILoadoutSortPanel?
+    [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
+    class UIPageFrame_TryHideOverlay
+    {
+        private static void Postfix(ref bool __result)
+        {
+            __result = __result || UILoadoutSpecificSortPanel.Instance.TryHide() || UILoadoutSortPanel.Instance.TryHide();
+        }
+    }
+
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    class UIPageFrame_HideAllElements
+    {
+        private static void Postfix()
+        {
+            UILoadoutSortPanel.Instance?.TryHide();
+            UILoadoutSpecificSortPanel.Instance.TryHide();
+        }
+    }
 }

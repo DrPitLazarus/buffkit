@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using BuffKit.UI;
 using Muse.Goi2.Entity;
+using BuffKit.UI;
 
 namespace BuffKit.LoadoutSort
 {
@@ -14,18 +12,43 @@ namespace BuffKit.LoadoutSort
         public static UILoadoutSortPanel Instance;
         public static void _Initialize()
         {
+            // Load skills from file
+            LoadoutSort.LoadFromFile(out var pilotSkills, out var gunnerSkills, out var engineerSkills, out var specificSkillSets);
+
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) MuseLog.Error("Panel parent transform was not found");
-            UILoadoutSortPanel.BuildPanel(parentTransform);
-            Instance.SetVisibility(false);
+            UILoadoutSortPanel.BuildPanel(parentTransform, pilotSkills, gunnerSkills, engineerSkills);
+            Instance.TryHide();
 
-            Settings.Settings.Instance.AddEntry("loadout manager", "change order", delegate (Settings.Dummy _) { Instance.SetVisibility(true); }, new Settings.Dummy());
+            UILoadoutSpecificSortPanel.BuildPanel(parentTransform);
+            UILoadoutSpecificSortPanel.Instance.TryHide();
+            UILoadoutSpecificSortPanel.Instance.AddOrders(specificSkillSets);
+
+            UILoadoutSpecificSortPanel.Instance.transform.SetAsFirstSibling();
+            UILoadoutSortPanel.Instance.transform.SetAsFirstSibling();
+
+            Settings.Settings.Instance.AddEntry("loadout manager", "change order", delegate (Settings.Dummy _) { Instance.Show(); }, new Settings.Dummy());
             Settings.Settings.Instance.AddEntry("loadout manager", "sort recommended loadouts", v => Instance.doSort = v, Instance.doSort);
 
             SubDataActions.OnAcceptLoadout += delegate (AvatarClass clazz, IList<int> skills)
             {
                 if (!Instance.doSort) return;
+
                 Instance.SortSkills(skills, out var ps, out var gs, out var es);
+
+                switch (clazz)
+                {
+                    case AvatarClass.Pilot:
+                        UILoadoutSpecificSortPanel.Instance.TrySort(ps, out ps);
+                        break;
+                    case AvatarClass.Gunner:
+                        UILoadoutSpecificSortPanel.Instance.TrySort(gs, out gs);
+                        break;
+                    case AvatarClass.Engineer:
+                        UILoadoutSpecificSortPanel.Instance.TrySort(es, out es);
+                        break;
+                }
+
                 var sortedSkillString = Instance.GetSkillChangeString(clazz, ps, gs, es);
                 var skillDict = new Dictionary<string, string>();
                 skillDict.Add("skill", sortedSkillString);
@@ -33,7 +56,7 @@ namespace BuffKit.LoadoutSort
             };
         }
 
-        public static void BuildPanel(Transform parent)
+        private static void BuildPanel(Transform parent, List<int> pilotSkills, List<int> gunnerSkills, List<int> engineerSkills)
         {
             var obPanel = Builder.BuildPanel(parent);
             obPanel.name = "UI Loadout Sort Panel";
@@ -54,8 +77,11 @@ namespace BuffKit.LoadoutSort
             var panel = obPanel.AddComponent<UILoadoutSortPanel>();
             obPanel.AddComponent<GraphicRaycaster>();                       // Makes it have UI interaction on top of other UI (I think? It's complicated)
 
-            // Load skills from file
-            LoadoutSort.LoadFromFile(out var pilotSkills, out var gunnerSkills, out var engineerSkills);
+            Builder.BuildLabel(obPanel.transform, "Loadout Sorting Settings", TextAnchor.MiddleCenter, 32);
+
+            Builder.BuildLabel(obPanel.transform, out var text, UI.Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 16);
+            text.text = "Rearrange default loadout sorting order by dragging and dropping the tools below.\nSpecific tool combinations to override this order can be added.";
+
             // Add any missing skills
             bool skillsAdded = false;
             foreach (var skill in Util.PilotSkillIds)
@@ -76,11 +102,6 @@ namespace BuffKit.LoadoutSort
                     engineerSkills.Add(skill);
                     skillsAdded = true;
                 }
-            if (skillsAdded)
-            {
-                MuseLog.Info("Added some missing skills, saving new order");
-                LoadoutSort.SaveToFile(pilotSkills, gunnerSkills, engineerSkills);
-            }
 
             panel._pilotToolOrder = pilotSkills;
             panel._gunnerToolOrder = gunnerSkills;
@@ -108,7 +129,7 @@ namespace BuffKit.LoadoutSort
                 {
                     Instance._pilotToolOrder.Add(Instance._transformNameToPilotSkillId[kvp.Value.name]);
                 }
-                Instance.SaveToolOrders();
+                LoadoutSort.SaveToFile();
             };
 
             var obRowGunner = new GameObject("Gunner Tools");
@@ -132,7 +153,7 @@ namespace BuffKit.LoadoutSort
                 {
                     Instance._gunnerToolOrder.Add(Instance._transformNameToGunnerSkillId[kvp.Value.name]);
                 }
-                Instance.SaveToolOrders();
+                LoadoutSort.SaveToFile();
             };
 
             var obRowEngineer = new GameObject("Engineer Tools");
@@ -156,12 +177,12 @@ namespace BuffKit.LoadoutSort
                 {
                     Instance._engineerToolOrder.Add(Instance._transformNameToEngineerSkillId[kvp.Value.name]);
                 }
-                Instance.SaveToolOrders();
+                LoadoutSort.SaveToFile();
             };
 
             UI.Resources.RegisterSkillTextureCallback(delegate { Instance.RefreshTextures(); });
 
-            var btnRow = new GameObject("Save Row");
+            var btnRow = new GameObject("Bottom Row");
             hlg = btnRow.AddComponent<HorizontalLayoutGroup>();
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
@@ -169,15 +190,37 @@ namespace BuffKit.LoadoutSort
             hlg.childAlignment = TextAnchor.MiddleCenter;
             btnRow.transform.SetParent(panel.transform);
 
-            var closeBtn = UI.Builder.BuildButton(btnRow.transform, delegate
+            var specificBtn = Builder.BuildButton(btnRow.transform, delegate
+              {
+                  UILoadoutSpecificSortPanel.Instance.Show();
+              }, "Specific Orders", TextAnchor.MiddleCenter, 24);
+            var le = specificBtn.AddComponent<LayoutElement>();
+            le.preferredWidth = 215;
+            le.preferredHeight = 40;
+
+            var closeBtn = Builder.BuildButton(btnRow.transform, delegate
             {
-                Instance.SetVisibility(false);
+                Instance.TryHide();
             }, "Close", TextAnchor.MiddleCenter, 24);
-            var le = closeBtn.AddComponent<LayoutElement>();
+            le = closeBtn.AddComponent<LayoutElement>();
             le.preferredWidth = 90;
             le.preferredHeight = 40;
 
+            var obDropShadow = GameObject.Instantiate(GameObject.Find("Menu UI/Standard Canvas/Common Elements/Item Selection Window/Item Selection Panel/Drop Shadow"), panel.transform);
+            rt = obDropShadow.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(.5f, .5f);
+            rt.anchorMax = new Vector2(.5f, .5f);
+            rt.offsetMin = new Vector2(-785, -389);
+            rt.offsetMax = new Vector2(785, 389);
+            obDropShadow.transform.SetAsFirstSibling();
+
             Instance = panel;
+
+            if (skillsAdded)
+            {
+                MuseLog.Info("Added some missing skills, saving new order");
+                LoadoutSort.SaveToFile();
+            }
         }
 
         private void PrintToolOrders()
@@ -194,10 +237,9 @@ namespace BuffKit.LoadoutSort
                 MuseLog.Info("    " + CachedRepository.Instance.Get<SkillConfig>(skill).NameText.En);
         }
 
-        private void SaveToolOrders()
-        {
-            LoadoutSort.SaveToFile(_pilotToolOrder, _gunnerToolOrder, _engineerToolOrder);
-        }
+        public List<int> PilotToolOrder { get { return _pilotToolOrder; } }
+        public List<int> GunnerToolOrder { get { return _gunnerToolOrder; } }
+        public List<int> EngineerToolOrder { get { return _engineerToolOrder; } }
 
         private bool doSort = false;
 
@@ -232,9 +274,18 @@ namespace BuffKit.LoadoutSort
             }
         }
 
-        public void SetVisibility(bool visible)
+        public void Show()
         {
-            gameObject.SetActive(visible);
+            gameObject.SetActive(true);
+        }
+        public bool TryHide()
+        {
+            if (gameObject.activeSelf)
+            {
+                gameObject.SetActive(false);
+                return true;
+            }
+            return false;
         }
 
         public void SortSkills(IList<int> skills, out List<int> sortedPilotSkills, out List<int> sortedGunnerSkills, out List<int> sortedEngineerSkills)

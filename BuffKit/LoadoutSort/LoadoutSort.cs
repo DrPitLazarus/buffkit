@@ -8,12 +8,24 @@ namespace BuffKit.LoadoutSort
     public class LoadoutSort
     {
 
-        public static void SaveToFile(List<int> pilotToolOrder, List<int> gunnerToolOrder, List<int> engineerToolOrder)
+        [Serializable]
+        private struct LoadoutSortData
         {
-            var data = new List<List<int>>();
-            data.Add(pilotToolOrder);
-            data.Add(gunnerToolOrder);
-            data.Add(engineerToolOrder);
+            public List<int> pilotToolOrder;
+            public List<int> gunnerToolOrder;
+            public List<int> engineerToolOrder;
+            public List<ClassSkillSet> specificSkillSets;
+        }
+
+        public static void SaveToFile()
+        {
+            var data = new LoadoutSortData
+            {
+                pilotToolOrder = UILoadoutSortPanel.Instance.PilotToolOrder,
+                gunnerToolOrder = UILoadoutSortPanel.Instance.GunnerToolOrder,
+                engineerToolOrder = UILoadoutSortPanel.Instance.EngineerToolOrder,
+                specificSkillSets = UILoadoutSpecificSortPanel.Instance.GetSpecificSkillSets()
+            };
 
             var dataString = JsonConvert.SerializeObject(data, Formatting.Indented);
 
@@ -22,36 +34,45 @@ namespace BuffKit.LoadoutSort
             var path = Path.Combine(gp, filePath);
             File.WriteAllText(path, dataString);
 
-            MuseLog.Info("Saved settings to file");
+            MuseLog.Info("Saved loadout settings to file");
         }
 
         // Returns true if successful, false otherwise
-        public static bool LoadFromFile(out List<int> pilotToolOrder, out List<int> gunnerToolOrder, out List<int> engineerToolOrder)
+        public static bool LoadFromFile(out List<int> pilotToolOrder, out List<int> gunnerToolOrder, out List<int> engineerToolOrder,
+            out List<ClassSkillSet> specificSkillSets)
         {
             pilotToolOrder = new List<int>();
             gunnerToolOrder = new List<int>();
             engineerToolOrder = new List<int>();
+            specificSkillSets = new List<ClassSkillSet>();
             try
             {
                 var filePath = @"BepInEx\plugins\BuffKit\loadout_order_settings.json";
                 var gp = Directory.GetCurrentDirectory();
                 var path = Path.Combine(gp, filePath);
                 var savedData = File.ReadAllText(path);
-                var data = JsonConvert.DeserializeObject<List<List<int>>>(savedData);
+                var data = JsonConvert.DeserializeObject<LoadoutSortData>(savedData);
 
-                pilotToolOrder = data[0];
-                gunnerToolOrder = data[1];
-                engineerToolOrder = data[2];
+                pilotToolOrder = data.pilotToolOrder;
+                gunnerToolOrder = data.gunnerToolOrder;
+                engineerToolOrder = data.engineerToolOrder;
+                specificSkillSets = data.specificSkillSets;
+
+                MuseLog.Info("Loaded loadout settings from file");
 
                 return true;
             }
             catch (FileNotFoundException)
             {
-                MuseLog.Info("Settings file was not found");
+                MuseLog.Info("Loadout settings file was not found");
             }
             catch (JsonReaderException e)
             {
-                MuseLog.Info($"Failed to read settings file:\n{e.Message}");
+                MuseLog.Info($"Failed to read loadout settings file:\n{e.Message}");
+            }
+            catch (JsonSerializationException e)
+            {
+                MuseLog.Info($"Failed to deserialise loadout settings file:\n{e.Message}");
             }
             return false;
         }
