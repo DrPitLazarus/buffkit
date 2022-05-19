@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HarmonyLib;
 using Muse.Goi2.Entity;
-using Muse.Goi2.Entity.Vo;
 using UnityEngine;
 
 namespace BuffKit.SpectatorShipDisplay

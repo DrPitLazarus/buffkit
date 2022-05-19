@@ -9,12 +9,7 @@ namespace BuffKit.ToggleMatchUI
     {
         private static void Postfix()
         {
-            MuseLog.Info("Mission start postfix");
-            if (!NetworkedPlayer.Local.IsSpectator)
-            {
-                MuseLog.Info("Adding ToggleUIController");
-                Mission.Instance.gameObject.AddComponent<ToggleUIController>();
-            }
+            Mission.Instance.gameObject.AddComponent<ToggleUIController>();
         }
     }
 
@@ -24,7 +19,6 @@ namespace BuffKit.ToggleMatchUI
     {
         private static void Postfix()
         {
-            MuseLog.Info("Destroying ToggleUIController");
             if (ToggleUIController.Initialized)
                 Object.Destroy(ToggleUIController.Instance);
         }
@@ -38,7 +32,6 @@ namespace BuffKit.ToggleMatchUI
         {
             if (__instance.gameObject.activeSelf)
             {
-                MuseLog.Info("UIOverlayHitIndicator.Refresh called!");
                 if (ToggleUIController.Initialized && ToggleUIController.Instance.ShowUI)
                     return true;
                 __instance.gameObject.SetActive(false);

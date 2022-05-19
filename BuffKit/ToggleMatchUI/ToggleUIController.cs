@@ -46,6 +46,9 @@ namespace BuffKit.ToggleMatchUI
             if (!ShowUI)
             {
                 UIRepairComponentView.Deactivate();
+                UIShipDetailsView.Deactivate();
+                UINameTagDisplay.Deactivate();
+                UIShipProfileView.Deactivate();
                 foreach (var ob in _objectsToHide)
                     ob.SetActive(false);
             }
