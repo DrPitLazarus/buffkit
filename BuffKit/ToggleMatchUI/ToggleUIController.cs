@@ -41,16 +41,15 @@ namespace BuffKit.ToggleMatchUI
                     ob.SetActive(ShowUI);
                 if (ShowUI)
                     UIRepairComponentView.Activate();
+                else
+                    UIShipDetailsView.HideCrewToolInspectors(0);
             }
             // Some things get re-activated elsewhere (e.g. change states, close pause menu, etc.) so disable every update
             if (!ShowUI)
             {
-                UIRepairComponentView.Deactivate();
-                UIShipDetailsView.Deactivate();
-                UINameTagDisplay.Deactivate();
-                UIShipProfileView.Deactivate();
+                UINameTagDisplay.Deactivate();      // Very cheap
                 foreach (var ob in _objectsToHide)
-                    ob.SetActive(false);
+                    ob.SetActive(false);            // Very cheap
             }
         }
     }
