@@ -232,7 +232,7 @@ namespace BuffKit.LoadoutSort
             if (_skills == null)
                 _skills = new ClassSkillSet(null, new int[] { -1, -1, -1 });
 
-            SetActiveClass(_skills.SkillClass);
+            SetActiveClass(AvatarClass.Engineer);
             SetTextures();
         }
 
