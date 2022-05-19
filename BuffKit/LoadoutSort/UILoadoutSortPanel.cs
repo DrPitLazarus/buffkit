@@ -24,12 +24,13 @@ namespace BuffKit.LoadoutSort
 
             var parentTransform = GameObject.Find("/Menu UI/Standard Canvas/Common Elements")?.transform;
             if (parentTransform == null) MuseLog.Error("Panel parent transform was not found");
-            UILoadoutSortPanel.BuildPanel(parentTransform, pilotSkills, gunnerSkills, engineerSkills);
-            Instance.TryHide();
 
             UILoadoutSpecificSortPanel.BuildPanel(parentTransform);
             UILoadoutSpecificSortPanel.Instance.TryHide();
             UILoadoutSpecificSortPanel.Instance.AddOrders(specificSkillSets);
+
+            UILoadoutSortPanel.BuildPanel(parentTransform, pilotSkills, gunnerSkills, engineerSkills);
+            Instance.TryHide();
 
             UILoadoutSpecificSortPanel.Instance.transform.SetAsFirstSibling();
             UILoadoutSortPanel.Instance.transform.SetAsFirstSibling();
