@@ -282,6 +282,8 @@
     <Compile Include="SpectatorShipDisplay\Patcher.cs" />
     <Compile Include="TitleSelection\Patcher.cs" />
     <Compile Include="TitleSelection\UICustomTitleSelection.cs" />
+    <Compile Include="ToggleMatchUI\Patcher.cs" />
+    <Compile Include="ToggleMatchUI\ToggleUIController.cs" />
     <Compile Include="UI\Builder.cs" />
     <Compile Include="UI\DropHandler.cs" />
     <Compile Include="UI\Resources.cs" />
