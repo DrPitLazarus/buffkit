@@ -181,19 +181,28 @@ namespace BuffKit.LoadoutSort
 
             Builder.BuildSpriteButton(transform, out _pilotImage, delegate
             {
+                var wasValid = _skills.IsValid();
                 SetActiveClass(AvatarClass.Pilot);
+                if(wasValid)
+                    LoadoutSort.SaveToFile();
             }, 35, 35).name = "pilot";
             _pilotImage.sprite = UI.Resources.PilotIcon;
             _pilotImage.color = s_inactiveColor;
             Builder.BuildSpriteButton(transform, out _gunnerImage, delegate
             {
+                var wasValid = _skills.IsValid();
                 SetActiveClass(AvatarClass.Gunner);
+                if (wasValid)
+                    LoadoutSort.SaveToFile();
             }, 35, 35).name = "gunner";
             _gunnerImage.sprite = UI.Resources.GunnerIcon;
             _gunnerImage.color = s_inactiveColor;
             Builder.BuildSpriteButton(transform, out _engineerImage, delegate
             {
+                var wasValid = _skills.IsValid();
                 SetActiveClass(AvatarClass.Engineer);
+                if (wasValid)
+                    LoadoutSort.SaveToFile();
             }, 35, 35).name = "engineer";
             _engineerImage.sprite = UI.Resources.EngineerIcon;
             _engineerImage.color = s_inactiveColor;
@@ -209,14 +218,14 @@ namespace BuffKit.LoadoutSort
                 _skillImages.Add(im);
             }
 
-            var obAddNew = Builder.BuildButton(transform, delegate
+            var obDelete = Builder.BuildButton(transform, delegate
             {
                 var wasValid = _skills.IsValid();
                 UILoadoutSpecificSortPanel.Instance.RemoveSkillSet(this);
                 if (wasValid)
                     LoadoutSort.SaveToFile();
             }, "-", TextAnchor.MiddleCenter, 72);
-            var le = obAddNew.AddComponent<LayoutElement>();
+            var le = obDelete.AddComponent<LayoutElement>();
             le.preferredWidth = 40;
             le.preferredHeight = 40;
 

@@ -32,7 +32,7 @@ namespace BuffKit.LoadoutSort
         private static void Postfix()
         {
             UILoadoutSortPanel.Instance?.TryHide();
-            UILoadoutSpecificSortPanel.Instance.TryHide();
+            UILoadoutSpecificSortPanel.Instance?.TryHide();
         }
     }
 }

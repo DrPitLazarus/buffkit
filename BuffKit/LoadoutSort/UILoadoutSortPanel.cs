@@ -4,11 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using Muse.Goi2.Entity;
 using BuffKit.UI;
+using BuffKit.Settings;
 
 namespace BuffKit.LoadoutSort
 {
     class UILoadoutSortPanel : MonoBehaviour
     {
+        enum PreferredSpottingTool
+        {
+            CaptainsChoice, Spyglass, Rangefinder
+        }
+        static PreferredSpottingTool PreferredSpottingToolSettings = PreferredSpottingTool.CaptainsChoice;
+
         public static UILoadoutSortPanel Instance;
         public static void _Initialize()
         {
@@ -30,10 +37,24 @@ namespace BuffKit.LoadoutSort
             Settings.Settings.Instance.AddEntry("loadout manager", "change order", delegate (Settings.Dummy _) { Instance.Show(); }, new Settings.Dummy());
             Settings.Settings.Instance.AddEntry("loadout manager", "sort recommended loadouts", v => Instance.doSort = v, Instance.doSort);
 
+            var changeRecommendedSpottingToolDict = new Dictionary<int, string>();
+            changeRecommendedSpottingToolDict.Add((int)PreferredSpottingTool.CaptainsChoice, "captain's choice");
+            changeRecommendedSpottingToolDict.Add((int)PreferredSpottingTool.Spyglass, "spyglass");
+            changeRecommendedSpottingToolDict.Add((int)PreferredSpottingTool.Rangefinder, "rangefinder");
+            var changeRecommendedSpottingTool = new EnumString(
+                typeof(PreferredSpottingTool),
+                (int)PreferredSpottingToolSettings,
+                changeRecommendedSpottingToolDict);
+            Settings.Settings.Instance.AddEntry("loadout manager", "change recommended spotting tool", delegate (EnumString enumString)
+            {
+                PreferredSpottingToolSettings = (PreferredSpottingTool)enumString.SelectedValue;
+            }, changeRecommendedSpottingTool);
+
             SubDataActions.OnAcceptLoadout += delegate (AvatarClass clazz, IList<int> skills)
             {
                 if (!Instance.doSort) return;
 
+                skills = Instance.ReplaceSpottingTool(skills);
                 Instance.SortSkills(skills, out var ps, out var gs, out var es);
 
                 switch (clazz)
@@ -318,6 +339,26 @@ namespace BuffKit.LoadoutSort
             sortedPilotSkills = pilotSkills.OrderBy(id => _pilotToolOrder.IndexOf(id)).ToList();
             sortedGunnerSkills = gunnerSkills.OrderBy(id => _gunnerToolOrder.IndexOf(id)).ToList();
             sortedEngineerSkills = engineerSkills.OrderBy(id => _engineerToolOrder.IndexOf(id)).ToList();
+        }
+        
+        public IList<int> ReplaceSpottingTool(IList<int> skills)
+        {
+            int spyglassId = 4;
+            int rangefinderId = 27;
+            switch(PreferredSpottingToolSettings)
+            {
+                case PreferredSpottingTool.Spyglass:
+                    if (skills.Contains(rangefinderId) && !skills.Contains(spyglassId))
+                        skills[skills.IndexOf(rangefinderId)] = spyglassId;
+                    break;
+                case PreferredSpottingTool.Rangefinder:
+                    if (skills.Contains(spyglassId) && !skills.Contains(rangefinderId))
+                        skills[skills.IndexOf(spyglassId)] = rangefinderId;
+                    break;
+                case PreferredSpottingTool.CaptainsChoice:
+                    break;
+            }
+            return skills;
         }
 
         public string GetSkillChangeString(AvatarClass clazz, List<int> pilotSkills, List<int> gunnerSkills, List<int> engineerSkills)
