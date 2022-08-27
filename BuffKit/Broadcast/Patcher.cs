@@ -14,6 +14,7 @@ namespace BuffKit.Broadcast
                 Util.OnGameInitialize += delegate
                 {
                     Broadcaster.Initialize();
+                    SaveReplay.Initialize();
                 };
                 _firstPrepare = false;
             }
@@ -22,6 +23,24 @@ namespace BuffKit.Broadcast
         private static void Postfix(InstanceContainerManager __instance)
         {
             __instance.gameObject.AddComponent<MatchDataObserver>();
+        }
+    }
+
+    [HarmonyPatch(typeof(UIManager.UIMatchCompleteState), "Enter")]
+    class UIMatchCompleteState_Enter
+    {
+        private static void Postfix()
+        {
+            SaveReplay.Instance.EndMatch();
+        }
+    }
+
+    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    class UINewMatchLobbyState_Enter
+    {
+        private static void Postfix()
+        {
+            SaveReplay.Instance.EndMatch();
         }
     }
 

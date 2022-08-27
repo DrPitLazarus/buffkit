@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using WebSocketSharp;
+using Newtonsoft.Json;
 
 namespace BuffKit.Broadcast
 {
@@ -48,10 +49,14 @@ namespace BuffKit.Broadcast
             float currTime = UnityEngine.Time.realtimeSinceStartup;
             float timeChange = currTime - _prevTime;
             _prevTime = currTime;
-            MuseLog.Info("Data per second: " + (1 / timeChange));
+            //MuseLog.Info("Data per second: " + (1 / timeChange));
 
-            string dataStr = Newtonsoft.Json.JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented);
-            MuseLog.Info(dataStr);
+            string dataStr = JsonConvert.SerializeObject(data, Formatting.None, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+            //MuseLog.Info(dataStr);
+            _messageQueue.Enqueue(dataStr);
         }
 
         public void StopBroadcasting()

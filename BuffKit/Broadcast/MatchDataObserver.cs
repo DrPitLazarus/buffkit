@@ -15,6 +15,9 @@ namespace BuffKit.Broadcast
         private List<string> _killfeedList;
 
         private Transform _shipContainer;
+
+        private MatchData _snapshot;
+
         protected virtual void Awake()
         {
             if (Instance != null)
@@ -34,12 +37,28 @@ namespace BuffKit.Broadcast
                     ships.Add(ship);
             }
 
-            if (ships.Count == 0 || MatchLobbyView.Instance == null || Mission.Instance == null) return;
+            if (ships.Count == 0 || MatchLobbyView.Instance == null || Mission.Instance == null || MatchBlockerView.Instance != null) return;
+            MatchData data;
+            if (_snapshot == null) { 
+                data = new MatchData(ships, _killfeedList);
+                _snapshot = data;
+            }
+            else
+            {
+                var currentData = new MatchData(ships, _killfeedList);
+                data = MatchData.MatchDataDiff(_snapshot, currentData);
+                _snapshot.Merge(data);
 
-            MatchData data = new MatchData(ships, _killfeedList);
+                var mergeTest = _snapshot.DebugEquals(currentData);
+                if (mergeTest != null)
+                    MuseLog.Info("data does not match updated snapshot:\n" + mergeTest);
+            }
+
             _killfeedList.Clear();
 
-            Broadcaster.Instance.SendMatchData(data);
+            SaveReplay.Instance.SaveMatchData(data);
         }
+
     }
+
 }

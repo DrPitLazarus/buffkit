@@ -246,6 +246,7 @@
     <Compile Include="Broadcast\MatchData.cs" />
     <Compile Include="Broadcast\MatchDataObserver.cs" />
     <Compile Include="Broadcast\Patcher.cs" />
+    <Compile Include="Broadcast\SaveReplay.cs" />
     <Compile Include="BuffKit.cs" />
     <Compile Include="LoadoutSort\LoadoutSort.cs" />
     <Compile Include="LoadoutSort\Patcher.cs" />
