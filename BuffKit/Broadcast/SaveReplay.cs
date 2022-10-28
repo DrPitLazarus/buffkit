@@ -56,10 +56,11 @@ namespace BuffKit.Broadcast
                     using (var compressor = new GZipStream(cfs, CompressionMode.Compress))
                     {
                         // TODO: make this nicer - may not actually close?
-                        while (ofs.CanRead)
+                        while (true)
                         {
-                            byte b = (byte)ofs.ReadByte();
-                            compressor.WriteByte(b);
+                            var b = ofs.ReadByte();
+                            if (b == -1) break;
+                            compressor.WriteByte((byte)b);
                         }
                     }
                 }
