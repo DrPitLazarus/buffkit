@@ -10,7 +10,7 @@ namespace BuffKit.LobbyTimer
         private const int Interval = 30;
         private const int MainDuration = 210;
         private const int OvertimeDuration = 60;
-        private const int LoadoutSetupDuration = 30;
+        private const int LoadoutSetupDuration = 60;
         private const int PreLockAnnouncementTime = 30;
         private const int LockAnnouncementTime = 0;
         private const int PauseDuration = 120;
