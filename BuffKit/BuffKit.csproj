@@ -236,6 +236,8 @@
   <ItemGroup>
     <Compile Include="AutoAcceptLoadout\Patcher.cs" />
     <Compile Include="BuffKit.cs" />
+    <Compile Include="HullDisplay\HullDisplay.cs" />
+    <Compile Include="HullDisplay\Patcher.cs" />
     <Compile Include="LoadoutSort\LoadoutSort.cs" />
     <Compile Include="LoadoutSort\Patcher.cs" />
     <Compile Include="LoadoutSort\UILoadoutSortPanel.cs" />
