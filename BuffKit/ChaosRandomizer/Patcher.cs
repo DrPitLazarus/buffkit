@@ -2,7 +2,7 @@
 
 namespace BuffKit.ChaosRandomizer
 {
-    // [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
+    [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), "Enter")]
     class UIManager_UINewMatchLobbyState_Enter
     {
         private static bool _firstPrepare = true;
@@ -24,6 +24,14 @@ namespace BuffKit.ChaosRandomizer
                         if (!ChaosRandomizer.Enabled) return;
                         ChaosRandomizer.Instance.ExitLobby(mlv);
                     };
+                    Settings.Settings.Instance.AddEntry("misc", "chaos skirmish ref panel", delegate (bool v)
+                    {
+                        ChaosRandomizer.Enabled = v;
+                        if (v && MatchLobbyView.Instance != null)
+                            ChaosRandomizer.Instance.EnterLobby(MatchLobbyView.Instance);
+                        if (!v)
+                            ChaosRandomizer.Instance.ExitLobby(MatchLobbyView.Instance);
+                    }, false);
                 };
             }
         }
@@ -34,7 +42,7 @@ namespace BuffKit.ChaosRandomizer
         }
     }
 
-    // [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
+    [HarmonyPatch(typeof(UIPageFrame), "TryHideOverlay")]
     class UIPageFrame_TryHideOverlay
     {
         private static void Postfix(ref bool __result)
@@ -43,7 +51,7 @@ namespace BuffKit.ChaosRandomizer
         }
     }
 
-    // [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
+    [HarmonyPatch(typeof(UIPageFrame), "HideAllElements")]
     class UIPageFrame_HideAllElements
     {
         private static void Postfix()
