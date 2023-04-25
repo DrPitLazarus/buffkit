@@ -22,8 +22,10 @@ namespace BuffKit.ChaosRandomizer
         {
             MuseLog.Info("Entered lobby");
             _obPanel.SetActive(Util.HasModPrivilege(mlv));
-            SetInfoLabel(string.Empty);
-            _canAnnounce = false;
+            SetPlayerInfoLabel(string.Empty);
+            SetItemInfoLabel(string.Empty);
+            _canAnnouncePlayers = false;
+            _canAnnounceItems = false;
         }
         public void ExitLobby(MatchLobbyView mlv)
         {
@@ -39,10 +41,13 @@ namespace BuffKit.ChaosRandomizer
         private GameObject _obUnassignedPlayers;
         private List<UIChaosShipDisplay> _listAssignedShipDisplays;
         private List<TextMeshProUGUI> _listUnassignedPlayerLabels;
-        private TextMeshProUGUI _lInfo; // Info label giving feedback to user
+        private TextMeshProUGUI _lPlayerInfo;
+        private TextMeshProUGUI _lItemInfo;
+        private TMP_InputField _itemRandomizerInputField;
         private GameObject _obAssignedPlayersHeading;
         private GameObject _obUnassignedPlayersHeading;
-        private bool _canAnnounce;
+        private bool _canAnnouncePlayers;
+        private bool _canAnnounceItems;
         private void CreatePanel()
         {
             var parent = GameObject.Find("/Menu UI/Standard Canvas/Common Elements").transform;
@@ -80,9 +85,11 @@ namespace BuffKit.ChaosRandomizer
             vlg.spacing = 5;
             vlg.padding = new RectOffset(5, 5, 5, 5);
 
-            Builder.BuildLabel(_obContent.transform, out _lInfo, Resources.FontGaldeanoRegular,
+            // Crew Randomizer UI
+
+            Builder.BuildLabel(_obContent.transform, out _lPlayerInfo, Resources.FontGaldeanoRegular,
                 TextAnchor.MiddleCenter, 13);
-            SetInfoLabel(string.Empty);
+            SetPlayerInfoLabel(string.Empty);
 
             var obPlayerLists = new GameObject("player lists");
             obPlayerLists.transform.SetParent(_obContent.transform, false);
@@ -123,16 +130,46 @@ namespace BuffKit.ChaosRandomizer
             hlg.childForceExpandHeight = false;
             hlg.childAlignment = TextAnchor.MiddleCenter;
 
-            var obBtnRandomize = Builder.BuildButton(obButtons.transform,
-                delegate { Randomize(MatchLobbyView.Instance); }, "Randomize");
-            le = obBtnRandomize.AddComponent<LayoutElement>();
+            var obBtnRandomizePlayers = Builder.BuildButton(obButtons.transform,
+                delegate { RandomizePlayers(MatchLobbyView.Instance); }, "Randomize");
+            le = obBtnRandomizePlayers.AddComponent<LayoutElement>();
             le.preferredWidth = 130;
             le.preferredHeight = 30;
 
-            var obBtnAnnounce = Builder.BuildButton(obButtons.transform, AnnouncePlayers, "Announce");
-            le = obBtnAnnounce.AddComponent<LayoutElement>();
+            var obBtnAnnouncePlayers = Builder.BuildButton(obButtons.transform, AnnouncePlayers, "Announce");
+            le = obBtnAnnouncePlayers.AddComponent<LayoutElement>();
             le.preferredWidth = 130;
             le.preferredHeight = 30;
+
+            // Item Randomizer UI
+
+            var obItemRandomizerUserInput = new GameObject("item randomizer input");
+            obItemRandomizerUserInput.transform.SetParent(_obContent.transform, false);
+            hlg = obItemRandomizerUserInput.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 5;
+            hlg.childForceExpandHeight = false;
+
+            Builder.BuildLabel(obItemRandomizerUserInput.transform, out var lItemRandomizerInstructions,
+                Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter);
+            lItemRandomizerInstructions.text = "Items (1 - 10)";
+            var obInputFieldRandomizerCount = Builder.BuildInputField(obItemRandomizerUserInput.transform);
+            obInputFieldRandomizerCount.GetComponent<LayoutElement>().preferredWidth = 30;
+            _itemRandomizerInputField = obInputFieldRandomizerCount.GetComponent<TMP_InputField>();
+            _itemRandomizerInputField.characterValidation = TMP_InputField.CharacterValidation.Integer;
+            var obBtnItemRandomizer = Builder.BuildButton(obItemRandomizerUserInput.transform, RandomizeItems, "Randomize");
+            le = obBtnItemRandomizer.AddComponent<LayoutElement>();
+            le.preferredWidth = 130;
+            le.preferredHeight = 30;
+            // Make output label
+            Builder.BuildLabel(_obContent.transform, out _lItemInfo,
+                Resources.FontGaldeanoRegular, TextAnchor.MiddleCenter, 13);
+            // Make announce button
+            var obBtnAnnounceItems = Builder.BuildButton(_obContent.transform, AnnounceItems, "Announce");
+            le = obBtnAnnounceItems.AddComponent<LayoutElement>();
+            le.preferredWidth = 130;
+            le.preferredHeight = 30;
+
+            // Hide panel
 
             _obPanel.AddComponent<GraphicRaycaster>();
             HidePanelContent();
@@ -172,7 +209,7 @@ namespace BuffKit.ChaosRandomizer
             _obUnassignedPlayersHeading.SetActive(false);
         }
 
-        private void Randomize(MatchLobbyView mlv)
+        private void RandomizePlayers(MatchLobbyView mlv)
         {
             MuseLog.Info($"Chaos randomizer button pressed");
             var allPlayers = new List<string>();
@@ -180,32 +217,32 @@ namespace BuffKit.ChaosRandomizer
                 foreach (var player in crew.CrewMembers)
                     allPlayers.Add(player.Name.Substring(0, player.Name.Length - 5));
 
-             // Add fake players (for testing)
-            // for (var i = 0; i < 27; i++)
-                // allPlayers.Add($"player {i}");
+            // Add fake players (for testing)
+            //for (var i = 0; i < 27; i++)
+            //    allPlayers.Add($"player {i}");
 
-            if (Randomize(allPlayers, mlv))
+            if (RandomizePlayers(allPlayers, mlv))
             {
                 DisplayPlayers();
-                SetInfoLabel(string.Empty);
-                _canAnnounce = true;
+                SetPlayerInfoLabel(string.Empty);
+                _canAnnouncePlayers = true;
             }
         }
-        
+
         private List<string> _unassignedPlayers;
         private List<LobbyShip> _assignedShips;
-        private bool Randomize(List<string> allPlayers, MatchLobbyView mlv)
+        private bool RandomizePlayers(List<string> allPlayers, MatchLobbyView mlv)
         {
             var teamSize = mlv.Crews[0].Count;
-            
+
             // The minimum viable lobby size is 2 teams x 2 ships x 2 players
             if (allPlayers.Count < 8)
             {
-                SetInfoLabel(
+                SetPlayerInfoLabel(
                     $"Not enough players in lobby: need at least 8, but only have {allPlayers.Count}");
                 return false;
             }
-            
+
             // If we can't fill 2 teams x 3 or 4 ships x 2 players, reduce the amount of ships
             while (teamSize > 2)
             {
@@ -221,10 +258,10 @@ namespace BuffKit.ChaosRandomizer
             var rng = new Random();
             _unassignedPlayers = allPlayers.OrderBy(p => rng.Next()).ToList();
             _assignedShips = new List<LobbyShip>();
-            
+
             var teamShipCounter = new int[mlv.TeamCount];
             var crews = mlv.Crews.Take(teamsToFill).SelectMany(t => t.Take(teamSize));
-            
+
             foreach (var crew in crews)
             {
                 _assignedShips.Add(new LobbyShip
@@ -291,18 +328,18 @@ namespace BuffKit.ChaosRandomizer
             _obUnassignedPlayersHeading.SetActive(true);
         }
 
-        private void SetInfoLabel(string text)
+        private void SetPlayerInfoLabel(string text)
         {
-            MuseLog.Info($"Set info label text to {(text != string.Empty ? text : "[empty]")}");
-            _lInfo.text = text;
-            _lInfo.gameObject.SetActive(text != string.Empty);
+            MuseLog.Info($"Set player info label text to {(text != string.Empty ? text : "[empty]")}");
+            _lPlayerInfo.text = text;
+            _lPlayerInfo.gameObject.SetActive(text != string.Empty);
         }
 
         private void AnnouncePlayers()
         {
-            if (_canAnnounce)
+            if (_canAnnouncePlayers)
             {
-                SetInfoLabel(string.Empty);
+                SetPlayerInfoLabel(string.Empty);
                 var sb = new StringBuilder();
                 sb.Append("Randomized lobby positions");
                 foreach (var ship in _assignedShips)
@@ -313,7 +350,59 @@ namespace BuffKit.ChaosRandomizer
             }
             else
             {
-                SetInfoLabel("Nothing to announce");
+                SetPlayerInfoLabel("Nothing to announce");
+            }
+        }
+
+        private List<string> _itemRandomizerOutputStrings = new List<string>();
+
+        private void RandomizeItems()
+        {
+            _canAnnounceItems = false;
+            if (Int32.TryParse(_itemRandomizerInputField.text, out var itemCount))
+            {
+                if (itemCount > 0 && itemCount <= 10)
+                {
+                    // Valid input
+                    MuseLog.Info($"Chaos Randomizer : {itemCount} items");
+                    _canAnnounceItems = ChaosItemRandomizer.Instance.DoRandomize(itemCount, NetworkedPlayer.Local.GameType, out _itemRandomizerOutputStrings);
+                    if (_canAnnounceItems)
+                    {
+                        var iil = String.Join("\n", _itemRandomizerOutputStrings.ToArray());
+                        SetItemInfoLabel(iil);
+                    }
+                    else SetItemInfoLabel("Failed to randomize items for some reason.");
+                }
+                else {
+                    // Invalid range
+                    SetItemInfoLabel("Enter a number from 1 to 10");
+                }
+            }
+            else
+            {
+                // Parsing failed
+                SetItemInfoLabel($"Failed to parse input {_itemRandomizerInputField.text}");
+            }
+        }
+
+        private void SetItemInfoLabel(string text)
+        {
+            MuseLog.Info($"Set item info label text to {(text != string.Empty ? text : "[empty]")}");
+            _lItemInfo.text = text;
+            _lItemInfo.gameObject.SetActive(text != string.Empty);
+        }
+
+        private void AnnounceItems()
+        {
+            if (_canAnnounceItems)
+            {
+                //SetItemInfoLabel(string.Empty);
+                var msg = String.Join("\n", _itemRandomizerOutputStrings.ToArray());
+                Util.ForceSendMessage(msg);
+            }
+            else
+            {
+                SetItemInfoLabel("Nothing to announce");
             }
         }
 
