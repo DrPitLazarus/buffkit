@@ -1,4 +1,6 @@
-﻿namespace BuffKit.MatchRefTools
+﻿using System.Text;
+
+namespace BuffKit.MatchRefTools
 {
     public class FirstKillAnnouncement
     {
@@ -6,7 +8,8 @@
         public static FirstKillAnnouncement Instance;
 
         private Deathmatch _currentMatch;
-        private bool _canAnnounce = false;
+        private int _total_kills = 0;
+        private int _team_count = 0;
 
         public void OnMatchInitialize(Deathmatch match)
         {
@@ -16,24 +19,38 @@
             var counter = 0;
             foreach (var v in match.Frags)
                 counter += v;
-            _canAnnounce = counter == 0;
+            _total_kills = counter;
+            _team_count = match.numberOfTeams;
         }
         public void OnMatchUpdate(Deathmatch match)
         {
             if (match == _currentMatch)
             {
-                if (!_canAnnounce) return;
+                var counter = 0;
+                foreach (var v in match.Frags)
+                {
+                    counter += v;
+                }
 
-                for (var i = 0; i < match.numberOfTeams; i++)
-                    if (match.Frags[i] > 0)
+                var match_scores = match.Frags;
+
+                if (_total_kills != counter)
+                {
+                    if (Util.HasModPrivilege(MatchLobbyView.Instance) && _enabled)
                     {
-                        if (Util.HasModPrivilege(MatchLobbyView.Instance) && _enabled)
+                        var sb = new StringBuilder();
+                        sb.Append("REF: ");
+                        for (var i = 0; i < _team_count; i++)
                         {
-                            MuseLog.Info("Announcing first kill");
-                            Util.ForceSendMessage($"REF: FIRST KILL {Util.GetTeamName(i).ToUpper()}");
+                            if (i > 0)
+                                sb.Append(", ");
+                            sb.Append($"{Util.GetTeamName(i).ToUpper()} {match_scores[i]}");
                         }
-                        _canAnnounce = false;
+                        MuseLog.Info("Announcing updated points");
+                        Util.ForceSendMessage(sb.ToString());
                     }
+                    _total_kills = counter;
+                }
             }
             else
             {
