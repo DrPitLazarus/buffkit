@@ -8,7 +8,7 @@ namespace BuffKit.LobbyTimer
     public class Timer : MonoBehaviour
     {
         private const int Interval = 30;
-        private const int MainDuration = 210;
+        private const int MainDuration = 240;
         private const int OvertimeDuration = 60;
         private const int LoadoutSetupDuration = 60;
         private const int PreLockAnnouncementTime = 30;
