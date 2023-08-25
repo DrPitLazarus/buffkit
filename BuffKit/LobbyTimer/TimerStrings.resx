@@ -25,6 +25,9 @@
     <data name="LoadoutSetupStart">
         <value>TIMER: Ships are locked, you have {0} seconds to set up your loadouts or request overtime</value>
     </data>
+    <data name="OvertimeTeamAnnouncement">
+        <value>TIMER: Last change times: RED - {0}, BLUE - {1}. {2} can request overtime</value>
+    </data>
     <data name="LoadoutSetupEnd">
         <value>TIMER: Setup time is over, the referee will either start the game or add overtime now</value>
     </data>

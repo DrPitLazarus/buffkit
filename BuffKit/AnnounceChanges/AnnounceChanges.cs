@@ -121,6 +121,7 @@ namespace BuffKit.AnnounceChanges
             if (mlv.Running || !IsEnabled || !HasModPrivilege(mlv)) return;
 
             MatchData matchDataNew = new MatchData(mlv);
+            var timer = mlv.GetComponent<LobbyTimer.Timer>();
 
             if (_matchDataLast != null)
             {
@@ -128,8 +129,9 @@ namespace BuffKit.AnnounceChanges
                 var changeList = DetermineChanges(_matchDataLast, matchDataNew);
                 if (changeList.Count != 0)
                     MuseLog.Info("Changes occured");
-                string msg = "";
-                bool first = true;
+                string msg   = "";
+                bool   first = true;
+                int    team  = -1;
                 foreach (var c in changeList)
                 {
                     if (c is ChangeCaptainJoined
@@ -143,13 +145,32 @@ namespace BuffKit.AnnounceChanges
                         msg += ". ";
                     msg += c.GetDetailsShort();
                     // MuseLog.Info(c.ToString());
+                    
+                    if (c is ChangeGun)
+                        team = ((ChangeGun)c).GetTeam();
+                    else if (c is ChangeShipClass)
+                        team = ((ChangeShipClass)c).GetTeam();
+                    
+                    if (timer is null) continue;
+                    if (team == 0)
+                    {
+                        timer.RedLastChange = timer.SecondsLeft;
+                    } else if (team == 1)
+                    {
+                        timer.BlueLastChange = timer.SecondsLeft;
+                    }
+                    
+                    MuseLog.Info($"CHANGE: current team timers are RED: {timer.RedLastChange}, BLUE: {timer.BlueLastChange}");
+
+                    team = -1;
                 }
 
-                var timer = mlv.GetComponent<LobbyTimer.Timer>();
                 if (timer != null)
                 {
                     if (timer.IsActive)
+                    {
                         ForceSendMessage(msg);
+                    }
                 }
             }
 

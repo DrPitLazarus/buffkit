@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 using static BuffKit.Util;
 
@@ -23,6 +24,9 @@ namespace BuffKit.LobbyTimer
         public int SecondsLeft = MainDuration;
         public int PrePauseSecondsLeft;
         public string MatchId;
+
+        public int RedLastChange = MainDuration;
+        public int BlueLastChange = MainDuration;
 
         public bool IsActive => CurrentState == State.Main ||
                                 CurrentState == State.Overtime ||
@@ -220,11 +224,39 @@ namespace BuffKit.LobbyTimer
                 //Main -> LoadoutSetup
                 case State.LoadoutSetup when CurrentState is State.Main:
                     SecondsLeft = LoadoutSetupDuration;
-
+                    
                     ForceSendMessage(string.Format(
                         TimerStrings.LoadoutSetupStart,
                         LoadoutSetupDuration.ToString()
                     ));
+
+                    string teams = "";
+                    if (RedLastChange < PreLockAnnouncementTime 
+                        && BlueLastChange < PreLockAnnouncementTime)
+                    {
+                        teams = "BOTH TEAMS";
+                    } else if (RedLastChange < PreLockAnnouncementTime)
+                    {
+                        teams = "BLUE";
+                    } else if (BlueLastChange < PreLockAnnouncementTime)
+                    {
+                        teams = "RED";
+                    }
+                    else
+                    {
+                        teams = "NO TEAM";
+                    }
+
+                    if (teams.Length > 0)
+                    {
+                        ForceSendMessage(string.Format(
+                            TimerStrings.OvertimeTeamAnnouncement,
+                            RedLastChange.ToString(),
+                            BlueLastChange.ToString(),
+                            teams
+                        ));
+                    }
+
                     break;
                 //LoadoutSetup -> LoadoutSetupEnd
                 case State.LoadoutSetupEnd when CurrentState is State.LoadoutSetup:
