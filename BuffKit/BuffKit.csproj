@@ -1,334 +1,197 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9B682448-5D43-42D5-A028-30F2B29E69C3}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BuffKit</RootNamespace>
-    <AssemblyName>BuffKit</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony, Version=2.5.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.CognitoIdentity, Version=3.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\AWSSDK.CognitoIdentity.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\AWSSDK.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\AWSSDK.S3.dll</HintPath>
-    </Reference>
-    <Reference Include="AWSSDK.SecurityToken, Version=3.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\AWSSDK.SecurityToken.dll</HintPath>
-    </Reference>
-    <Reference Include="Behave.Unity.Assets, Version=0.0.0.0, Culture=neutral, PublicKeyToken=e615ca22040f207c">
-      <HintPath>..\Assemblies\Behave.Unity.Assets.dll</HintPath>
-    </Reference>
-    <Reference Include="Behave.Unity.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=e615ca22040f207c">
-      <HintPath>..\Assemblies\Behave.Unity.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx, Version=5.4.12.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Harmony, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\BepInEx.Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Preloader, Version=5.4.12.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\BepInEx.Preloader.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
-      <HintPath>..\Assemblies\Boo.Lang.dll</HintPath>
-    </Reference>
-    <Reference Include="ch.sycoforge.Decal, Version=1.6.5.2, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\ch.sycoforge.Decal.dll</HintPath>
-    </Reference>
-    <Reference Include="Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Common.dll</HintPath>
-    </Reference>
-    <Reference Include="DemiLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\DemiLib.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\DOTween.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween43, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\DOTween43.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween46, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\DOTween46.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTweenPro, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\DOTweenPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Goi2.Entity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Goi2.Entity.dll</HintPath>
-    </Reference>
-    <Reference Include="HarmonyXInterop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\HarmonyXInterop.dll</HintPath>
-    </Reference>
-    <Reference Include="HTTP, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\HTTP.dll</HintPath>
-    </Reference>
-    <Reference Include="Icarus.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Icarus.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Ionic.Zlib, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c">
-      <HintPath>..\Assemblies\Ionic.Zlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Math, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Math.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
-      <HintPath>..\Assemblies\BepInEx\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
-      <HintPath>..\Assemblies\BepInEx\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
-      <HintPath>..\Assemblies\BepInEx\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
-      <HintPath>..\Assemblies\BepInEx\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Data.Tds, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\Assemblies\Mono.Data.Tds.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\Assemblies\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\Assemblies\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour, Version=21.7.8.3, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils, Version=21.7.8.3, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\BepInEx\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="MuseBase, Version=1.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\MuseBase.dll</HintPath>
-    </Reference>
-    <Reference Include="MuseJayrockJson, Version=0.9.8316.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\MuseJayrockJson.dll</HintPath>
-    </Reference>
-    <Reference Include="MuseKey, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\MuseKey.dll</HintPath>
-    </Reference>
-    <Reference Include="NCalc, Version=1.3.8.0, Culture=neutral, PublicKeyToken=973cde3f1cafed03">
-      <HintPath>..\Assemblies\NCalc.dll</HintPath>
-    </Reference>
-    <Reference Include="Netcode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Netcode.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\Assemblies\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <HintPath>..\Assemblies\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Photon3Unity3D, Version=4.1.1.19, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\Photon3Unity3D.dll</HintPath>
-    </Reference>
-    <Reference Include="PriorityQueue, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\PriorityQueue.dll</HintPath>
-    </Reference>
-    <Reference Include="Retlang, Version=1.0.6.0, Culture=neutral, PublicKeyToken=a99b3bce1dc72e93">
-      <HintPath>..\Assemblies\Retlang.dll</HintPath>
-    </Reference>
-    <Reference Include="SonyNP, Version=4.508.6382.26719, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\SonyNP.dll</HintPath>
-    </Reference>
-    <Reference Include="SonyPS4CommonDialog, Version=1.0.6304.25796, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\SonyPS4CommonDialog.dll</HintPath>
-    </Reference>
-    <Reference Include="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\Assemblies\System.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="System.EnterpriseServices, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\Assemblies\System.EnterpriseServices.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Runtime.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\Assemblies\System.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Transactions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Transactions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Xml.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-      <HintPath>..\Assemblies\System.Xml.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="TextMeshPro-1.0.55.55.0b12, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\TextMeshPro-1.0.55.55.0b12.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PlaymodeTestsRunner, Version=1.0.6463.22449, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityScript.Lang, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnityScript.Lang.dll</HintPath>
-    </Reference>
-    <Reference Include="UnitySteam, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Assemblies\UnitySteam.dll</HintPath>
-    </Reference>
-    <Reference Include="websocket-sharp, Version=1.0.2.28118, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
-      <HintPath>..\Assemblies\websocket-sharp.dll</HintPath>
-    </Reference>
-    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <HintPath>..\Assemblies\WindowsBase.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AutoAcceptLoadout\Patcher.cs" />
-    <Compile Include="BuffKit.cs" />
-    <Compile Include="LoadoutSort\LoadoutSort.cs" />
-    <Compile Include="LoadoutSort\Patcher.cs" />
-    <Compile Include="LoadoutSort\UILoadoutSortPanel.cs" />
-    <Compile Include="LoadoutSort\UILoadoutSpecificSortPanel.cs" />
-    <Compile Include="MatchModMenu\Patcher.cs" />
-    <Compile Include="MatchRefTools\AutoStartTimer.cs" />
-    <Compile Include="MatchRefTools\FirstKillAnnouncement.cs" />
-    <Compile Include="MatchRefTools\Patcher.cs" />
-    <Compile Include="ChaosRandomizer\ChaosRandomizer.cs" />
-    <Compile Include="ChaosRandomizer\Patcher.cs" />
-    <Compile Include="GunSelection\Patcher.cs" />
-    <Compile Include="GunSelection\UIGunSelection.cs" />
-    <Compile Include="InfoPanels\GunInfoOverlay.cs" />
-    <Compile Include="InfoPanels\Patcher.cs" />
-    <Compile Include="IntroSkip\Patcher.cs" />
-    <Compile Include="ItemSelection\Patcher.cs" />
-    <Compile Include="ItemSelection\UICustomItemSelectionWindow.cs" />
-    <Compile Include="LobbyTimer\Patcher.cs" />
-    <Compile Include="LobbyTimer\Timer.cs" />
-    <Compile Include="LobbyTimer\TimerButtonContainer.cs" />
-    <Compile Include="LobbyTimer\TimerStrings.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TimerStrings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="MapPicker\MapPicker.cs" />
-    <Compile Include="MapPicker\Patcher.cs" />
-    <Compile Include="MapPicker\ScrollEventPassthrough.cs" />
-    <Compile Include="MatchModMenu\UIModMenuState.cs" />
-    <Compile Include="Minimap\MapController.cs" />
-    <Compile Include="Minimap\Patcher.cs" />
-    <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Settings\SettingType.cs" />
-    <Compile Include="Settings\UISettingsPanel.cs" />
-    <Compile Include="ShipLoadoutViewer\Patcher.cs" />
-    <Compile Include="ShipLoadoutViewer\ShipLoadoutViewer.cs" />
-    <Compile Include="ShipLoadoutViewer\UILobbyCrewLoadoutBar.cs" />
-    <Compile Include="ShipLoadoutViewer\UILobbyShipLoadoutBar.cs" />
-    <Compile Include="AnnounceChanges\AnnounceChanges.cs" />
-    <Compile Include="AnnounceChanges\LobbyChanges.cs" />
-    <Compile Include="AnnounceChanges\Patcher.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="InfoPanels\ShipStatsPanel.cs" />
-    <Compile Include="SpectatorShipDisplay\Patcher.cs" />
-    <Compile Include="TitleSelection\Patcher.cs" />
-    <Compile Include="TitleSelection\UICustomTitleSelection.cs" />
-    <Compile Include="ToggleMatchUI\Patcher.cs" />
-    <Compile Include="ToggleMatchUI\ToggleUIController.cs" />
-    <Compile Include="UI\Builder.cs" />
-    <Compile Include="UI\DropHandler.cs" />
-    <Compile Include="UI\Resources.cs" />
-    <Compile Include="Util\Patcher.cs" />
-    <Compile Include="Util\Util.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="LobbyTimer\TimerStrings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TimerStrings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assets\Timer\extend.png" />
-    <Content Include="Assets\Timer\halt.png" />
-    <Content Include="Assets\Timer\pause.png" />
-    <Content Include="Assets\Timer\start.png" />
-    <Content Include="GamePath.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-    <ItemGroup>
-      <Assets Include="$(ProjectDir)\Assets\**\*.*" />
-    </ItemGroup>
-    <ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
-      <Output TaskParameter="Lines" PropertyName="GamePath" />
-    </ReadLinesFromFile>
-    <Message Text="Copying the DLL to the plugins folder" />
-    <Delete Files="$(GamePath)\BepInEx\plugins\$(ProjectName).dll " />
-    <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" />
-    <Message Text="Copied the DLL to the plugins folder" />
-    <Message Text="Copying the assets to the plugins folder" />
-    <Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets\%(RecursiveDir)" />
-    <Message Text="Copied the assets to the plugins folder" />
-  </Target>
-  <Import Project="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net35.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net35.targets" Condition="Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net35.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net35.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net35.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net35.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NETFramework.ReferenceAssemblies.net35.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net35.targets'))" />
-  </Target>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net35</TargetFramework>
+		<AssemblyName>BuffKit</AssemblyName>
+		<Product>BuffKit</Product>
+		<Description>Guns of Icarus modding toolkit/moderation mod</Description>
+		<Version>485.0.0</Version>
+		<LangVersion>latest</LangVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Configurations>Debug;Release;Release to GameDir</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release to GameDir|AnyCPU'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.*" />
+		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.1.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>..\Assemblies\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="Assembly-CSharp-firstpass">
+			<HintPath>..\Assemblies\Assembly-CSharp-firstpass.dll</HintPath>
+		</Reference>
+		<Reference Include="Assembly-UnityScript-firstpass">
+			<HintPath>..\Assemblies\Assembly-UnityScript-firstpass.dll</HintPath>
+		</Reference>
+		<Reference Include="AWSSDK.CognitoIdentity">
+			<HintPath>..\Assemblies\AWSSDK.CognitoIdentity.dll</HintPath>
+		</Reference>
+		<Reference Include="AWSSDK.Core">
+			<HintPath>..\Assemblies\AWSSDK.Core.dll</HintPath>
+		</Reference>
+		<Reference Include="AWSSDK.S3">
+			<HintPath>..\Assemblies\AWSSDK.S3.dll</HintPath>
+		</Reference>
+		<Reference Include="AWSSDK.SecurityToken">
+			<HintPath>..\Assemblies\AWSSDK.SecurityToken.dll</HintPath>
+		</Reference>
+		<Reference Include="Behave.Unity.Assets">
+			<HintPath>..\Assemblies\Behave.Unity.Assets.dll</HintPath>
+		</Reference>
+		<Reference Include="Behave.Unity.Runtime">
+			<HintPath>..\Assemblies\Behave.Unity.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Boo.Lang">
+			<HintPath>..\Assemblies\Boo.Lang.dll</HintPath>
+		</Reference>
+		<Reference Include="ch.sycoforge.Decal">
+			<HintPath>..\Assemblies\ch.sycoforge.Decal.dll</HintPath>
+		</Reference>
+		<Reference Include="Common">
+			<HintPath>..\Assemblies\Common.dll</HintPath>
+		</Reference>
+		<Reference Include="DemiLib">
+			<HintPath>..\Assemblies\DemiLib.dll</HintPath>
+		</Reference>
+		<Reference Include="DOTween">
+			<HintPath>..\Assemblies\DOTween.dll</HintPath>
+		</Reference>
+		<Reference Include="DOTween43">
+			<HintPath>..\Assemblies\DOTween43.dll</HintPath>
+		</Reference>
+		<Reference Include="DOTween46">
+			<HintPath>..\Assemblies\DOTween46.dll</HintPath>
+		</Reference>
+		<Reference Include="DOTweenPro">
+			<HintPath>..\Assemblies\DOTweenPro.dll</HintPath>
+		</Reference>
+		<Reference Include="Goi2.Entity">
+			<HintPath>..\Assemblies\Goi2.Entity.dll</HintPath>
+		</Reference>
+		<Reference Include="HTTP">
+			<HintPath>..\Assemblies\HTTP.dll</HintPath>
+		</Reference>
+		<Reference Include="Icarus.Common">
+			<HintPath>..\Assemblies\Icarus.Common.dll</HintPath>
+		</Reference>
+		<Reference Include="Ionic.Zlib">
+			<HintPath>..\Assemblies\Ionic.Zlib.dll</HintPath>
+		</Reference>
+		<Reference Include="Math">
+			<HintPath>..\Assemblies\Math.dll</HintPath>
+		</Reference>
+		<Reference Include="Mono.Data.Tds">
+			<HintPath>..\Assemblies\Mono.Data.Tds.dll</HintPath>
+		</Reference>
+		<Reference Include="Mono.Posix">
+			<HintPath>..\Assemblies\Mono.Posix.dll</HintPath>
+		</Reference>
+		<Reference Include="Mono.Security">
+			<HintPath>..\Assemblies\Mono.Security.dll</HintPath>
+		</Reference>
+		<Reference Include="MuseBase">
+			<HintPath>..\Assemblies\MuseBase.dll</HintPath>
+		</Reference>
+		<Reference Include="MuseJayrockJson">
+			<HintPath>..\Assemblies\MuseJayrockJson.dll</HintPath>
+		</Reference>
+		<Reference Include="MuseKey">
+			<HintPath>..\Assemblies\MuseKey.dll</HintPath>
+		</Reference>
+		<Reference Include="NCalc">
+			<HintPath>..\Assemblies\NCalc.dll</HintPath>
+		</Reference>
+		<Reference Include="Netcode">
+			<HintPath>..\Assemblies\Netcode.dll</HintPath>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>..\Assemblies\Newtonsoft.Json.dll</HintPath>
+		</Reference>
+		<Reference Include="nunit.framework">
+			<HintPath>..\Assemblies\nunit.framework.dll</HintPath>
+		</Reference>
+		<Reference Include="Photon3Unity3D">
+			<HintPath>..\Assemblies\Photon3Unity3D.dll</HintPath>
+		</Reference>
+		<Reference Include="PriorityQueue">
+			<HintPath>..\Assemblies\PriorityQueue.dll</HintPath>
+		</Reference>
+		<Reference Include="Retlang">
+			<HintPath>..\Assemblies\Retlang.dll</HintPath>
+		</Reference>
+		<Reference Include="SonyNP">
+			<HintPath>..\Assemblies\SonyNP.dll</HintPath>
+		</Reference>
+		<Reference Include="SonyPS4CommonDialog">
+			<HintPath>..\Assemblies\SonyPS4CommonDialog.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Configuration">
+			<HintPath>..\Assemblies\System.Configuration.dll</HintPath>
+		</Reference>
+		<Reference Include="System.EnterpriseServices">
+			<HintPath>..\Assemblies\System.EnterpriseServices.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Security">
+			<HintPath>..\Assemblies\System.Security.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Transactions">
+			<HintPath>..\Assemblies\System.Transactions.dll</HintPath>
+		</Reference>
+		<Reference Include="TextMeshPro-1.0.55.55.0b12">
+			<HintPath>..\Assemblies\TextMeshPro-1.0.55.55.0b12.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>..\Assemblies\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.Networking">
+			<HintPath>..\Assemblies\UnityEngine.Networking.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.PlaymodeTestsRunner">
+			<HintPath>..\Assemblies\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>..\Assemblies\UnityEngine.UI.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityScript.Lang">
+			<HintPath>..\Assemblies\UnityScript.Lang.dll</HintPath>
+		</Reference>
+		<Reference Include="UnitySteam">
+			<HintPath>..\Assemblies\UnitySteam.dll</HintPath>
+		</Reference>
+		<Reference Include="websocket-sharp">
+			<HintPath>..\Assemblies\websocket-sharp.dll</HintPath>
+		</Reference>
+		<Reference Include="WindowsBase">
+			<HintPath>..\Assemblies\WindowsBase.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Assets Include="$(ProjectDir)\Assets\**\*.*" />
+	</ItemGroup>
+	
+	<Target Name="CopyToGameDir" AfterTargets="Build" Condition="$(Configuration) == 'Release to GameDir'">
+		<ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
+			<Output TaskParameter="Lines" PropertyName="GamePath" />
+		</ReadLinesFromFile>
+		<Message Text="Copying the DLL to the plugins folder" Importance="high" />
+		<Delete Files="$(GamePath)\BepInEx\plugins\$(ProjectName).dll " />
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" />
+		<Message Text="Copied the DLL to the plugins folder @(copied)" Importance="high" />
+		<Message Text="Copying the assets to the plugins folder" Importance="high" />
+		<Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets\%(RecursiveDir)" />
+		<Message Text="Copied the assets to the plugins folder" Importance="high" />
+	</Target>
 </Project>
