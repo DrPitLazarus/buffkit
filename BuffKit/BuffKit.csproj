@@ -5,7 +5,7 @@
 		<AssemblyName>BuffKit</AssemblyName>
 		<Product>BuffKit</Product>
 		<Description>Guns of Icarus modding toolkit/moderation mod</Description>
-		<Version>485.1.0</Version>
+		<Version>485.2.0</Version>
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Configurations>Debug;Release;Release to GameDir;Release to .zip</Configurations>
