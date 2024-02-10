@@ -26,13 +26,14 @@ namespace BuffKit.ShipLoadoutViewer
                         Resources.GunnerIcon,
                         Resources.EngineerIcon
                     };
-                    var gridLabels = new List<string> { "Show pilot tools", "Show gunner tools", "Show engineer tools" };
+                    var gridLabels = new List<string> { "Show pilot tools", "Show gunner tools", "Show engineer tools", "Show special abilities" };
                     var toggleGrid = new ToggleGrid(gridIcons, gridLabels, true);
                     toggleGrid.SetValues(new bool[,]
                     {
                         { true, false, false },
                         { false, true, true },
-                        { false, true, true }
+                        { false, true, true },
+                        { true, true, true }
                     });
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout display", ShipLoadoutViewer.SetCrewBarOptions, toggleGrid);
                     ShipLoadoutViewer.SetCrewBarOptions(toggleGrid);

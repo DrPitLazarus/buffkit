@@ -10,6 +10,8 @@ namespace BuffKit.ShipLoadoutViewer
     {
         private static Color sSpacerColor = new Color32(0x52, 0x3E, 0x3F, 0xFF);
         public bool MarkForRedraw { set; get; }
+        private static readonly int numberOfToolTypes = 4; // Should be the same number of rows in Patcher.cs toggleGrid
+
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
             Image img;
@@ -25,7 +27,7 @@ namespace BuffKit.ShipLoadoutViewer
             var subBars = new List<GameObject>();
             var subBarImages = new List<List<RawImage>>();
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < numberOfToolTypes; i++)
             {
                 var subImages = new List<RawImage>();
 
@@ -36,7 +38,7 @@ namespace BuffKit.ShipLoadoutViewer
                 hlg.childForceExpandHeight = false;
                 hlg.spacing = 3;
                 subBars.Add(obSubBar);
-                for (var j = 0; j < 3; j++)
+                for (var j = 0; j < numberOfToolTypes; j++)
                 {
                     var slot = new GameObject($"slot{j}");
                     var im = slot.AddComponent<RawImage>();
@@ -98,6 +100,8 @@ namespace BuffKit.ShipLoadoutViewer
                 var pilotIds = new List<int>();
                 var gunnerIds = new List<int>();
                 var engineerIds = new List<int>();
+                var specialIds = new List<int>();
+
                 if (player != null)
                 {
                     switch (player.CurrentClass)
@@ -127,6 +131,11 @@ namespace BuffKit.ShipLoadoutViewer
                             case SkillType.Repair:
                                 engineerIds.Add(skill);
                                 break;
+                            case SkillType.SpecialPilot:
+                            case SkillType.SpecialGunner:
+                            case SkillType.SpecialEngineer:
+                                specialIds.Add(skill);
+                                break;
                         }
                     }
                 }
@@ -134,7 +143,7 @@ namespace BuffKit.ShipLoadoutViewer
                 {
                     PlayerClass = -1;
                 }
-                AllIds = new List<List<int>> { pilotIds, gunnerIds, engineerIds };
+                AllIds = new List<List<int>> { pilotIds, gunnerIds, engineerIds, specialIds };
             }
         }
 
@@ -192,7 +201,7 @@ namespace BuffKit.ShipLoadoutViewer
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
                 _spacer2.SetActive(showTools[2, column] && (showTools[0, column] || showTools[1, column]));
 
-                for (var i = 0; i < 3; i++)
+                for (var i = 0; i < numberOfToolTypes; i++)
                 {
                     if (showTools[i, column])
                     {
@@ -205,7 +214,7 @@ namespace BuffKit.ShipLoadoutViewer
                             _loadoutBarImages[i][j].gameObject.SetActive(true);
                             _loadoutBarImages[i][j].texture = Resources.GetSkillTexture(data.AllIds[i][j]);
                         }
-                        for (var j = classItemCount; j < 3; j++)
+                        for (var j = classItemCount; j < numberOfToolTypes; j++)
                         {
                             _loadoutBarImages[i][j].gameObject.SetActive(false);
                         }
