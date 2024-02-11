@@ -32,29 +32,18 @@
 	<ItemGroup>
 		<Assets Include="$(ProjectDir)\Assets\**\*.*" />
 	</ItemGroup>
-	
-	<Target Name="CopyToGameDir" AfterTargets="Build" Condition="$(Configuration) == 'Release to GameDir'">
-		<ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
-			<Output TaskParameter="Lines" PropertyName="GamePath" />
-		</ReadLinesFromFile>
-		<Message Text="Copying the DLL to the plugins folder" Importance="high" />
-		<Delete Files="$(GamePath)\BepInEx\plugins\$(ProjectName).dll " />
-		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)" />
-		<Message Text="Copied the DLL to the plugins folder" Importance="high" />
-		<Message Text="Copying the assets to the plugins folder" Importance="high" />
-		<Copy SourceFiles="@(Assets)" DestinationFolder="$(GamePath)\BepInEx\plugins\$(ProjectName)\Assets\%(RecursiveDir)" />
-		<Message Text="Copied the assets to the plugins folder" Importance="high" />
-	</Target>
 
-	<Target Name="CreateZip" AfterTargets="Build" Condition="$(Configuration) == 'Release to .zip'">
-		<PropertyGroup>
-			<ZipDir>$(ProjectDir)bin\temp\</ZipDir>
-			<PluginPath>BepInEx\plugins\$(ProjectName)\</PluginPath>
-			<BepInExDownload>https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x86_5.4.22.0.zip</BepInExDownload>
-			<DownloadFileName>BepInEx_x86_5.4.22.0.zip</DownloadFileName>
-		</PropertyGroup>
+	<PropertyGroup>
+		<ZipDir>$(ProjectDir)bin\temp\</ZipDir>
+		<PluginPath>BepInEx\plugins\$(SolutionName)\</PluginPath>
+		<BepInExDownload>https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x86_5.4.22.0.zip</BepInExDownload>
+		<DownloadFileName>BepInEx_x86_5.4.22.0.zip</DownloadFileName>
+	</PropertyGroup>
+
+	<Target Name="StageModDir" AfterTargets="Build">
+		<Message Text="***** StageModDir *****" Importance="high" />
 		<RemoveDir Directories="$(ZipDir)" />
-		<Message Text="Copy $(ProjectName).dll to .\bin\temp\$(PluginPath)" Importance="high" />
+		<Message Text="Copy $(TargetFileName) to .\bin\temp\$(PluginPath)" Importance="high" />
 		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ZipDir)$(PluginPath)" />
 		<Message Text="Copy .\Assets to .\bin\temp\$(PluginPath)Assets\" Importance="high" />
 		<Copy SourceFiles="@(Assets)" DestinationFolder="$(ZipDir)$(PluginPath)Assets\%(RecursiveDir)" />
@@ -62,12 +51,28 @@
 		<Message Text="Extract .\bin\$(DownloadFileName) to .\bin\temp\" Importance="high" />
 		<Unzip SourceFiles="$(ProjectDir)bin\$(DownloadFileName)" DestinationFolder="$(ZipDir)" />
 		<Message Text="Delete .\bin\$(DownloadFileName)" Importance="high" />
-		<Delete Files="$(ProjectDir)bin\$(DownloadFileName)" /> 
+		<Delete Files="$(ProjectDir)bin\$(DownloadFileName)" />
+	</Target>
+
+	<Target Name="CopyToGameDir" AfterTargets="StageModDir" Condition="$(Configuration) == 'Release to GameDir'">
+		<Message Text="***** CopyToGameDir *****" Importance="high" />
+		<ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
+			<Output TaskParameter="Lines" PropertyName="GamePath" />
+		</ReadLinesFromFile>
+		<ItemGroup>
+			<FilesToCopy Include="$(ZipDir)\**\*.*" />
+		</ItemGroup>
+		<Message Text="Copy files to game folder $(GamePath)\" Importance="high" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(GamePath)\%(RecursiveDir)\" />
+		<Message Text="Delete .\bin\$(Configuration)\" Importance="high" />
+		<RemoveDir Directories="$(ProjectDir)bin\$(Configuration)\" />
+	</Target>
+
+	<Target Name="CreateZip" AfterTargets="StageModDir" Condition="$(Configuration) == 'Release to .zip'">
+		<Message Text="***** CreateZip *****" Importance="high" />
 		<ZipDirectory SourceDirectory="$(ZipDir)" DestinationFile="$(ProjectDir)bin\$(ProjectName)_SCS_$(Version).zip" Overwrite="true" />
-		<Message Text="Delete .\bin\temp\" Importance="high" />
-		<RemoveDir Directories="$(ZipDir)" />
-		<Message Text="Delete .\bin\Release to .zip\" Importance="high" />
-		<RemoveDir Directories="$(ProjectDir)bin\Release to .zip" />
+		<Message Text="Delete .\bin\$(Configuration)\" Importance="high" />
+		<RemoveDir Directories="$(ProjectDir)bin\$(Configuration)\" />
 	</Target>
 	
 	<ItemGroup>
