@@ -10,7 +10,7 @@ namespace BuffKit.ShipLoadoutViewer
     {
         private static Color sSpacerColor = new Color32(0x52, 0x3E, 0x3F, 0xFF);
         public bool MarkForRedraw { set; get; }
-        private static readonly int numberOfToolTypes = 4; // Should be the same number of rows in Patcher.cs toggleGrid
+        private static readonly int _numberOfToolTypes = 4; // Should be the same number of rows in Patcher.cs toggleGrid
 
         public static GameObject Build(Transform parent, out UILobbyCrewLoadoutBar loadoutBar)
         {
@@ -27,7 +27,7 @@ namespace BuffKit.ShipLoadoutViewer
             var subBars = new List<GameObject>();
             var subBarImages = new List<List<RawImage>>();
 
-            for (var i = 0; i < numberOfToolTypes; i++)
+            for (var i = 0; i < _numberOfToolTypes; i++)
             {
                 var subImages = new List<RawImage>();
 
@@ -38,7 +38,7 @@ namespace BuffKit.ShipLoadoutViewer
                 hlg.childForceExpandHeight = false;
                 hlg.spacing = 3;
                 subBars.Add(obSubBar);
-                for (var j = 0; j < numberOfToolTypes; j++)
+                for (var j = 0; j < _numberOfToolTypes; j++)
                 {
                     var slot = new GameObject($"slot{j}");
                     var im = slot.AddComponent<RawImage>();
@@ -201,7 +201,7 @@ namespace BuffKit.ShipLoadoutViewer
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
                 _spacer2.SetActive(showTools[2, column] && (showTools[0, column] || showTools[1, column]));
 
-                for (var i = 0; i < numberOfToolTypes; i++)
+                for (var i = 0; i < _numberOfToolTypes; i++)
                 {
                     if (showTools[i, column])
                     {
@@ -214,7 +214,7 @@ namespace BuffKit.ShipLoadoutViewer
                             _loadoutBarImages[i][j].gameObject.SetActive(true);
                             _loadoutBarImages[i][j].texture = Resources.GetSkillTexture(data.AllIds[i][j]);
                         }
-                        for (var j = classItemCount; j < numberOfToolTypes; j++)
+                        for (var j = classItemCount; j < _numberOfToolTypes; j++)
                         {
                             _loadoutBarImages[i][j].gameObject.SetActive(false);
                         }
