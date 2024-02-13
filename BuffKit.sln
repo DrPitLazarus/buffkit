@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuffKit", "BuffKit\BuffKit.csproj", "{74EB094A-8FFA-4848-9818-94828108F5DD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spanner", "Spanner\Spanner.csproj", "{55A08EB1-CF37-4915-9E4B-9227F45E119E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release to .zip|Any CPU = Release to .zip|Any CPU
+		Release to GameDir|Any CPU = Release to GameDir|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release to .zip|Any CPU.ActiveCfg = Release to .zip|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release to .zip|Any CPU.Build.0 = Release to .zip|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release to GameDir|Any CPU.ActiveCfg = Release to GameDir|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release to GameDir|Any CPU.Build.0 = Release to GameDir|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74EB094A-8FFA-4848-9818-94828108F5DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release to .zip|Any CPU.ActiveCfg = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release to .zip|Any CPU.Build.0 = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release to GameDir|Any CPU.ActiveCfg = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release to GameDir|Any CPU.Build.0 = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55A08EB1-CF37-4915-9E4B-9227F45E119E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3328A59-C6C5-4F76-82E6-66B57D9D54B1}
+	EndGlobalSection
+EndGlobal
