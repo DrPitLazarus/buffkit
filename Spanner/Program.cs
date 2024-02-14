@@ -41,7 +41,7 @@ namespace Spanner
                 {
                     configData = TOML.Parse(reader);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     _logger.Fatal("Unable to parse the configuration file");
                     return;
@@ -160,7 +160,7 @@ namespace Spanner
                     {
                         fd = type.Fields.First(a => a.Name.Equals(f));
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         _logger.Error($"Unable to find the specified field {f}");
                         continue;

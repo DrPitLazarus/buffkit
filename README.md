@@ -1,20 +1,33 @@
-# Buff Kit
-Guns of Icarus modding toolkit/moderation mod
+# BuffKit
+Guns of Icarus modding toolkit/moderation mod.
 
 ## Building and installing
-Clone the repo  
-Add the path to your game and the names of classes you want to patch to Binaries/spanner_config.toml  
-Run Binaries/Spanner.exe and check the log to make sure it ran without issues 
+Dr. Pit Lazarus is using Visual Studio 2022 as his IDE. 
+Any code editor should work if you can use build configs `Release to GameDir` and `Release to .zip`.
 
-Copy Assemblies/Assembly-CSharp.dll to [game folder]/GunsOfIcarusOnline_Data/Managed, overwriting the existing one
+Clone the repo and open up the BuffKit solution.
 
-Download BepInEx at https://github.com/BepInEx/BepInEx/releases/download/v5.4.13/BepInEx_x86_5.4.13.0.zip  
-Extract the BepInEx archive into Steam/steamapps/common/Guns of Icarus Online/  
-Rename winhttp.dll to version.dll  
-Run the game to make it generate all the BepInEx stuff, then close it
+Edit `./Binaries/spanner_config.toml` and `./BuffKit/GamePath.txt` to your game folder. 
+Example `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.
 
-Open the BuffKit project  
-Build BuffKit  
-Copy BuffKit.dll to Guns of Icarus Online/BepInEx/plugins/
+`./Binaries/Spanner.exe` is the tool that will copy the game assemblies to `./Assemblies/`. 
+It will deprivatize classes and methods so you can use them without needing to use reflection. 
+Run it with terminal or run it normally and check the `spanner_log.txt` for errors. 
+You need .NET 8 runtime to run it. 
+You should only need to run it once, unless you make changes to the spanner config.
 
-Start the game and enjoy the fruits of your labour
+To build BuffKit, use these build configs: 
+
+`Release to GameDir`: Reads `./BuffKit/GamePath.txt` and copies it over.
+
+`Release to .zip`: Outputs `./BuffKit/bin/BuffKit_SCS_$(Version).zip`.
+
+All build configs will stage the mod directory in `./BuffKit/bin/temp/`. 
+It will download BepInEx core files, and copy BuffKit.dll and assets. 
+See `./BuffKit/BuffKit.csproj` for the exact steps.
+
+**The BuffKit must grow.**
+
+## Spanner building
+Nothing much here. Open the Spanner solution and use publish to build the single file Spanner.exe. 
+Put the new .exe in `./Binaries/`.
