@@ -50,6 +50,7 @@
 		<DownloadFile SourceUrl="$(BepInExDownload)" DestinationFolder="$(ProjectDir)bin" SkipUnchangedFiles="false" />
 		<Message Text="Extract .\bin\$(DownloadFileName) to .\bin\temp\" Importance="high" />
 		<Unzip SourceFiles="$(ProjectDir)bin\$(DownloadFileName)" DestinationFolder="$(ZipDir)" />
+		<Move SourceFiles="$(ZipDir)winhttp.dll" DestinationFiles="$(ZipDir)version.dll" />
 		<Message Text="Delete .\bin\$(DownloadFileName)" Importance="high" />
 		<Delete Files="$(ProjectDir)bin\$(DownloadFileName)" />
 	</Target>
