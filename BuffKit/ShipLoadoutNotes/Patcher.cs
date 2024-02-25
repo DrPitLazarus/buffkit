@@ -20,6 +20,8 @@ namespace BuffKit.ShipLoadoutNotes
         private static readonly string _jsonFilePath = @"BepInEx\plugins\BuffKit\shipLoadoutNotes.json";
         private static readonly string _jsonFullFilePath = Path.Combine(Directory.GetCurrentDirectory(), _jsonFilePath);
         private static TMP_InputField _inputField;
+        private static GameObject _announceToCrewButtonObj;
+        private static GameObject _saveButtonObj;
         private static List<ShipLoadoutNoteData> _allNotes = [];
 
         #region Settings
@@ -100,6 +102,9 @@ namespace BuffKit.ShipLoadoutNotes
                 MuseLog.Info("Note found! Updating the input field.");
                 _inputField.text = _allNotes[index].note;
             }
+
+            // Show announce to crew button only if they are the captain.
+            _announceToCrewButtonObj.SetActive(NetworkedPlayer.Local.IsCaptain);
         }
 
         private static ShipLoadoutNoteData GetCurrentNoteData()
@@ -182,22 +187,23 @@ namespace BuffKit.ShipLoadoutNotes
             buttonRowHlg.spacing = 3;
 
             // Annouce to crew button
-            var annouceToCrewButton = Builder.BuildButton(buttonRowObj.transform, AnnouceToCrewChat, _announceButtonText, fontSize: 13);
-            var annouceToCrewButtonLe = annouceToCrewButton.AddComponent<LayoutElement>();
+            _announceToCrewButtonObj = Builder.BuildButton(buttonRowObj.transform, AnnouceToCrewChat, _announceButtonText, fontSize: 13);
+            var annouceToCrewButtonLe = _announceToCrewButtonObj.AddComponent<LayoutElement>();
             annouceToCrewButtonLe.minHeight = 30;
             annouceToCrewButtonLe.preferredWidth = 200;
 
             // Save button
-            var saveButton = Builder.BuildButton(buttonRowObj.transform, SaveNote, _saveButtonText, fontSize: 13);
-            var saveButtonLe = saveButton.AddComponent<LayoutElement>();
+            _saveButtonObj = Builder.BuildButton(buttonRowObj.transform, SaveNote, _saveButtonText, fontSize: 13);
+            var saveButtonLe = _saveButtonObj.AddComponent<LayoutElement>();
             saveButtonLe.minHeight = 30;
             saveButtonLe.minWidth = 60;
+            saveButtonLe.flexibleWidth = 200;
         }
 
         private static void AnnouceToCrewChat()
         {
             // Chatbox does not see \r\n as a newline.
-            var note = _inputField.text.Replace("\r", "");
+            var note = _inputField.text.Replace("\r", "").Trim();
             // Get player names from non-pilot slots.
             var slot1Name = NetworkedPlayer.Local.CrewEntity.Slots[1].PlayerEntity?.Name ?? "<slot1>";
             var slot2Name = NetworkedPlayer.Local.CrewEntity.Slots[2].PlayerEntity?.Name ?? "<slot2>";
@@ -209,14 +215,16 @@ namespace BuffKit.ShipLoadoutNotes
             // Replace placeholders with names.
             note = note.Replace("<slot1>", slot1Name).Replace("<slot2>", slot2Name).Replace("<slot3>", slot3Name);
 
+            if (note.Length == 0) return;
+
             if (note.Length <= 490)
             {
                 Util.ForceSendMessage(note, "crew");
                 return;
             }
 
-            // Note is longer than 490 characters, split at double new line. If no double new line, note is cut off.
-            var noteParts = note.Split(new string[] { "\n\n" }, StringSplitOptions.None);
+            // Note is longer than 490 characters, split at double newline. If no double newline, note is cut off.
+            var noteParts = note.Split(new string[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var notePart in noteParts)
             {
                 Util.ForceSendMessage(notePart, "crew");
