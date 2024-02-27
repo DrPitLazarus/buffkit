@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BuffKit.UI;
 using Muse.Goi2.Entity;
 using Newtonsoft.Json;
@@ -17,7 +18,9 @@ namespace BuffKit.ShipLoadoutNotes
         private static readonly string _saveButtonText = "Save";
         private static readonly string _jsonFilePath = @"BepInEx\plugins\BuffKit\shipLoadoutNotes.json";
         private static readonly string _jsonFullFilePath = Path.Combine(Directory.GetCurrentDirectory(), _jsonFilePath);
-
+        private static readonly int _maxNoteLength = 1000;
+        private static readonly TimeSpan _announceToCrewCooldown = TimeSpan.FromSeconds(15);
+        
         public static bool IsInitialized { get { return _shipLoadoutNotesObject != null; } }
         public static bool NoteInputFieldIsFocused { get { return _noteInputField?.isFocused ?? false; } }
 
@@ -27,7 +30,8 @@ namespace BuffKit.ShipLoadoutNotes
         private static GameObject _saveButtonObject;
         private static List<ShipLoadoutNoteData> _allNotes = [];
         private static int _currentNoteIndex = -1;
-        private static bool _isCaptain = false;
+        private static DateTime? _announcedTime;
+        private static bool _isCaptain { get { return NetworkedPlayer.Local.IsCaptain; } }
 
         private static ShipLoadoutNoteData _currentGameData
         {
@@ -54,14 +58,16 @@ namespace BuffKit.ShipLoadoutNotes
 
         public static void Initialize()
         {
-            var recommendedLoadoutObj = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Profile Ship/Content/Recommended Loadout Group/");
-            _shipLoadoutNotesObject = GameObject.Find("/Menu UI/Standard Canvas/Pages/UI Profile Ship/Content/Recommended Loadout Group/" + _name);
+            var parentObjectPath = "/Menu UI/Standard Canvas/Pages/UI Profile Ship/Content/Recommended Loadout Group/";
+            _shipLoadoutNotesObject = GameObject.Find(parentObjectPath + _name);
+
             if (_shipLoadoutNotesObject == null)
             {
                 ReadFromFile();
-                BuildUi(recommendedLoadoutObj.transform);
-                // Update the recommended loadout obj to put the new ship loadout notes in the right place.
-                LayoutRebuilder.ForceRebuildLayoutImmediate(recommendedLoadoutObj.GetComponent<RectTransform>());
+                var parentObject = GameObject.Find(parentObjectPath);
+                _shipLoadoutNotesObject = BuildUi(parentObject.transform);
+                // Update the recommended loadout object to put the new ship loadout notes in the right place.
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentObject.GetComponent<RectTransform>());
             }
         }
 
@@ -80,21 +86,25 @@ namespace BuffKit.ShipLoadoutNotes
                 MuseLog.Info("Note found! Updating the input field.");
                 _noteInputField.text = _allNotes[_currentNoteIndex].note;
             }
-
-            _isCaptain = NetworkedPlayer.Local.IsCaptain;
         }
 
         private void FixedUpdate()
         {
-            // Show announce to crew button only if they are the captain and input field is not empty.
-            var isAllowedToAnnounce = _isCaptain && _noteInputField.text.Trim().Length > 0;
+            // Announce to crew cooldown.
+            if (_announcedTime != null && DateTime.Now - _announcedTime >= _announceToCrewCooldown)
+            {
+                MuseLog.Info($"{_announceButtonText} cooldown ended!");
+                _announcedTime = null;
+            }
+            // Show announce to crew button only if they are the captain, input field is not empty, and not on cooldown.
+            var isAllowedToAnnounce = _isCaptain && _noteInputField.text.Trim().Length > 0 && _announcedTime == null;
             _announceToCrewButtonObject.SetActive(isAllowedToAnnounce);
             // Show save button only when the saved note is not the same as input field.
             var noteString = _currentNoteIndex == -1 ? "" : _allNotes[_currentNoteIndex].note;
             _saveButtonObject.SetActive(noteString != _noteInputField.text);
         }
 
-        private static void BuildUi(Transform parent)
+        private static GameObject BuildUi(Transform parent)
         {
             var mainObject = new GameObject(_name);
             mainObject.transform.SetParent(parent, false);
@@ -111,8 +121,9 @@ namespace BuffKit.ShipLoadoutNotes
             // Text box
             var inputObject = Builder.BuildInputField(mainObject.transform);
             inputObject.name = "Note Input Field";
-            inputObject.GetComponent<LayoutElement>().minHeight = 80; // 5 lines of text (10 padding + lines + (13 fontsize * lines))
+            inputObject.GetComponent<LayoutElement>().minHeight = 106; // Estimated lines of text (10 padding + lines + (13 font size * lines))
             _noteInputField = inputObject.GetComponent<TMP_InputField>();
+            _noteInputField.characterLimit = _maxNoteLength;
             _noteInputField.fontAsset = UI.Resources.FontGaldeanoRegular;
             _noteInputField.lineType = TMP_InputField.LineType.MultiLineNewline;
             _noteInputField.restoreOriginalTextOnEscape = false;
@@ -131,13 +142,13 @@ namespace BuffKit.ShipLoadoutNotes
             buttonRowHlg.childForceExpandWidth = false;
             buttonRowHlg.spacing = 3;
 
-            // Annouce to crew button
-            _announceToCrewButtonObject = Builder.BuildButton(buttonRowObject.transform, AnnouceToCrewChat, _announceButtonText, fontSize: 13);
+            // Announce to crew button
+            _announceToCrewButtonObject = Builder.BuildButton(buttonRowObject.transform, AnnounceToCrewChat, _announceButtonText, fontSize: 13);
             _announceToCrewButtonObject.name = $"{_announceButtonText} Button";
-            var annouceToCrewButtonLe = _announceToCrewButtonObject.AddComponent<LayoutElement>();
-            annouceToCrewButtonLe.minHeight = 30;
-            annouceToCrewButtonLe.preferredWidth = 200;
-            annouceToCrewButtonLe.flexibleWidth = 100;
+            var announceToCrewButtonLe = _announceToCrewButtonObject.AddComponent<LayoutElement>();
+            announceToCrewButtonLe.minHeight = 30;
+            announceToCrewButtonLe.preferredWidth = 200;
+            announceToCrewButtonLe.flexibleWidth = 100;
 
             // Save button
             _saveButtonObject = Builder.BuildButton(buttonRowObject.transform, SaveNote, _saveButtonText, fontSize: 13);
@@ -148,11 +159,12 @@ namespace BuffKit.ShipLoadoutNotes
             saveButtonLe.flexibleWidth = 200;
 
             mainObject.AddComponent<ShipLoadoutNotes>();
+            return mainObject;
         }
 
-        private static void AnnouceToCrewChat()
+        private static void AnnounceToCrewChat()
         {
-            // Chatbox does not see \r\n as a newline.
+            // Chat box does not see \r\n as a newline.
             var note = _noteInputField.text.Replace("\r", "").Trim();
             // Get player names from non-pilot slots.
             var slot1Name = NetworkedPlayer.Local.CrewEntity.Slots[1].PlayerEntity?.Name ?? "<slot1>";
@@ -167,18 +179,19 @@ namespace BuffKit.ShipLoadoutNotes
 
             if (note.Length == 0) return;
 
-            if (note.Length <= 490)
-            {
-                Util.ForceSendMessage(note, "crew");
-                return;
-            }
-
-            // Note is longer than 490 characters, split at double newline. If no double newline, note is cut off.
+            // Cap length of note. Add length to reserve for player names.
+            if (note.Length >= _maxNoteLength + 100) note = note.Substring(0, _maxNoteLength + 100);
+            // Split at double newline.
             var noteParts = note.Split(new string[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var notePart in noteParts)
+            // Cap at 4 separate chat messages.
+            foreach (var notePart in noteParts.Take(4))
             {
                 Util.ForceSendMessage(notePart, "crew");
             }
+
+            // Activate cooldown.
+            _announcedTime = DateTime.Now;
+            MuseLog.Info($"{_announceButtonText} cooldown started!");
         }
 
         private static void SaveNote()
@@ -221,7 +234,7 @@ namespace BuffKit.ShipLoadoutNotes
             }
             catch (JsonSerializationException e)
             {
-                MuseLog.Info($"Failed to deserialise JSON file:\n{e.Message}");
+                MuseLog.Info($"Failed to serialize JSON file:\n{e.Message}");
             }
             return false;
         }
