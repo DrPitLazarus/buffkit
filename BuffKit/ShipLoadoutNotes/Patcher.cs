@@ -12,7 +12,7 @@ namespace BuffKit.ShipLoadoutNotes
         {
             if (_firstPrepare)
             {
-                Settings.Settings.Instance.AddEntry("ship loadout notes", "enabled", v => Enabled = v, Enabled);
+                Settings.Settings.Instance.AddEntry("ship loadout notes", "ship loadout notes", v => Enabled = v, Enabled);
                 _firstPrepare = false;
             }
         }
