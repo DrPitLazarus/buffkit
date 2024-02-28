@@ -20,9 +20,9 @@ namespace BuffKit.ShipLoadoutNotes
         private static readonly string _jsonFullFilePath = Path.Combine(Directory.GetCurrentDirectory(), _jsonFilePath);
         private static readonly int _maxNoteLength = 1000;
         private static readonly TimeSpan _announceToCrewCooldown = TimeSpan.FromSeconds(15);
-        
-        public static bool IsInitialized { get { return _shipLoadoutNotesObject != null; } }
-        public static bool NoteInputFieldIsFocused { get { return _noteInputField?.isFocused ?? false; } }
+
+        public static bool Initialized { get { return _shipLoadoutNotesObject != null; } }
+        public static bool InputFieldFocused { get { return _noteInputField?.isFocused ?? false; } }
 
         private static TMP_InputField _noteInputField;
         private static GameObject _shipLoadoutNotesObject;
@@ -71,6 +71,11 @@ namespace BuffKit.ShipLoadoutNotes
             }
         }
 
+        public static void Destroy()
+        {
+            Destroy(_shipLoadoutNotesObject);
+        }
+
         public static void LoadNote()
         {
             var data = _currentGameData;
@@ -90,6 +95,11 @@ namespace BuffKit.ShipLoadoutNotes
 
         private void FixedUpdate()
         {
+            if (!ShipLoadoutNotesPatcher.Enabled)
+            {
+                Destroy();
+                return;
+            }
             // Announce to crew cooldown.
             if (_announcedTime != null && DateTime.Now - _announcedTime >= _announceToCrewCooldown)
             {
@@ -249,7 +259,7 @@ namespace BuffKit.ShipLoadoutNotes
 
         private static int GetNoteIndex(ShipLoadoutNoteData data)
         {
-            return _allNotes.FindIndex(note => note.gameType.Equals(data.gameType) && note.shipModelId.Equals(data.shipModelId) && note.presetIndex.Equals(data.presetIndex));
+            return _allNotes.FindIndex(note => note.gameType == data.gameType && note.shipModelId == data.shipModelId && note.presetIndex == data.presetIndex);
         }
     }
 }
