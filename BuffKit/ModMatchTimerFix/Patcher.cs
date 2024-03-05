@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using BuffKit.Settings;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +10,9 @@ namespace BuffKit.ModMatchTimerFix
     public class ModMatchTimerFix
     {
         private static bool _enabled = true;
-        private static ToggleGrid _toggleGrid;
+        private static bool _hideMinuteLeadingZero = true;
+        private static bool _changeFontColorToWhite = true;
+        private static bool _useSerifFont = true;
         private static bool _firstPrepare = true;
 
         private static readonly Vector2 _originalAnchoredPosition = new(0, -5);
@@ -27,21 +27,14 @@ namespace BuffKit.ModMatchTimerFix
         private static Font _penumbraHalfSerifStdReg;
 
         private static bool _crewsOrdersActive => _crewsOrdersText.enabled || _crewsOrdersImage.enabled;
-        private static bool _settingHideMinuteLeadingZero => _toggleGrid.Values[0, 0];
-        private static bool _settingChangeFontColorToWhite => _toggleGrid.Values[1, 0];
-        private static bool _settingUseSerifFont => _toggleGrid.Values[2, 0];
 
         private static void Prepare()
         {
             if (!_firstPrepare) return;
             Settings.Settings.Instance.AddEntry("mod match timer fix", "mod match timer fix", v => _enabled = v, _enabled);
-            Util.OnGameInitialize += delegate
-            {
-                var gridIcons = new List<Sprite>() { UI.Resources.EngineerIcon };
-                var gridLabels = new List<string>() { "hide minute leading zero", "change font color to white", "use serif font" };
-                _toggleGrid = new ToggleGrid(gridIcons, gridLabels, true);
-                Settings.Settings.Instance.AddEntry("mod match timer fix", "mod match timer fix settings", v => _toggleGrid = v, _toggleGrid);
-            };
+            Settings.Settings.Instance.AddEntry("mod match timer fix", "hide minute leading zero", v => _hideMinuteLeadingZero = v, _hideMinuteLeadingZero);
+            Settings.Settings.Instance.AddEntry("mod match timer fix", "change font color to white", v => _changeFontColorToWhite = v, _changeFontColorToWhite);
+            Settings.Settings.Instance.AddEntry("mod match timer fix", "use serif font", v => _useSerifFont = v, _useSerifFont);
             _firstPrepare = false;
         }
 
@@ -87,15 +80,15 @@ namespace BuffKit.ModMatchTimerFix
                 // Move label below captain's orders UI.
                 _labelRt.anchoredPosition = _crewsOrdersActive ? _newAnchoredPosition : _originalAnchoredPosition;
 
-                if (_settingHideMinuteLeadingZero)
+                if (_hideMinuteLeadingZero)
                 {
                     var timeSpan = TimeSpan.FromSeconds((double)msv.ModCountdown);
                     __instance.label.text = $"{timeSpan.Minutes}:{timeSpan.Seconds:00}";
                 }
 
-                __instance.label.color = _settingChangeFontColorToWhite ? _whiteColor : _yellowColor;
+                __instance.label.color = _changeFontColorToWhite ? _whiteColor : _yellowColor;
 
-                __instance.label.font = _settingUseSerifFont ? _penumbraHalfSerifStdReg : _roboto;
+                __instance.label.font = _useSerifFont ? _penumbraHalfSerifStdReg : _roboto;
             }
         }
     }
