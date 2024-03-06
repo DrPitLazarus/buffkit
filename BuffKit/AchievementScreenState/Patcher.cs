@@ -59,7 +59,7 @@ namespace BuffKit.AchievementScreenState
 
             _achievementSpecified = false;
 
-            if ((_lastState == -1))
+            if (_lastState == -1)
             {
                 MuseLog.Info("No last state, going to default state.");
                 UIManager.UIAchievements(null);
@@ -116,7 +116,6 @@ namespace BuffKit.AchievementScreenState
             _workingState.MinorCategory = quest.Category;
             // Next line from UIAchievementScreen.Activated setter.
             var achievementMajorCategory = AchievementMajorCategory.Instances.FirstOrDefault((AchievementMajorCategory c) => c.Criteria(quest));
-
             _workingState.MajorCategory = achievementMajorCategory.Name;
             _workingState.GameType = achievementMajorCategory.GameType;
             _lastState = (int)achievementMajorCategory.GameType;
