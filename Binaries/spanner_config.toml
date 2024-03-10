@@ -36,6 +36,11 @@ name = "UIShipCustomizationScreen"
 fields = [
   "currentShip"
 ]
+[[classes]]
+name = "UIAnnouncementDisplay"
+fields = [
+  "instance"
+]
 
 [[classes]]
 name = "UIControlPointHUD"
