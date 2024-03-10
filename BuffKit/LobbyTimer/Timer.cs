@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Text;
 using UnityEngine;
 using static BuffKit.Util;
 
@@ -18,9 +17,9 @@ namespace BuffKit.LobbyTimer
 
         public State PreviousState;
         public State CurrentState = State.Startup;
-        
+
         public int PausesLeft = 2;
-        
+
         public int SecondsLeft = MainDuration;
         public int PrePauseSecondsLeft;
         public string MatchId;
@@ -36,7 +35,7 @@ namespace BuffKit.LobbyTimer
                                 CurrentState == State.End;
 
         private TimerButtonContainer _tbc;
-        
+
 
         private static string FormatSeconds(int seconds)
         {
@@ -56,7 +55,7 @@ namespace BuffKit.LobbyTimer
                 case State.Startup:
                     _tbc.SetStatus("");
                     _tbc.SetCountdown("-:--");
-                        
+
                     _tbc.StartButton.interactable = true;
                     _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(State.Main));
@@ -72,22 +71,22 @@ namespace BuffKit.LobbyTimer
                     _tbc.ResetButton.onClick.RemoveAllListeners();
                     _tbc.ResetButton.onClick.AddListener(() => Transition(State.Startup));
                     break;
-                
+
                 case State.Main:
                     _tbc.SetStatus("PICKING");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
-                        
+
                     _tbc.StartButton.interactable = false;
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.LoadoutSetup:
                     _tbc.SetStatus("LOCKED");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
-                    
+
                     _tbc.StartButton.interactable = false;
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = true;
@@ -97,11 +96,11 @@ namespace BuffKit.LobbyTimer
                     _tbc.RefPauseButton.interactable = true;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.LoadoutSetupEnd:
                     _tbc.SetStatus("AWAITING REF DECISION");
                     _tbc.SetCountdown("-:--");
-                    
+
                     _tbc.StartButton.interactable = false;
                     _tbc.PauseButton.interactable = false;
                     _tbc.ExtendButton.interactable = true;
@@ -111,40 +110,40 @@ namespace BuffKit.LobbyTimer
                     _tbc.RefPauseButton.interactable = false;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.Overtime:
                     _tbc.SetStatus("OVERTIME");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
-                    
+
                     _tbc.StartButton.interactable = false;
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.OvertimeLoadoutSetup:
                     _tbc.SetStatus("LOCKED");
                     _tbc.SetCountdown(FormatSeconds(SecondsLeft));
-                    
+
                     _tbc.StartButton.interactable = false;
                     UpdatePauseButton();
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = true;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.End:
                     _tbc.SetStatus("STARTING MATCH");
                     _tbc.SetCountdown("-:--");
-                    
+
                     _tbc.StartButton.interactable = false;
                     _tbc.PauseButton.interactable = false;
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = false;
                     _tbc.ResetButton.interactable = true;
                     break;
-                
+
                 case State.Pause:
                     _tbc.StartButton.interactable = true;
                     _tbc.StartButton.onClick.RemoveAllListeners();
@@ -154,7 +153,7 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.SetHoverTooltip("Extend pause");
                     _tbc.RefPauseButton.interactable = true;
                     _tbc.ResetButton.interactable = true;
-                    
+
                     if (PausesLeft > 0)
                     {
                         _tbc.ExtendButton.onClick.RemoveAllListeners();
@@ -167,10 +166,10 @@ namespace BuffKit.LobbyTimer
                             Repaint();
                         });
                     }
-                    
+
                     _tbc.SetStatus("PAUSED");
                     break;
-                
+
                 case State.RefPause:
                     _tbc.StartButton.interactable = true;
                     _tbc.StartButton.onClick.RemoveAllListeners();
@@ -179,11 +178,11 @@ namespace BuffKit.LobbyTimer
                     _tbc.ExtendButton.interactable = false;
                     _tbc.RefPauseButton.interactable = false;
                     _tbc.ResetButton.interactable = true;
-                    
+
                     _tbc.SetStatus("PAUSED INDEFINITELY");
                     _tbc.SetCountdown("-:--");
                     break;
-                
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -224,21 +223,23 @@ namespace BuffKit.LobbyTimer
                 //Main -> LoadoutSetup
                 case State.LoadoutSetup when CurrentState is State.Main:
                     SecondsLeft = LoadoutSetupDuration;
-                    
+
                     ForceSendMessage(string.Format(
                         TimerStrings.LoadoutSetupStart,
                         LoadoutSetupDuration.ToString()
                     ));
 
                     string teams = "";
-                    if (RedLastChange < PreLockAnnouncementTime 
-                        && BlueLastChange < PreLockAnnouncementTime)
+                    if (RedLastChange <= PreLockAnnouncementTime
+                        && BlueLastChange <= PreLockAnnouncementTime)
                     {
                         teams = "BOTH TEAMS";
-                    } else if (RedLastChange < PreLockAnnouncementTime)
+                    }
+                    else if (RedLastChange <= PreLockAnnouncementTime)
                     {
                         teams = "BLUE";
-                    } else if (BlueLastChange < PreLockAnnouncementTime)
+                    }
+                    else if (BlueLastChange <= PreLockAnnouncementTime)
                     {
                         teams = "RED";
                     }
@@ -293,7 +294,7 @@ namespace BuffKit.LobbyTimer
                     PausesLeft--;
                     PrePauseSecondsLeft = SecondsLeft;
                     SecondsLeft = PauseDuration;
-                    
+
                     _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
 
@@ -308,34 +309,34 @@ namespace BuffKit.LobbyTimer
                     ForceSendMessage(TimerStrings.RefPauseStart);
                     //Make sure we return to pre-pause state instead of pause
                     CurrentState = newState;
-                    
+
                     _tbc.ExtendButton.onClick.RemoveAllListeners();
                     Repaint();
                     return;
                 //Any -> RefPause
                 case State.RefPause:
                     PrePauseSecondsLeft = SecondsLeft;
-                    
+
                     _tbc.StartButton.onClick.RemoveAllListeners();
                     _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
-                    
+
                     ForceSendMessage(TimerStrings.RefPauseStart);
                     break;
                 default:
-                {
-                    if (CurrentState == State.Pause || CurrentState == State.RefPause)
                     {
-                        SecondsLeft = PrePauseSecondsLeft;
-                        _tbc.StartButton.onClick.RemoveAllListeners();
-                        _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
-                        
-                        ForceSendMessage(
-                            string.Format(TimerStrings.TimerResumed, FormatSeconds(SecondsLeft)));
+                        if (CurrentState == State.Pause || CurrentState == State.RefPause)
+                        {
+                            SecondsLeft = PrePauseSecondsLeft;
+                            _tbc.StartButton.onClick.RemoveAllListeners();
+                            _tbc.StartButton.onClick.AddListener(() => Transition(PreviousState));
+
+                            ForceSendMessage(
+                                string.Format(TimerStrings.TimerResumed, FormatSeconds(SecondsLeft)));
+                        }
+                        break;
                     }
-                    break;
-                }
             }
-            
+
             MuseLog.Info($"SETTING PREVIOUS STATE TO {CurrentState}");
             PreviousState = CurrentState;
             MuseLog.Info($"SETTING CURRENT STATE TO {newState}");
@@ -343,7 +344,7 @@ namespace BuffKit.LobbyTimer
 
             Repaint();
         }
-        
+
         private IEnumerator Tick()
         {
             while (SecondsLeft >= 0)
