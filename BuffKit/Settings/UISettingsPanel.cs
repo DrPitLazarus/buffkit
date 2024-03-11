@@ -48,7 +48,7 @@ namespace BuffKit.Settings
 
         public Transform GetHeaderContent(string header)
         {
-            if(!_headers.ContainsKey(header))
+            if (!_headers.ContainsKey(header))
             {
                 Builder.BuildMenuDropdown(_content.transform, header, out var obContent);
                 var vlg = obContent.AddComponent<VerticalLayoutGroup>();
@@ -64,6 +64,7 @@ namespace BuffKit.Settings
         private float _timeUntilDisappear = 0;
         public float disappearTimer = 2;
         private bool _isVisible = false;
+        private bool _isSorted = false;
 
         private void Update()
         {
@@ -75,6 +76,11 @@ namespace BuffKit.Settings
                 }
                 if (_timeUntilDisappear <= 0)
                     SetVisibility(false);
+            }
+            if (_isVisible && !_isSorted)
+            {
+                Settings.Instance.SortSettings();
+                _isSorted = true;
             }
         }
 

@@ -183,6 +183,28 @@ namespace BuffKit.Settings
             _menuInitialized = true;
         }
 
+        public void SortSettings()
+        {
+            var children = new List<Transform>();
+            var contentObject = GameObject.Find("/Menu UI/Standard Canvas/Common Elements/UI Settings Panel/Scroll View/Viewport/Content/");
+            if (contentObject == null)
+            {
+                MuseLog.Info("Content object is null!");
+                return;
+            }
+            for (var childIndex = 0; childIndex < contentObject.transform.childCount; childIndex++)
+            {
+                children.Add(contentObject.transform.GetChild(childIndex));
+            }
+            children.Sort((v1, v2) => v1.name.CompareTo(v2.name));
+            var index = 0;
+            foreach (var child in children)
+            {
+                child.SetSiblingIndex(index);
+                index++;
+            }
+        }
+
         private enum DataType
         {
             Invalid,
