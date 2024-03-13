@@ -32,6 +32,9 @@ namespace BuffKit.Settings
 
             Builder.BuildVerticalScrollViewFitContent(obPanel.transform, out panel._content);
 
+            // Fix scroll resetting when an dropdown is expanded/collapsed, but break fit content horizontally.
+            Destroy(GameObject.Find("/Menu UI/Standard Canvas/Common Elements/UI Settings Panel/Scroll View/Viewport/")?.GetComponent<VerticalLayoutGroup>());
+
             return obPanel;
         }
 
