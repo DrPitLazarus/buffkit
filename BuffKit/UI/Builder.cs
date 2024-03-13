@@ -46,20 +46,27 @@ namespace BuffKit.UI
             var obViewport = new GameObject("Viewport");
             le = obViewport.AddComponent<LayoutElement>();
             le.minHeight = 0;
+            le.flexibleWidth = 1;
             var mask = obViewport.AddComponent<Mask>();
             mask.showMaskGraphic = false;
             img = obViewport.AddComponent<Image>();
-            var vlg = obViewport.AddComponent<VerticalLayoutGroup>();
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            vlg.childControlHeight = true;
-            vlg.childControlWidth = true;
+            // This does the horizontal fitting, but causes the scroll position resetting to top when content changes.
+            // Settings is really on the only thing using horizontal fitting and the scroll resetting is more annoying. -Pit
+            //var vlg = obViewport.AddComponent<VerticalLayoutGroup>(); 
+            //vlg.childForceExpandWidth = true;
+            //vlg.childForceExpandHeight = false;
+            //vlg.childControlHeight = true;
+            //vlg.childControlWidth = true;
 
             obContent = new GameObject("Content");
             obContent.transform.SetParent(obViewport.transform);
             rt = obContent.AddComponent<RectTransform>();
             rt.pivot = new Vector2(0, 1);
-            vlg = obContent.AddComponent<VerticalLayoutGroup>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            var csf = obContent.AddComponent<ContentSizeFitter>();
+            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.LowerRight;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
@@ -84,7 +91,7 @@ namespace BuffKit.UI
             scrollRect.verticalScrollbar = sb;
             scrollRect.content = obContent.GetComponent<RectTransform>();
             scrollRect.horizontal = false;
-            scrollRect.scrollSensitivity = 20;
+            scrollRect.scrollSensitivity = 40;
             //var csf = obScrollView.AddComponent<ContentSizeFitter>();
             //csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 

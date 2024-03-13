@@ -25,7 +25,7 @@ namespace BuffKit.Settings
             var csf = obPanel.AddComponent<ContentSizeFitter>();
             csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             var le = obPanel.AddComponent<LayoutElement>();
-            le.minWidth = 350;
+            le.minWidth = 380;
 
             panel = obPanel.AddComponent<UISettingsPanel>();
             obPanel.AddComponent<GraphicRaycaster>();                       // Makes it have UI interaction on top of other UI (I think? It's complicated)
