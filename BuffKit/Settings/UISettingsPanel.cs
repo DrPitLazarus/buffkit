@@ -78,18 +78,20 @@ namespace BuffKit.Settings
                     _timeUntilDisappear -= Time.deltaTime;
                 }
                 if (_timeUntilDisappear <= 0)
+                {
                     SetVisibility(false);
-            }
-            if (_isVisible && !_isSorted)
-            {
-                Settings.Instance.SortSettings();
-                _isSorted = true;
+                }
             }
         }
 
         public void SetVisibility(bool visible)
         {
             _isVisible = visible;
+            if (!_isSorted && _isVisible)
+            {
+                Settings.Instance.SortSettings();
+                _isSorted = true;
+            }
             gameObject.SetActive(_isVisible);
             if (_isVisible)
             {
