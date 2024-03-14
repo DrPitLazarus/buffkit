@@ -25,7 +25,7 @@ namespace BuffKit.UI
             for (int i = 0; i < transform.childCount; i++)
             {
                 var c = transform.GetChild(i);
-                
+
                 if (c.GetComponent<LayoutElement>() != null)
                 {
                     c.gameObject.AddComponent<Dragger>();
@@ -37,15 +37,20 @@ namespace BuffKit.UI
         private void Dropped()
         {
             var order = new SortedList<int, Transform>();
+            int indexOffset = 0;
             for (int i = 0; i < transform.childCount; i++)
             {
                 var c = transform.GetChild(i);
                 if (!(c.GetComponent<Dragger>() is null) && c.gameObject.activeInHierarchy)
                 {
-                    order.Add(i, transform.GetChild(i));
+                    order.Add(i - indexOffset, transform.GetChild(i));
+                }
+                else
+                {
+                    indexOffset++;
                 }
             }
-            
+
             OnDropped?.Invoke(_startingOrder, order);
 
             _startingOrder = order;
@@ -62,7 +67,7 @@ namespace BuffKit.UI
 
         //Used to check whether we need to null-out the PointerUp event
         private bool _dragged = false;
-        
+
         private void Start()
         {
             _lg = transform.parent.GetComponent<HorizontalOrVerticalLayoutGroup>();
@@ -79,12 +84,14 @@ namespace BuffKit.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             _dragged = true;
-            
+
             //Clone self to take up space in the layout
             _shadow = Instantiate(gameObject, transform.parent);
+            // Remove the dragger
+            Destroy(_shadow.GetComponent<Dragger>());
             //Make shadow invisible while still keeping its original layout box dimensions
             _shadow.transform.localScale = new Vector3(0, 0, 0);
-            
+
             //The rebuilds are needed to prevent jitter when the component is first picked up
             LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
 
@@ -92,7 +99,7 @@ namespace BuffKit.UI
             transform.GetComponent<LayoutElement>().ignoreLayout = true;
             //Make sure we are getting drawn above everything else
             transform.SetAsLastSibling();
-            
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(_lg.GetComponent<RectTransform>());
         }
 
@@ -103,12 +110,12 @@ namespace BuffKit.UI
 
             int closestSiblingIndex = int.MinValue;
             float closestSiblingDistance = float.PositiveInfinity;
-            
+
             // Find the closest sibling 
             for (int i = 0; i < transform.parent.childCount; i++)
             {
                 // Ignore self, as it is getting dragged around and doing all sorts of strange things
-                if (i == transform.GetSiblingIndex()) continue; 
+                if (i == transform.GetSiblingIndex()) continue;
 
                 // Others should have rect transforms too
                 if (!(transform.parent.GetChild(i).GetComponent<RectTransform>() is RectTransform t)) continue;
@@ -127,15 +134,15 @@ namespace BuffKit.UI
                         (rt.position.y + rt.sizeDelta.y / 2) - (t.position.y + t.sizeDelta.y / 2)
                     );
                 }
-                
+
                 if (distance < closestSiblingDistance)
                 {
                     closestSiblingIndex = i;
                     closestSiblingDistance = distance;
                 }
             }
-            
-            
+
+
             // If shadow is the closest sibling, return
             var shadowIndex = _shadow.transform.GetSiblingIndex();
             if (shadowIndex == closestSiblingIndex)

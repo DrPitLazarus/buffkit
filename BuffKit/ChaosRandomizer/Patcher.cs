@@ -24,6 +24,14 @@ namespace BuffKit.ChaosRandomizer
                         if (!ChaosRandomizer.Enabled) return;
                         ChaosRandomizer.Instance.ExitLobby(mlv);
                     };
+                    Settings.Settings.Instance.AddEntry("misc", "chaos skirmish ref panel", delegate (bool v)
+                    {
+                        ChaosRandomizer.Enabled = v;
+                        if (v && MatchLobbyView.Instance != null)
+                            ChaosRandomizer.Instance.EnterLobby(MatchLobbyView.Instance);
+                        if (!v)
+                            ChaosRandomizer.Instance.ExitLobby(MatchLobbyView.Instance);
+                    }, false);
                 };
             }
         }

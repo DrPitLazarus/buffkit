@@ -13,7 +13,7 @@ namespace BuffKit.ChaosRandomizer
 {
     public class ChaosRandomizer
     {
-        public static bool Enabled = true;
+        public static bool Enabled = false;
         private ChaosRandomizer()
         {
             CreatePanel();

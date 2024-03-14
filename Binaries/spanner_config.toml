@@ -1,4 +1,4 @@
-game_path = 'D:\Games\Steam\steamapps\common\Guns of Icarus Online'
+game_path = 'C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online'
 
 [[classes]]
 name = "UIManager"
@@ -30,6 +30,11 @@ fields = [
 name = "UISkirmishHUD"
 fields = [
   "teamHuds"
+]
+[[classes]]
+name = "UIShipCustomizationScreen"
+fields = [
+  "currentShip"
 ]
 
 [[classes]]

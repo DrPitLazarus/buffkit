@@ -21,7 +21,8 @@ namespace BuffKit.Minimap
         }
 
         public bool MinimapEnabled = true;
-        public static MapController Instance { get; private set; }
+        public static bool Initialized = false;
+        public static MapController Instance;
 
         private Transform _container;
         private Transform _background;
@@ -42,56 +43,77 @@ namespace BuffKit.Minimap
         private int _offset = 10;
         private bool _showGrid = true;
 
-        private static bool _settingsChanged = true;
-        private static bool _initialized = false;
         private static KeyBinding _kb;
-
-        public void Start()
-        {
-            _kb = new KeyBinding(KeyCode.F5);
-        }
         
         public void Update()
         {
             if (_kb.GetDown())
             {
+                if (MinimapEnabled)
+                {
+                    UIMapDisplay.Deactivate();
+                    Full();
+                    _background.gameObject.SetActive(false);
+                }
+
                 MinimapEnabled = !MinimapEnabled;
             }
-        }        
-        public static void Initialize()
+        }
+        
+        public void Awake()
         {
-            if (_initialized) return;
+            MuseLog.Info("Creating the minimap controller");
+            Instance = this;
+            _kb = new KeyBinding(KeyCode.F5);
 
-            Instance = UIMapSpawnDisplay.instance.gameObject.AddComponent<MapController>();
-
-            Instance._container = Instance.transform.FindChild("Map Container");
-            Instance._background = Instance.transform.FindChild("Background");
-            Instance._grid = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Lines");
-            Instance._labels = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
-            Instance._scaler = Instance.transform.parent.GetComponent<CanvasScaler>();
-            Instance._rt = Instance._container.GetComponent<RectTransform>();
-
-            for (int i = 0; i < Instance._grid.childCount; i++)
+            _container = UIMapSpawnDisplay.instance.transform.FindChild("Map Container");
+            _background = UIMapSpawnDisplay.instance.transform.FindChild("Background");
+            _grid = UIMapSpawnDisplay.instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Lines");
+            _labels = UIMapSpawnDisplay.instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Labels");
+            _scaler = UIMapSpawnDisplay.instance.transform.parent.GetComponent<CanvasScaler>();
+            _rt = _container.GetComponent<RectTransform>();
+            
+            for (int i = 0; i < _grid.childCount; i++)
             {
-                var c = Instance._grid.GetChild(i);
+                var c = _grid.GetChild(i);
                 if (c.name.Contains("Text"))
-                    Instance._gridLabels.Add(c);
+                    _gridLabels.Add(c);
                 else if (c.name.Contains("Vertical"))
-                    Instance._verticalGridLines.Add(c.GetComponent<RectTransform>());
+                    _verticalGridLines.Add(c.GetComponent<RectTransform>());
                 else if (c.name.Contains("Horizontal"))
-                    Instance._horizontalGridLines.Add(c.GetComponent<RectTransform>());
+                    _horizontalGridLines.Add(c.GetComponent<RectTransform>());
             }
             
-            var markersContainer = Instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Markers");
+            var markersContainer = UIMapSpawnDisplay.instance.transform.FindChild("Map Container/Map Border/Map Display Mask/Markers");
             for (int i = 0; i < markersContainer.childCount; i++)
-                Instance._markers.Add(markersContainer.GetChild(i).GetComponent<RectTransform>());
+                _markers.Add(markersContainer.GetChild(i).GetComponent<RectTransform>());
+            
+            _initialAnchorMin = _rt.anchorMin;
+            _initialAnchorMax = _rt.anchorMax;
+            _initialOffsetMin = _rt.offsetMin;
+            _initialOffsetMax = _rt.offsetMax;
 
-            Instance._initialAnchorMin = Instance._rt.anchorMin;
-            Instance._initialAnchorMax = Instance._rt.anchorMax;
-            Instance._initialOffsetMin = Instance._rt.offsetMin;
-            Instance._initialOffsetMax = Instance._rt.offsetMax;
+            Initialized = true;
+        }
 
-            _initialized = true;
+        public void OnDisable()
+        {
+            MuseLog.Info("Destroying the minimap controller");
+            _background.gameObject.SetActive(false);
+            _labels.gameObject.SetActive(true);
+            _grid.gameObject.SetActive(true);
+                
+            _rt.anchorMin = _initialAnchorMin;
+            _rt.anchorMax = _initialAnchorMax;
+            _rt.offsetMin = _initialOffsetMin;
+            _rt.offsetMax = _initialOffsetMax;
+            SetGridLabelScale(1f);
+            SetGridLinesToNormal();
+            SetMarkerSize(30);
+            SetSpectatorMarkerStatus(true);
+            
+            Initialized = false;
+            Instance = null;
         }
 
         private void SetGridLabelScale(float scale)
@@ -125,7 +147,6 @@ namespace BuffKit.Minimap
             {
                 line.localScale = Vector3.one;
             }
-
         }
 
         private void SetMarkerSize(int size)
@@ -144,6 +165,7 @@ namespace BuffKit.Minimap
         {
             if (_state != State.Full)
             {
+                MuseLog.Info("Minimap set to full");
                 _state = State.Full;
                 _background.gameObject.SetActive(true);
                 _labels.gameObject.SetActive(true);
@@ -158,14 +180,13 @@ namespace BuffKit.Minimap
                 SetMarkerSize(30);
                 SetSpectatorMarkerStatus(true);
             }
-
-            UIMapDisplay.Activate();
         }
 
         public void Minimap()
         {
-            if (_state != State.Minimap || _settingsChanged)
+            if (_state != State.Minimap)
             {
+                MuseLog.Info("Minimap set to minimap");
                 _state = State.Minimap;
                 _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, _offset, _size);
                 _rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, _offset, _size);
@@ -175,7 +196,6 @@ namespace BuffKit.Minimap
                 SetMarkerSize(24);
                 SetSpectatorMarkerStatus(false);
                 SetGridLinesToOnePixel();
-                _settingsChanged = false;
             }
             UIMapDisplay.Activate();
             _background.gameObject.SetActive(false);
@@ -185,6 +205,7 @@ namespace BuffKit.Minimap
         {
             if (_state != State.Disabled)
             {
+                MuseLog.Info("Minimap set to disabled");
                 _background.gameObject.SetActive(false);
                 _state = State.Disabled;
             }

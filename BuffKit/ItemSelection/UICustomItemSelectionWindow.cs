@@ -188,6 +188,7 @@ namespace BuffKit.ItemSelection
 
             for (var i = 0; i < _currentItems.Count; i++)
             {
+                _currentItems[i].Index = i;
                 _items[i].Data = _currentItems[i];
                 _items[i].gameObject.SetActive(true);
             }

@@ -1,49 +1,47 @@
 ﻿using HarmonyLib;
+using UnityEngine;
 
 namespace BuffKit.Minimap
 {
+    
     [HarmonyPatch(typeof(UIManager.UIGamePlayState), "HandleOverlayToggles")]
     class UIGamePlayState_HandleOverlayToggles
     {
-        private static bool Prefix(bool showOverlays = true)
+        private static bool Prefix(bool showOverlays)
         {
-            if (IcarusInput.ScoreLogHeld)
+            if (MapController.Initialized && MapController.Instance.MinimapEnabled)
             {
-                UIScoreboard.Activated = true;
-                MapController.Instance.Disabled();
-                UIOverlayDisplay.Deactivate();
-            }
-            else
-            {
-                UIScoreboard.Activated = false;
-                if (IcarusInput.MapHeld)
+                if (IcarusInput.ScoreLogHeld)
                 {
-                    MapController.Instance.Full();
+                    UIScoreboard.Activated = true;
+                    UIMapDisplay.Deactivate();
+                    MapController.Instance.Disabled();
                     UIOverlayDisplay.Deactivate();
                 }
                 else
                 {
-                    if (MapController.Instance.MinimapEnabled && NetworkedPlayer.Local.IsSpectator)
+                    UIScoreboard.Activated = false;
+                    if (IcarusInput.MapHeld)
                     {
-                        MapController.Instance.Minimap();
-                    }
-                    else
-                    {
-                        MapController.Instance.Disabled();
-                    }
-                    
-                    if (showOverlays)
-                    {
-                        UIOverlayDisplay.Activate();
-                    }
-                    else
-                    {
+                        UIMapDisplay.Activate();
+                        MapController.Instance.Full();
                         UIOverlayDisplay.Deactivate();
                     }
+                    else
+                    {
+                        MapController.Instance.Minimap();
+                        if (showOverlays)
+                            UIOverlayDisplay.Activate();
+                        else
+                            UIOverlayDisplay.Deactivate();
+                    }
                 }
+                return false;
             }
-
-            return false;
+            else
+            {
+                return true;
+            }
         }
     }
 
@@ -52,8 +50,21 @@ namespace BuffKit.Minimap
     {
         private static void Postfix()
         {
-            MapController.Initialize(); 
-            MapController.Instance.Disabled();
+            if (NetworkedPlayer.Local.IsSpectator)
+            {
+                Mission.Instance.gameObject.AddComponent<MapController>();
+                MapController.Instance.Disabled();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Mission), "OnDisable")]
+    class Mission_OnDisable
+    {
+        private static void Postfix()
+        {
+            if (MapController.Initialized)
+                Object.Destroy(MapController.Instance);
         }
     }
 }

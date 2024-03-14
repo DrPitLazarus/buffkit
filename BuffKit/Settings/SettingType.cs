@@ -271,7 +271,7 @@ namespace BuffKit.Settings
         private List<string> _enumNames;
         [JsonIgnore]
         private List<int> _enumValues;
-        public EnumString(Type enumType, int value)
+        public EnumString(Type enumType, int value, Dictionary<int, string> enumNames = null)
         {
             _enumNames = new List<string>();
             _enumValues = new List<int>();
@@ -279,9 +279,17 @@ namespace BuffKit.Settings
             bool valueValid = false;
             foreach (var v in values)
             {
-                _enumNames.Add(v.ToString());
                 var vAsInt = (int)v;
                 _enumValues.Add(vAsInt);
+                var enumName = v.ToString();
+                if (enumNames != null)
+                {
+                    if (enumNames.ContainsKey(vAsInt))
+                    {
+                        enumName = enumNames[vAsInt];
+                    }
+                }
+                _enumNames.Add(enumName);
                 if (vAsInt == value)
                     valueValid = true;
             }

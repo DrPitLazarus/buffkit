@@ -102,6 +102,7 @@ namespace BuffKit.AnnounceChanges
             this.prevName = prevName;
             this.newName = newName;
         }
+        
         public string GetDetails()
         {
             return $"{AnnounceChangesUtil.TeamShipToString(team, ship)} changed name from {prevName} to {newName}";
@@ -134,6 +135,9 @@ namespace BuffKit.AnnounceChanges
         {
             return $"CHANGE: {AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed ship from {prevClass} to {newClass}";
         }
+        
+        public int GetTeam() => team;
+
         public override string ToString()
         {
             return GetDetails();
@@ -167,6 +171,9 @@ namespace BuffKit.AnnounceChanges
         {
             return $"CHANGE: {AnnounceChangesUtil.TeamShipToStringShort(team, ship)} changed guns";
         }
+        
+        public int GetTeam() => team;
+
         public override string ToString()
         {
             return GetDetails();
