@@ -13,7 +13,7 @@ namespace BuffKit.SkirmishAlerts
     [HarmonyPatch]
     public class SkirmishAlerts
     {
-        private static readonly TimeSpan _announcementDelay = TimeSpan.FromSeconds(0.05);
+        private static readonly TimeSpan _announcementDelay = TimeSpan.FromSeconds(0.1);
 
         private static bool _enabled = true;
         private static bool _logAlertsInChat = true;
@@ -96,15 +96,22 @@ namespace BuffKit.SkirmishAlerts
                 MuseLog.Info("Deathmatch is null!");
                 return;
             }
-            var withString = _cachedAnnouncement.Announcement.With != null ? $" with {_cachedAnnouncement.Announcement.With.Name}" : "";
-            var rawAlertText = $";0;10;;1;{_cachedAnnouncement.formattedText}{(withString.Length > 0 ? $"\n{withString}" : "")}";
-            var alertText = "{0} {1} {2}{3}".F(
+
+            var formattedAlertText = $";0;10;;1;{_cachedAnnouncement.formattedText}"; // Alert title is added before in raw callback.
+            var alertText = "{0} {1} {2}".F(
             [
                 UIAnnouncementDisplay.instance.GetSubjectText(_cachedAnnouncement.Announcement),
                 UIAnnouncementDisplay.instance.GetVerbText(_cachedAnnouncement.Announcement),
                 UIAnnouncementDisplay.instance.GetObjectText(_cachedAnnouncement.Announcement),
-                withString
             ]);
+
+            // Add with text. (Gun name)
+            var withText = _cachedAnnouncement.Announcement.With?.Name ?? "";
+            if (withText.Length > 0)
+            {
+                formattedAlertText += $"\nwith {withText}";
+                alertText += $" with {withText}";
+            }
 
             // Frags is not always updated when HandleAnnouncement is called. Need to call it a few frames later.
             _announcementRawCallback = () =>
@@ -120,7 +127,7 @@ namespace BuffKit.SkirmishAlerts
                 }
 
                 mainText = mainText.Remove(mainText.Length - 3); // Remove last " - ".
-                return mainText + rawAlertText;
+                return mainText + formattedAlertText;
             };
 
             _announcementLogCallback = () =>
