@@ -25,12 +25,15 @@ namespace BuffKit.Settings
             var csf = obPanel.AddComponent<ContentSizeFitter>();
             csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             var le = obPanel.AddComponent<LayoutElement>();
-            le.minWidth = 350;
+            le.minWidth = 380;
 
             panel = obPanel.AddComponent<UISettingsPanel>();
             obPanel.AddComponent<GraphicRaycaster>();                       // Makes it have UI interaction on top of other UI (I think? It's complicated)
 
             Builder.BuildVerticalScrollViewFitContent(obPanel.transform, out panel._content);
+
+            // Fix scroll resetting when an dropdown is expanded/collapsed, but break fit content horizontally.
+            Destroy(GameObject.Find("/Menu UI/Standard Canvas/Common Elements/UI Settings Panel/Scroll View/Viewport/")?.GetComponent<VerticalLayoutGroup>());
 
             return obPanel;
         }
@@ -48,7 +51,7 @@ namespace BuffKit.Settings
 
         public Transform GetHeaderContent(string header)
         {
-            if(!_headers.ContainsKey(header))
+            if (!_headers.ContainsKey(header))
             {
                 Builder.BuildMenuDropdown(_content.transform, header, out var obContent);
                 var vlg = obContent.AddComponent<VerticalLayoutGroup>();
@@ -64,6 +67,7 @@ namespace BuffKit.Settings
         private float _timeUntilDisappear = 0;
         public float disappearTimer = 2;
         private bool _isVisible = false;
+        private bool _isSorted = false;
 
         private void Update()
         {
@@ -74,13 +78,20 @@ namespace BuffKit.Settings
                     _timeUntilDisappear -= Time.deltaTime;
                 }
                 if (_timeUntilDisappear <= 0)
+                {
                     SetVisibility(false);
+                }
             }
         }
 
         public void SetVisibility(bool visible)
         {
             _isVisible = visible;
+            if (!_isSorted && _isVisible)
+            {
+                Settings.Instance.SortSettings();
+                _isSorted = true;
+            }
             gameObject.SetActive(_isVisible);
             if (_isVisible)
             {
