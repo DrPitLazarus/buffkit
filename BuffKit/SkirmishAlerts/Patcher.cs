@@ -89,7 +89,7 @@ namespace BuffKit.SkirmishAlerts
         {
             if (!_enabled) return;
 
-            var deathmatch = (Deathmatch)Mission.Instance;
+            var deathmatch = Mission.Instance as Deathmatch;
             if (deathmatch == null) return;
 
             var message = ScoresToString(deathmatch.Frags);
@@ -116,7 +116,7 @@ namespace BuffKit.SkirmishAlerts
 
         private static void HandleKillAnnouncement()
         {
-            var deathmatch = (Deathmatch)Mission.Instance;
+            var deathmatch = Mission.Instance as Deathmatch;
             if (deathmatch == null) return;
 
             var formattedSubtitleText = _cachedAnnouncement.formattedText;
