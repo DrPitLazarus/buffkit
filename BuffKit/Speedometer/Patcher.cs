@@ -1,17 +1,31 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using BuffKit.Settings;
+using HarmonyLib;
+using UnityEngine;
+using Resources = BuffKit.UI.Resources;
 
 namespace BuffKit.Speedometer
 {
     [HarmonyPatch]
     public class SpeedometerPatcher
     {
-        private static bool _enabled = true;
+        public static bool Enabled { get; private set; } = true;
+        public static ToggleGrid DisplaySettings { get; private set; }
         private static bool _firstPrepare = true;
 
         private static void Prepare()
         {
             if (!_firstPrepare) return;
-            Settings.Settings.Instance.AddEntry("speedometer", "speedometer", v => _enabled = v, _enabled);
+            Settings.Settings.Instance.AddEntry("speedometer", "speedometer", v => Enabled = v, Enabled);
+
+            Util.OnGameInitialize += delegate
+            {
+                var gridIcons = new List<Sprite>() { Resources.PilotIcon, Resources.GunnerIcon, Resources.EngineerIcon };
+                var gridLabels = new List<string> { "horizontal speed", "vertical speed", "rotation speed", "x position east/west", "y position altitude", "z position north/south" };
+                DisplaySettings = new ToggleGrid(gridIcons, gridLabels, true);
+                Settings.Settings.Instance.AddEntry("speedometer", "speedometer display", v => DisplaySettings = v, DisplaySettings);
+            };
+
             _firstPrepare = false;
         }
 
@@ -19,15 +33,16 @@ namespace BuffKit.Speedometer
         [HarmonyPostfix]
         private static void Mission_Start()
         {
-            if (!_enabled) return;
+            if (!Enabled) return;
             Speedometer.Initialize();
+            Speedometer.UpdateVisibility();
         }
 
         [HarmonyPatch(typeof(UIManager.UIGamePlayState), "ActivateHUDElements")]
         [HarmonyPostfix]
         private static void UIManager_ActivateHUDElements()
         {
-            if (!_enabled) return;
+            if (!Enabled) return;
             Speedometer.SetActive(true);
         }
 
@@ -35,7 +50,7 @@ namespace BuffKit.Speedometer
         [HarmonyPostfix]
         private static void UIManager_DeactivateHUDElements()
         {
-            if (!_enabled) return;
+            if (!Enabled) return;
             Speedometer.SetActive(false);
         }
     }
