@@ -9,7 +9,7 @@ namespace BuffKit.Speedometer
     [HarmonyPatch]
     public class SpeedometerPatcher
     {
-        public static bool Enabled { get; private set; } = true;
+        public static bool Enabled { get; private set; } = false;
         public static ToggleGrid DisplaySettings { get; private set; }
         private static bool _firstPrepare = true;
 
