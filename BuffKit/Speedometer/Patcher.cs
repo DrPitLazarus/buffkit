@@ -20,7 +20,7 @@ namespace BuffKit.Speedometer
 
             Util.OnGameInitialize += delegate
             {
-                var gridIcons = new List<Sprite>() { Resources.PilotIcon, Resources.GunnerIcon, Resources.EngineerIcon };
+                var gridIcons = new List<Sprite>() { Resources.PilotIcon/*, Resources.GunnerIcon, Resources.EngineerIcon */};
                 var gridLabels = new List<string> { "horizontal speed", "vertical speed", "rotation speed", "x position east/west", "y position altitude", "z position north/south" };
                 DisplaySettings = new ToggleGrid(gridIcons, gridLabels, true);
                 Settings.Settings.Instance.AddEntry("speedometer", "speedometer display", v => DisplaySettings = v, DisplaySettings);
@@ -29,13 +29,12 @@ namespace BuffKit.Speedometer
             _firstPrepare = false;
         }
 
-        [HarmonyPatch(typeof(Mission), "Start")]
+        [HarmonyPatch(typeof(Mission), "RemoteInitialize")]
         [HarmonyPostfix]
-        private static void Mission_Start()
+        private static void Mission_RemoteInitialize()
         {
             if (!Enabled) return;
             Speedometer.Initialize();
-            Speedometer.UpdateVisibility();
         }
 
         [HarmonyPatch(typeof(UIManager.UIGamePlayState), "ActivateHUDElements")]
