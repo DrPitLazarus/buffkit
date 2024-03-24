@@ -22,11 +22,13 @@ namespace BuffKit.SkirmishAlerts
 
         private static UIMatchStateSoundType _alertSound => _alertsHaveSound ? UIMatchStateSoundType.Normal : UIMatchStateSoundType.None;
 
+        private static bool _shouldBeEnabled = false;
+        private static bool _firstMissionStartState = true;
         private static AnnouncementInfo _cachedAnnouncement;
         private static DateTime? _announcementTime;
         private static Func<string> _alertRawCallback;
         private static Func<string> _alertLogCallback;
-        private static string _lastShipDeath;
+        //private static string _lastShipDeath; // TODO: find a reliable way to get the last kill/death.
 
         private static void Prepare()
         {
@@ -45,18 +47,26 @@ namespace BuffKit.SkirmishAlerts
 
             ResetAll();
 
-            // Edit Alert Object
-            var textBoxObjectPath = "/Game UI/Match UI/UI HUD Canvas/UI Alert Display/Alert Root/Text Box/";
-            // Increase height of the alert text box. Original 45.
-            GameObject.Find(textBoxObjectPath).GetComponent<LayoutElement>().preferredHeight = 50;
-            GameObject.Find(textBoxObjectPath + "Alert Mask/").GetComponent<LayoutElement>().preferredHeight = 50;
-            // Enable rich text and add a shadow component.
-            var titleObject = GameObject.Find(textBoxObjectPath + "Alert Mask/Text/");
-            var subtitleObject = GameObject.Find(textBoxObjectPath + "Alert Mask/SubText/");
-            titleObject.GetComponent<Text>().supportRichText = true;
-            subtitleObject.GetComponent<Text>().supportRichText = true;
-            if (titleObject.GetComponent<Shadow>() == null) titleObject.AddComponent<Shadow>();
-            if (subtitleObject.GetComponent<Shadow>() == null) subtitleObject.AddComponent<Shadow>();
+            if (_firstMissionStartState)
+            {
+                // Edit Alert Object
+                var textBoxObjectPath = "/Game UI/Match UI/UI HUD Canvas/UI Alert Display/Alert Root/Text Box/";
+                // Increase height of the alert text box. Original 45.
+                GameObject.Find(textBoxObjectPath).GetComponent<LayoutElement>().preferredHeight = 50;
+                GameObject.Find(textBoxObjectPath + "Alert Mask/").GetComponent<LayoutElement>().preferredHeight = 50;
+                // Enable rich text and add a shadow component.
+                var titleObject = GameObject.Find(textBoxObjectPath + "Alert Mask/Text/");
+                var subtitleObject = GameObject.Find(textBoxObjectPath + "Alert Mask/SubText/");
+                titleObject.GetComponent<Text>().supportRichText = true;
+                subtitleObject.GetComponent<Text>().supportRichText = true;
+                if (titleObject.GetComponent<Shadow>() == null) titleObject.AddComponent<Shadow>();
+                if (subtitleObject.GetComponent<Shadow>() == null) subtitleObject.AddComponent<Shadow>();
+
+                _firstMissionStartState = false;
+            }
+
+            var isSpectator = NetworkedPlayer.Local.IsSpectator;
+            _shouldBeEnabled = isSpectator;
         }
 
         [HarmonyPatch(typeof(Mission), "Update")]
@@ -64,7 +74,7 @@ namespace BuffKit.SkirmishAlerts
         private static void Mission_Update()
         {
             // Used to process delayed alerts.
-            if (!_enabled) return;
+            if (!_enabled || !_shouldBeEnabled) return;
 
             if (_announcementTime != null && DateTime.Now - _announcementTime >= _alertDelay)
             {
@@ -74,26 +84,26 @@ namespace BuffKit.SkirmishAlerts
             }
         }
 
-        [HarmonyPatch(typeof(Ship), "OnRemoteDestroy")]
-        [HarmonyPostfix]
-        private static void Ship_OnRemoteDestroy(Ship __instance)
-        {
-            if (!_enabled) return;
+        //[HarmonyPatch(typeof(Ship), "OnRemoteDestroy")]
+        //[HarmonyPostfix]
+        //private static void Ship_OnRemoteDestroy(Ship __instance)
+        //{
+        //    if (!_enabled) return;
 
-            _lastShipDeath = __instance.GetDisplayName();
-        }
+        //    _lastShipDeath = __instance.GetDisplayName();
+        //}
 
         [HarmonyPatch(typeof(UIManager.UIMatchCompleteState), "EnterState")]
         [HarmonyPostfix]
         private static void UIManager_UIMatchCompleteState_EnterState()
         {
-            if (!_enabled) return;
+            if (!_enabled || !_shouldBeEnabled) return;
 
             var deathmatch = Mission.Instance as Deathmatch;
             if (deathmatch == null) return;
 
-            var message = ScoresToString(deathmatch.Frags);
-            message += $". Last death was {_lastShipDeath}.";
+            var message = $"Final score: {ScoresToString(deathmatch.Frags)}.";
+            //message += $". Last death was {_lastShipDeath}.";
             if (_logAlertsInChat) LogMessageInChat(message);
         }
 
@@ -103,7 +113,7 @@ namespace BuffKit.SkirmishAlerts
         {
             // Called when an announcement is received from the server (top-left feed).
             // Last kill is not announced from the server, sadly.
-            if (!_enabled) return;
+            if (!_enabled || !_shouldBeEnabled) return;
 
             var announcement = ___cachedAnnouncements.First.Value;
 
@@ -178,7 +188,7 @@ namespace BuffKit.SkirmishAlerts
         private static void ResetAll()
         {
             ResetAlert();
-            _lastShipDeath = null;
+            //_lastShipDeath = null;
         }
 
         private static string ScoresToString(int[] scoresArray, bool formatTeamColors = false)
