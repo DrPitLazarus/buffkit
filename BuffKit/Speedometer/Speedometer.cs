@@ -42,8 +42,9 @@ namespace BuffKit.Speedometer
             var isPilot = NetworkedPlayer.Local.PlayerClass == AvatarClass.Pilot;
             var isPractice = _practiceGameModes.Contains(currentGameMode);
             var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
-            _shouldBeEnabled = isPilot && isNotSpectator && (isPractice || isCoop);
-            MuseLog.Info($"_shouldBeEnabled: {_shouldBeEnabled}, isPilot: {isPilot}, isNotSpectator: {isNotSpectator}, (isPractice: {isPractice} || isCoop: {isCoop})");
+            var isJestersParade = Mission.Instance.Map.Name == "Test_Race_OblivionApproach_FFA";
+            _shouldBeEnabled = isPilot && isNotSpectator && (isPractice || isCoop || isJestersParade);
+            MuseLog.Info($"_shouldBeEnabled: {_shouldBeEnabled}, isPilot: {isPilot} && isNotSpectator: {isNotSpectator} && (isPractice: {isPractice} || isCoop: {isCoop} || isJestersParade: {isJestersParade}).");
 
             SetActive(_shouldBeEnabled);
             UpdateMeterItemsVisibility();
