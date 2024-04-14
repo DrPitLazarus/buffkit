@@ -41,6 +41,9 @@ name = "UIAnnouncementDisplay"
 fields = [
   "instance"
 ]
+[[classes]]
+name = "UIMatchEndCrewPanel"
+fields = []
 
 [[classes]]
 name = "UIControlPointHUD"
