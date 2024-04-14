@@ -40,7 +40,10 @@ namespace BuffKit.ToggleMatchUI
                 foreach (var ob in _objectsToHide)
                     ob.SetActive(ShowUI);
                 if (ShowUI)
+                {
                     UIRepairComponentView.Activate();
+                    UINameTagDisplay.Activate(); // Doesn't get reactivated until match menu is closed. This fixes that.
+                }
                 else
                     UIShipDetailsView.HideCrewToolInspectors(0);
             }
