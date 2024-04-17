@@ -25,7 +25,17 @@ name = "UIMissionHUD"
 fields = [
   "isActive"
 ]
-
+[[classes]]
+name = "UIRepairComponentView"
+fields = [
+  "instance",
+  "armorBig",
+  "zeppelinBig",
+  "enginesBig",
+  "gunsBig",
+  "fireNormal",
+  "fire"
+]
 [[classes]]
 name = "UISkirmishHUD"
 fields = [
