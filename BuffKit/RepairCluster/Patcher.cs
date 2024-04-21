@@ -36,7 +36,15 @@ namespace BuffKit.RepairCluster
 
         private void LateUpdate()
         {
-            if (NetworkedPlayer.Local?.CurrentShip == null) return;
+            // Hide indicators if ship doesn't exist.
+            if (NetworkedPlayer.Local?.CurrentShip == null)
+            {
+                for (var index = 0; index < _indicators.Count; index++)
+                {
+                    _indicators[index].Active = false;
+                }
+                return;
+            }
 
             UpdateIndicators();
         }
@@ -64,54 +72,37 @@ namespace BuffKit.RepairCluster
             for (var index = 0; index < _indicators.Count; index++)
             {
                 var indicator = _indicators[index];
-                var name = indicator.Name.ToLower();
-                if (name.Contains("gun"))
+                var indicatorName = indicator.Name.ToLower();
+                var repairableIndex = -1;
+
+                if (indicatorName.Contains("gun") && _indexGuns.Count > gunsDone)
                 {
-                    if (_indexGuns.Count > gunsDone)
-                    {
-                        indicator.Active = true;
-                        var repairableIndex = _indexGuns[gunsDone];
-                        indicator.SetHealth(repairables[repairableIndex].NormalizedHealth);
-                        gunsDone++;
-                        continue;
-                    }
-                    indicator.Active = false;
-                    continue;
+                    repairableIndex = _indexGuns[gunsDone];
+                    gunsDone++;
                 }
-                if (name.Contains("engine"))
+                else if (indicatorName.Contains("engine") && _indexEngines.Count > enginesDone)
                 {
-                    if (_indexEngines.Count > enginesDone)
-                    {
-                        indicator.Active = true;
-                        var repairableIndex = _indexEngines[enginesDone];
-                        indicator.SetHealth(repairables[repairableIndex].NormalizedHealth);
-                        enginesDone++;
-                        continue;
-                    }
-                    indicator.Active = false;
-                    continue;
+                    repairableIndex = _indexEngines[enginesDone];
+                    enginesDone++;
                 }
-                if (name.Contains("balloon"))
+                else if (indicatorName.Contains("balloon") && _indexBalloon > -1)
                 {
-                    if (_indexBalloon > -1)
-                    {
-                        indicator.Active = true;
-                        indicator.SetHealth(repairables[_indexBalloon].NormalizedHealth);
-                        continue;
-                    }
-                    indicator.Active = false;
-                    continue;
+                    repairableIndex = _indexBalloon;
                 }
-                if (name.Contains("armor"))
+                else if (indicatorName.Contains("armor") && _indexArmor > -1)
                 {
-                    if (_indexArmor > -1)
-                    {
-                        indicator.Active = true;
-                        indicator.SetHealth(repairables[_indexArmor].NormalizedHealth);
-                        continue;
-                    }
+                    repairableIndex = _indexArmor;
+
+                }
+
+                if (repairableIndex > -1)
+                {
+                    indicator.Active = true;
+                    indicator.SetHealth(repairables[repairableIndex].NormalizedHealth);
+                }
+                else
+                {
                     indicator.Active = false;
-                    continue;
                 }
             }
         }
