@@ -97,8 +97,10 @@ namespace BuffKit.RepairCluster
 
                 if (repairableIndex > -1)
                 {
+                    var repairable = repairables[repairableIndex];
                     indicator.Active = true;
-                    indicator.SetHealth(repairables[repairableIndex].NormalizedHealth);
+                    indicator.SetFireStacks(repairable.FireCharges);
+                    indicator.SetHealth(repairable.NormalizedHealth);
                 }
                 else
                 {
@@ -113,22 +115,33 @@ namespace BuffKit.RepairCluster
 
             var mainObject = new GameObject("RepairCluster");
             mainObject.transform.SetParent(parentObject.transform, false);
-            var glg = mainObject.AddComponent<GridLayoutGroup>();
+            var hlg = mainObject.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandHeight = false;
+            hlg.childForceExpandWidth = false;
+
+            var balloonArmorGunsGridObject = new GameObject("Balloon Armor Guns Grid");
+            balloonArmorGunsGridObject.transform.SetParent(mainObject.transform);
+            balloonArmorGunsGridObject.AddComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            var glg = balloonArmorGunsGridObject.AddComponent<GridLayoutGroup>();
             glg.cellSize = new Vector2(_gridWidth, _gridHeight);
             glg.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             glg.constraintCount = 2;
             glg.startAxis = GridLayoutGroup.Axis.Vertical;
             glg.startCorner = GridLayoutGroup.Corner.UpperLeft;
 
-            CreateIndicator("Balloon", UIRepairComponentView.instance.zeppelinBig, mainObject.transform);
-            CreateIndicator("Armor", UIRepairComponentView.instance.armorBig, mainObject.transform);
+            var enginesGridObject = Instantiate(balloonArmorGunsGridObject, mainObject.transform, false);
+            enginesGridObject.name = "Engines Grid";
+
+            CreateIndicator("Balloon", UIRepairComponentView.instance.zeppelinBig, balloonArmorGunsGridObject.transform);
+            CreateIndicator("Armor", UIRepairComponentView.instance.armorBig, balloonArmorGunsGridObject.transform);
             for (var index = 0; index < _numberOfGuns; index++)
             {
-                CreateIndicator($"Gun {index + 1}", UIRepairComponentView.instance.gunsBig, mainObject.transform);
+                CreateIndicator($"Gun {index + 1}", UIRepairComponentView.instance.gunsBig, balloonArmorGunsGridObject.transform);
             }
+
             for (var index = 0; index < _numberOfEngines; index++)
             {
-                CreateIndicator($"Engine {index + 1}", UIRepairComponentView.instance.enginesBig, mainObject.transform);
+                CreateIndicator($"Engine {index + 1}", UIRepairComponentView.instance.enginesBig, enginesGridObject.transform);
             }
 
             mainObject.AddComponent<RepairCluster>();
@@ -148,12 +161,25 @@ namespace BuffKit.RepairCluster
 
             var mainIconObject = new GameObject("Main Icon");
             mainIconObject.transform.SetParent(indicatorObject.transform, false);
+            var mainIconRt = mainIconObject.AddComponent<RectTransform>();
             le = mainIconObject.AddComponent<LayoutElement>();
             le.preferredHeight = _gridWidth; // Intentional to make image 1:1.
             le.preferredWidth = _gridWidth;
-            var rawImage = mainIconObject.AddComponent<RawImage>();
-            rawImage.texture = componentTexture;
-            rawImage.color = _colorWhite;
+            var mainIconRawImage = mainIconObject.AddComponent<RawImage>();
+            mainIconRawImage.texture = componentTexture;
+            mainIconRawImage.color = _colorWhite;
+
+            var fireIconObject = new GameObject("Fire Icon");
+            fireIconObject.transform.SetParent(indicatorObject.transform, false);
+            var rt = fireIconObject.AddComponent<RectTransform>();
+            rt.anchoredPosition = mainIconRt.anchoredPosition;
+            rt.sizeDelta = new Vector2(16, 16);
+            rt.pivot = new Vector2(0, 0);
+            le = fireIconObject.AddComponent<LayoutElement>();
+            le.ignoreLayout = true;
+            var fireRawImage = fireIconObject.AddComponent<RawImage>();
+            fireRawImage.texture = UIRepairComponentView.instance.fireNormal;
+            fireRawImage.color = _colorOrangeDamaged;
 
             var progressBarsObject = new GameObject("Progress Bars");
             progressBarsObject.transform.SetParent(indicatorObject.transform, false);
@@ -171,8 +197,10 @@ namespace BuffKit.RepairCluster
             {
                 Name = name,
                 IndicatorObject = indicatorObject,
-                ComponentTexture = componentTexture,
-                IconRawImage = rawImage,
+                RepairableTexture = componentTexture,
+                IconRawImage = mainIconRawImage,
+                FireIconObject = fireIconObject,
+                FireIconRawImage = fireRawImage,
                 HealthBarLayoutElement = healthBarLe,
                 HealthBarRawImage = healthBarRawImage,
             };
@@ -196,12 +224,28 @@ namespace BuffKit.RepairCluster
         {
             public string Name;
             public GameObject IndicatorObject;
-            public Texture2D ComponentTexture;
+            public Texture2D RepairableTexture;
             public RawImage IconRawImage;
+            public GameObject FireIconObject;
+            public RawImage FireIconRawImage;
             public LayoutElement HealthBarLayoutElement;
             public RawImage HealthBarRawImage;
 
             public bool Active { get => IndicatorObject.activeSelf; set { if (IndicatorObject.activeSelf != value) IndicatorObject.SetActive(value); } }
+
+            public void SetFireStacks(int stacks)
+            {
+                if (stacks == 0)
+                {
+                    if (FireIconObject.activeSelf) FireIconObject.SetActive(false);
+                    return;
+                }
+
+                if (!FireIconObject.activeSelf) FireIconObject.SetActive(true);
+
+                if (stacks >= 8) FireIconRawImage.texture = UIRepairComponentView.instance.fire;
+                else FireIconRawImage.texture = UIRepairComponentView.instance.fireNormal;
+            }
 
             public void SetHealth(float percentage)
             {
@@ -223,21 +267,6 @@ namespace BuffKit.RepairCluster
                 // Hide bar if health is full.
                 if (percentage == 1f) percentage = 0;
                 HealthBarLayoutElement.preferredWidth = percentage * (_gridWidth - _progressBarPadding.horizontal);
-            }
-
-            public void SetIconNormal()
-            {
-                IconRawImage.texture = ComponentTexture;
-            }
-
-            public void SetIconFire()
-            {
-                IconRawImage.texture = UIRepairComponentView.instance.fireNormal;
-            }
-
-            public void SetIconFireBig()
-            {
-                IconRawImage.texture = UIRepairComponentView.instance.fire;
             }
 
             public override string ToString()
