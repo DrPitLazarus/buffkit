@@ -8,6 +8,7 @@ namespace BuffKit.RepairCluster
     [HarmonyPatch]
     public class RepairCluster : MonoBehaviour
     {
+        private static readonly int _bigFireStacksThreshold = 8;
         private static readonly int _numberOfGuns = 6;
         private static readonly int _numberOfEngines = 4;
         private static readonly int _gridHeight = 42;
@@ -243,7 +244,7 @@ namespace BuffKit.RepairCluster
 
                 if (!FireIconObject.activeSelf) FireIconObject.SetActive(true);
 
-                if (stacks >= 8) FireIconRawImage.texture = UIRepairComponentView.instance.fire;
+                if (stacks >= _bigFireStacksThreshold) FireIconRawImage.texture = UIRepairComponentView.instance.fire;
                 else FireIconRawImage.texture = UIRepairComponentView.instance.fireNormal;
             }
 
@@ -256,7 +257,7 @@ namespace BuffKit.RepairCluster
                 }
                 else if (percentage <= .5f)
                 {
-                    IconRawImage.color = _colorOrangeDamaged;
+                    IconRawImage.color = _colorWhite; 
                     HealthBarRawImage.color = _colorOrangeDamaged;
                 }
                 else
