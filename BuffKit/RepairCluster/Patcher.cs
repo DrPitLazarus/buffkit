@@ -20,7 +20,9 @@ namespace BuffKit.RepairCluster
         private static readonly RectOffset _progressBarPadding = new(2, 2, 0, 0);
         private static readonly List<Indicator> _indicators = [];
 
+        private static bool _enabled = false;
         private static bool _firstMainMenuState = true;
+        private static GameObject _mainObject;
         private static int _indexBalloon = -1;
         private static int _indexArmor = -1;
         private static List<int> _indexGuns = [];
@@ -32,7 +34,85 @@ namespace BuffKit.RepairCluster
         {
             if (!_firstMainMenuState) return;
             _firstMainMenuState = false;
-            CreateUi();
+            Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster", v => _enabled = v, _enabled);
+            _mainObject = CreateUi();
+            _mainObject.SetActive(false);
+        }
+        
+        [HarmonyPatch(typeof(Mission), "Start")]
+        [HarmonyPostfix]
+        private static void Mission_Start()
+        {
+            if (!_enabled) return;
+            MuseLog.Info("Activating!");
+            _mainObject.SetActive(true);
+        }
+
+        [HarmonyPatch(typeof(Mission), "OnDisable")]
+        [HarmonyPostfix]
+        private static void Mission_OnDisable()
+        {
+            if (!_enabled) return;
+            MuseLog.Info("Deactivating!");
+            _mainObject.SetActive(false);
+        }
+
+        [HarmonyPatch(typeof(UIRepairComponentView), nameof(UIRepairComponentView.DrawIndicators))]
+        [HarmonyPrefix]
+        private static bool UIRepairComponentView_DrawIndicators(IList<Repairable> repairables, UIRepairComponentView __instance)
+        {
+            if (!_enabled) return true;
+            // Original method but with offscreen logic removed.
+            int i = 0;
+            int j = 0;
+            while (j < repairables.Count)
+            {
+                if (i >= __instance.indicatorCache.Length)
+                {
+                    MuseLog.Error("{0} >= {1}".F(
+                    [
+                        repairables.Count,
+                        __instance.indicatorCache.Length
+                    ]), null);
+                    break;
+                }
+                Repairable repairable = repairables[j];
+                RepairIndicator repairIndicator = __instance.indicatorCache[i];
+                int tickCount = 1;
+                float normalizedHealth = repairable.NormalizedHealth;
+                __instance.SetIndicatorBarTickCount(repairIndicator, RepairComponentView.HEALTH_BAR_ONE, tickCount);
+                __instance.SetIndicatorBarPercentage(repairIndicator, RepairComponentView.HEALTH_BAR_ONE, normalizedHealth);
+                __instance.SetOrRotateIndicatorIcon(repairIndicator, repairable);
+                Vector3 position = repairable.IndicatorPosition + __instance.GetDisplayOffset(repairable);
+                Vector3 vector = CameraControl.Camera.WorldToScreenPoint(position) / UITransform.UIScale;
+                float num = vector.x;
+                float num2 = UITransform.ScreenRect.height - vector.y;
+                if (vector.z < 0f)
+                {
+                    Vector3 vector2 = CameraControl.Transform.InverseTransformPoint(position) / UITransform.UIScale;
+                    float x = Mathf.Sqrt(vector2.x * vector2.x + vector2.z * vector2.z);
+                    float num3 = 57.29578f * Mathf.Atan2(vector2.x, vector2.z);
+                    float num4 = -57.29578f * Mathf.Atan2(vector2.y, x);
+                    num = UITransform.ScreenRect.width * (0.5f + num3 / CameraControl.HorizontalDegrees);
+                    num2 = UITransform.ScreenRect.height * (0.5f + num4 / CameraControl.VerticalDegrees);
+                }
+                repairable.currentUIPosition.x = num;
+                repairable.currentUIPosition.y = num2;
+                repairable.UIVelocityX = 0f;
+                repairable.UIVelocityY = 0f;
+                __instance.indicatorCache[i].icon.SetPosition(repairable.currentUIPosition.x, repairable.currentUIPosition.y);
+                j++;
+                i++;
+            }
+            while (i < __instance.indicatorCache.Length)
+            {
+                if (__instance.indicatorCache[i].icon.Activated)
+                {
+                    __instance.indicatorCache[i].icon.Deactivate(0f);
+                }
+                i++;
+            }
+            return false;
         }
 
         private void LateUpdate()
@@ -52,12 +132,14 @@ namespace BuffKit.RepairCluster
 
         private static void UpdateIndicators()
         {
+            // Method assumes CurrentShip exists.
             var repairables = NetworkedPlayer.Local.CurrentShip.Repairables;
+            // Reset indexes.
             _indexBalloon = -1;
             _indexArmor = -1;
             _indexGuns = [];
             _indexEngines = [];
-
+            // Find the indexes of each repairable type.
             for (var index = 0; index < repairables.Count; index++)
             {
                 var repairable = repairables[index];
@@ -69,7 +151,7 @@ namespace BuffKit.RepairCluster
 
             var gunsDone = 0;
             var enginesDone = 0;
-
+            // Update the indicators using the found indexes.
             for (var index = 0; index < _indicators.Count; index++)
             {
                 var indicator = _indicators[index];
@@ -257,7 +339,7 @@ namespace BuffKit.RepairCluster
                 }
                 else if (percentage <= .5f)
                 {
-                    IconRawImage.color = _colorWhite; 
+                    IconRawImage.color = _colorWhiteTransparent;
                     HealthBarRawImage.color = _colorOrangeDamaged;
                 }
                 else
