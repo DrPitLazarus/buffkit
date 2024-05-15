@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
+using Muse.Goi2.Entity;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,7 @@ namespace BuffKit.RepairCluster
         private static readonly List<Indicator> _indicators = [];
 
         private static bool _enabled = false;
+        private static bool _shouldBeEnabled = false;
         private static bool _firstMainMenuState = true;
         private static GameObject _mainObject;
         private static int _indexBalloon = -1;
@@ -38,12 +40,14 @@ namespace BuffKit.RepairCluster
             _mainObject = CreateUi();
             _mainObject.SetActive(false);
         }
-        
+
         [HarmonyPatch(typeof(Mission), "Start")]
         [HarmonyPostfix]
         private static void Mission_Start()
         {
             if (!_enabled) return;
+            UpdateShouldBeEnabled();
+            if (!_shouldBeEnabled) return;
             MuseLog.Info("Activating!");
             _mainObject.SetActive(true);
         }
@@ -61,7 +65,7 @@ namespace BuffKit.RepairCluster
         [HarmonyPrefix]
         private static bool UIRepairComponentView_DrawIndicators(IList<Repairable> repairables, UIRepairComponentView __instance)
         {
-            if (!_enabled) return true;
+            if (!_enabled || !_shouldBeEnabled) return true;
             // Original method but with offscreen logic removed.
             int i = 0;
             int j = 0;
@@ -190,6 +194,15 @@ namespace BuffKit.RepairCluster
                     indicator.Active = false;
                 }
             }
+        }
+
+        private static void UpdateShouldBeEnabled() // :c
+        {
+            var currentGameMode = Mission.Instance.Map.GameMode;
+            var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
+            var shouldBeEnabled = isCoop;
+            MuseLog.Info($"_shouldBeEnabled: {shouldBeEnabled}, isCoop: {isCoop}");
+            _shouldBeEnabled = shouldBeEnabled;
         }
 
         private static GameObject CreateUi()
