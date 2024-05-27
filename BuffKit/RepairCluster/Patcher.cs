@@ -23,6 +23,7 @@ namespace BuffKit.RepairCluster
 
         private static bool _enabled = false;
         private static bool _shouldBeEnabled = false;
+        private static bool _doUpdateShouldBeEnabled = false;
         private static bool _firstMainMenuState = true;
         private static GameObject _mainObject;
         private static int _indexBalloon = -1;
@@ -46,9 +47,7 @@ namespace BuffKit.RepairCluster
         private static void Mission_Start()
         {
             if (!_enabled) return;
-            UpdateShouldBeEnabled();
-            if (!_shouldBeEnabled) return;
-            MuseLog.Info("Activating!");
+            _doUpdateShouldBeEnabled = true;
             _mainObject.SetActive(true);
         }
 
@@ -57,8 +56,7 @@ namespace BuffKit.RepairCluster
         private static void Mission_OnDisable()
         {
             if (!_enabled) return;
-            MuseLog.Info("Deactivating!");
-            _mainObject.SetActive(false);
+            if (_mainObject.activeSelf) _mainObject.SetActive(false);
         }
 
         [HarmonyPatch(typeof(UIRepairComponentView), nameof(UIRepairComponentView.DrawIndicators))]
@@ -126,6 +124,17 @@ namespace BuffKit.RepairCluster
 
         private void LateUpdate()
         {
+            if (_doUpdateShouldBeEnabled && Mission.Instance != null)
+            {
+                _doUpdateShouldBeEnabled = false;
+                UpdateShouldBeEnabled();
+            }
+            if (!_doUpdateShouldBeEnabled && !_shouldBeEnabled)
+            {
+                _mainObject.SetActive(false);
+                return;
+            }
+
             // Hide indicators if ship doesn't exist.
             if (NetworkedPlayer.Local?.CurrentShip == null)
             {
@@ -203,6 +212,11 @@ namespace BuffKit.RepairCluster
 
         private static void UpdateShouldBeEnabled() // :c
         {
+            if (Mission.Instance == null)
+            {
+                MuseLog.Info("UpdateShouldBeEnabled(): Mission.Instance is null!");
+                return;
+            }
             var currentGameMode = Mission.Instance.Map.GameMode;
             var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
             var shouldBeEnabled = isCoop;
