@@ -105,6 +105,11 @@ namespace BuffKit.RepairCluster
                 repairable.UIVelocityX = 0f;
                 repairable.UIVelocityY = 0f;
                 __instance.indicatorCache[i].icon.SetPosition(repairable.currentUIPosition.x, repairable.currentUIPosition.y);
+                if (__instance.indicatorCache[i].arrow.Activated)
+                {
+                    __instance.indicatorCache[i].arrow.Deactivate(0f);
+                    __instance.indicatorCache[i].arrow.Fade = 0f;
+                }
                 j++;
                 i++;
             }
