@@ -29,5 +29,12 @@ namespace BuffKit.SimpleFixes
                 }
             }
         }
+
+        [HarmonyPatch(typeof(UIAnnouncementDisplay), nameof(UIAnnouncementDisplay.Awake))]
+        [HarmonyPostfix]
+        private static void AdjustKillFeedCharacterLimit(ref int ___charactersPerLine)
+        {
+            ___charactersPerLine = 83; // Original is 58.
+        }
     }
 }
