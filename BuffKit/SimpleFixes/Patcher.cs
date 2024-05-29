@@ -22,7 +22,14 @@ namespace BuffKit.SimpleFixes
             {
                 if (___crewStatEntries[index].name.text == "Time Completed")
                 {
-                    var timeSpan = TimeSpan.FromSeconds(Convert.ToDouble(___crewStatEntries[index].value.text));
+                    var originalText = ___crewStatEntries[index].value.text;
+                    var isInt = int.TryParse(originalText, out _);
+                    if (!isInt)
+                    {
+                        MuseLog.Info($"Not an int! Got:'${originalText}'.");
+                        return;
+                    }
+                    var timeSpan = TimeSpan.FromSeconds(Convert.ToDouble(originalText));
                     var format = timeSpan.Hours > 0 ? "{0:##}:{1:00}:{2:00}" : "{1:##}:{2:00}";
                     ___crewStatEntries[index].value.text = string.Format(format, timeSpan.TotalHours, timeSpan.Minutes, timeSpan.Seconds);
                     return;
