@@ -44,4 +44,48 @@ namespace BuffKit.SimpleFixes
             ___charactersPerLine = 83; // Original is 58.
         }
     }
+
+
+
+    [HarmonyPatch]
+    public class AudioResetButton
+    {
+        private static bool _firstRun = true;
+
+        [HarmonyPatch(typeof(UIOptionsAudioPanel), nameof(UIOptionsAudioPanel.Start))]
+        [HarmonyPostfix]
+        private static void Start()
+        {
+            if (!_firstRun) return;
+            _firstRun = false;
+
+            MuseLog.Info("Initializing...");
+            var templateButtonGroupObject = GameObject.Find("/Menu UI/Standard Canvas/Pages/Options/Keyboard and Mouse Panel/Keyboard and Mouse Content/Binding Button Group");
+            if (templateButtonGroupObject == null)
+            {
+                MuseLog.Info("templateButtonGroupObject is null!");
+                return;
+            }
+            var parentObject = GameObject.Find("/Menu UI/Standard Canvas/Pages/Options/Audio Options Panel/Advanced Video Settings Content");
+            if (parentObject == null)
+            {
+                MuseLog.Info("parentObject is null!");
+                return;
+            }
+            var buttonGroupObject = GameObject.Instantiate(templateButtonGroupObject, parentObject.transform, false);
+            buttonGroupObject.name = "Reset Audio Button Group";
+            UnityEngine.Object.Destroy(buttonGroupObject.transform.GetChild(1).gameObject); // Don't need 2nd button.
+            var resetAudioButtonObject = buttonGroupObject.transform.GetChild(0).gameObject;
+            resetAudioButtonObject.name = "Reset Audio Button";
+            resetAudioButtonObject.GetComponentInChildren<Text>().text = "Reset Audio";
+            resetAudioButtonObject.GetComponentInChildren<Button>().onClick.AddListener(ResetAudio);
+        }
+
+        private static void ResetAudio()
+        {
+            MuseLog.Info("Resetting audio...");
+            var config = AudioSettings.GetConfiguration();
+            AudioSettings.Reset(config);
+        }
+    }
 }

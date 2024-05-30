@@ -42,6 +42,9 @@ fields = [
   "teamHuds"
 ]
 [[classes]]
+name = "UIOptionsAudioPanel"
+fields = []
+[[classes]]
 name = "UIShipCustomizationScreen"
 fields = [
   "currentShip"
