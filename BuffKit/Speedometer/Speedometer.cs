@@ -13,6 +13,7 @@ namespace BuffKit.Speedometer
         private static readonly Color _transparentWhite = new(1, 1, 1, 0.6f);
 
         private static bool _shouldBeEnabled = false;
+        private static bool _doUpdateShouldBeEnabled = false;
         // Practice, Pirate Deathmatch 1 ship, Pirate Deathmatch 2+ ships.
         private static readonly List<RegionGameMode> _practiceGameModes = [RegionGameMode.PRACTICE, RegionGameMode.NOVICE_DEATHMATCH, RegionGameMode.PRACTICE_NOVICE_DEATHMATCH];
         private static readonly List<GameObject> _meterObjects = [];
@@ -35,17 +36,8 @@ namespace BuffKit.Speedometer
                 MuseLog.Info("Initialized!");
             }
 
-            // Determine if should be enabled on match start.
-            // Brought to you by the no fun allowed crew... JK
-            var currentGameMode = Mission.Instance.Map.GameMode;
-            var isNotSpectator = !NetworkedPlayer.Local.IsSpectator;
-            var isPilot = NetworkedPlayer.Local.PlayerClass == AvatarClass.Pilot;
-            var isPractice = _practiceGameModes.Contains(currentGameMode);
-            var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
-            _shouldBeEnabled = isPilot && isNotSpectator && (isPractice || isCoop);
-            MuseLog.Info($"_shouldBeEnabled: {_shouldBeEnabled}, isPilot: {isPilot}, isNotSpectator: {isNotSpectator}, (isPractice: {isPractice} || isCoop: {isCoop})");
-
-            SetActive(_shouldBeEnabled);
+            _doUpdateShouldBeEnabled = true;
+            SetActive(true);
             UpdateMeterItemsVisibility();
         }
 
@@ -58,12 +50,13 @@ namespace BuffKit.Speedometer
         public static void SetActive(bool active)
         {
             if (_mainObject == null) return;
-            if (!_shouldBeEnabled) active = false;
+            if (!_doUpdateShouldBeEnabled && !_shouldBeEnabled) active = false;
             _mainObject.SetActive(active);
         }
 
         private static void UpdateMeterItemsVisibility()
         {
+            // Applies "speedometer display" settings to the _meterObjects.
             if (_mainObject == null) return;
 
             var currentClass = -1;
@@ -71,10 +64,10 @@ namespace BuffKit.Speedometer
             {
                 case AvatarClass.Pilot:
                     currentClass = 0; break;
-                //case AvatarClass.Gunner:
-                //    currentClass = 1; break;
-                //case AvatarClass.Engineer:
-                //    currentClass = 2; break;
+                    //case AvatarClass.Gunner:
+                    //    currentClass = 1; break;
+                    //case AvatarClass.Engineer:
+                    //    currentClass = 2; break;
             }
             if (currentClass == -1) return;
 
@@ -89,7 +82,13 @@ namespace BuffKit.Speedometer
 
         private void Update()
         {
-            if (!SpeedometerPatcher.Enabled || !_shouldBeEnabled) SetActive(false);
+            if (!SpeedometerPatcher.Enabled) SetActive(false);
+            if (_doUpdateShouldBeEnabled && Mission.Instance != null)
+            {
+                _doUpdateShouldBeEnabled = false;
+                UpdateShouldBeEnabled();
+            }
+            if (!_doUpdateShouldBeEnabled && !_shouldBeEnabled) SetActive(false);
 
             var currentShip = NetworkedPlayer.Local.CurrentShip;
             if (currentShip == null) return;
@@ -103,6 +102,23 @@ namespace BuffKit.Speedometer
             _positionXText.text = baseTextNoDecimal.F([currentShip.Position.x]);
             _positionYText.text = baseTextNoDecimal.F([currentShip.Position.y]);
             _positionZText.text = baseTextNoDecimal.F([currentShip.Position.z]);
+        }
+
+        private static void UpdateShouldBeEnabled() // :c
+        {
+            if (Mission.Instance == null)
+            {
+                MuseLog.Info("UpdateShouldBeEnabled(): Mission.Instance is null!");
+                return;
+            }
+            var currentGameMode = Mission.Instance.Map.GameMode;
+            var isNotSpectator = !NetworkedPlayer.Local.IsSpectator;
+            var isPilot = NetworkedPlayer.Local.PlayerClass == AvatarClass.Pilot;
+            var isPractice = _practiceGameModes.Contains(currentGameMode);
+            var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
+            var isJestersParade = Mission.Instance.Map.Name == "Test_Race_OblivionApproach_FFA";
+            _shouldBeEnabled = isPilot && isNotSpectator && (isPractice || isCoop || isJestersParade);
+            MuseLog.Info($"_shouldBeEnabled: {_shouldBeEnabled}, isPilot: {isPilot} && isNotSpectator: {isNotSpectator} && (isPractice: {isPractice} || isCoop: {isCoop} || isJestersParade: {isJestersParade}).");
         }
 
         private static GameObject BuildUi(Transform parent)

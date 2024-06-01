@@ -25,12 +25,25 @@ name = "UIMissionHUD"
 fields = [
   "isActive"
 ]
-
+[[classes]]
+name = "UIRepairComponentView"
+fields = [
+  "instance",
+  "armorBig",
+  "zeppelinBig",
+  "enginesBig",
+  "gunsBig",
+  "fireNormal",
+  "fire"
+]
 [[classes]]
 name = "UISkirmishHUD"
 fields = [
   "teamHuds"
 ]
+[[classes]]
+name = "UIOptionsAudioPanel"
+fields = []
 [[classes]]
 name = "UIShipCustomizationScreen"
 fields = [
@@ -41,6 +54,9 @@ name = "UIAnnouncementDisplay"
 fields = [
   "instance"
 ]
+[[classes]]
+name = "UIMatchEndCrewPanel"
+fields = []
 
 [[classes]]
 name = "UIControlPointHUD"
