@@ -1,5 +1,7 @@
 ﻿using System;
 using HarmonyLib;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BuffKit.SimpleFixes
 {
