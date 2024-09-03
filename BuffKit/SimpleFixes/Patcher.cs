@@ -45,6 +45,14 @@ namespace BuffKit.SimpleFixes
         {
             ___charactersPerLine = 83; // Original is 58.
         }
+
+        [HarmonyPatch(typeof(UICreateMatchPanel), nameof(UICreateMatchPanel.Show))]
+        [HarmonyPostfix]
+        private static void NoScrambleByDefault(UICreateMatchPanel __instance)
+        {
+            // When creating a match, scramble is on by default. Who wants that?
+            __instance.scrambleCheck.Checked = false;
+        }
     }
 
 
