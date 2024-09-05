@@ -53,6 +53,22 @@ namespace BuffKit.SimpleFixes
             // When creating a match, scramble is on by default. Who wants that?
             __instance.scrambleCheck.Checked = false;
         }
+        
+        [HarmonyPatch(typeof(UINotificationPanel), nameof(UINotificationPanel.ClearAll))]
+        [HarmonyPostfix]
+        private static void FixClearNotifications()
+        {
+            // Sometimes notifications relating to territories get stuck and do not dismiss.
+            // Most noticeable during the Gauntlet event.
+            // .notificationEntries do get cleared, but the gameObjects in .entryContainer remain.
+            // This will fix the Clear All button, but not the individual dismiss buttons.
+            var transform = UIPageFrame.Instance.socialContainer.notificationPanel.entryContainer.transform;
+
+            while (transform.childCount > 4) // Leave the 4 template gameObjects alone.
+            {
+                UnityEngine.Object.DestroyImmediate(transform.GetChild(0).gameObject);
+            }
+        }
     }
 
 

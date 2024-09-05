@@ -57,6 +57,9 @@ fields = [
 [[classes]]
 name = "UIMatchEndCrewPanel"
 fields = []
+[[classes]]
+name = "UINotificationPanel"
+fields = []
 
 [[classes]]
 name = "UIControlPointHUD"
