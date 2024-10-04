@@ -18,6 +18,7 @@ namespace BuffKit.SkirmishAlerts
         private static bool _enabled = true;
         private static bool _logAlertsInChat = true;
         private static bool _alertsHaveSound = true;
+        private static bool _spectatorOnly = true;
         private static bool _firstPrepare = true;
 
         private static UIMatchStateSoundType _alertSound => _alertsHaveSound ? UIMatchStateSoundType.Normal : UIMatchStateSoundType.None;
@@ -36,6 +37,7 @@ namespace BuffKit.SkirmishAlerts
             Settings.Settings.Instance.AddEntry("skirmish alerts", "skirmish alerts", v => _enabled = v, _enabled);
             Settings.Settings.Instance.AddEntry("skirmish alerts", "log alerts in chat", v => _logAlertsInChat = v, _logAlertsInChat);
             Settings.Settings.Instance.AddEntry("skirmish alerts", "alerts have sound", v => _alertsHaveSound = v, _alertsHaveSound);
+            Settings.Settings.Instance.AddEntry("skirmish alerts", "spectator only", v => _spectatorOnly = v, _spectatorOnly);
             _firstPrepare = false;
         }
 
@@ -66,7 +68,7 @@ namespace BuffKit.SkirmishAlerts
             }
 
             var isSpectator = NetworkedPlayer.Local.IsSpectator;
-            _shouldBeEnabled = isSpectator;
+            _shouldBeEnabled = _spectatorOnly ? isSpectator : true;
         }
 
         [HarmonyPatch(typeof(Mission), "Update")]
