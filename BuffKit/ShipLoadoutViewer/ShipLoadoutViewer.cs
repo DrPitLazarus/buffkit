@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BuffKit.Settings;
 using Muse.Goi2.Entity;
+using Muse.Icarus.Coop.WorldMap;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -102,6 +103,10 @@ namespace BuffKit.ShipLoadoutViewer
                             loadoutBars[num][array[num]].DisplayShip(crewData);
                         if (_paintGunBars)
                             loadoutBars[num][array[num]].DisplayLoadouts(crewData);
+                        if (UIMatchLobby_Awake.FactionIconsVisible)
+                        {
+                            DisplayPlayerFactions(crewData);
+                        }
                         array[num]++;
                     }
                 }
@@ -150,6 +155,23 @@ namespace BuffKit.ShipLoadoutViewer
             PaintLoadoutBars(MatchLobbyView.Instance);
         }
 
+        public static void SetFactionIconVisibility(bool isVisible)
+        {
+            UIMatchLobby_Awake.FactionIconsVisible = isVisible;
+            MuseLog.Info($"Setting faction icon visibility to {isVisible}.");
+            foreach (var barList in loadoutBars)
+            {
+                foreach (var bar in barList)
+                {
+                    foreach (var crewBar in bar.crewBars)
+                    {
+                        crewBar.SetFactionIconVisibility(isVisible);
+                    }
+                }
+            }
+            PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+
         public static void SetCrewBarOptions(ToggleGrid value)
         {
             UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(value.Values);
@@ -170,5 +192,44 @@ namespace BuffKit.ShipLoadoutViewer
                         crewBar.SetSeparatorVisibility(isVisible);
         }
 
+
+
+        private static readonly Dictionary<int, int> _playerFactionPairs = [];
+
+        private static void FetchPlayerFactionIdAndAddToPairs(int playerId)
+        {
+            AccountActions.GetUserProfile(playerId,
+                (Muse.Goi2.Entity.Vo.UserProfile userProfile) =>
+                {
+                    _playerFactionPairs[playerId] = userProfile.FactionId;
+                    MarkCrewBarsForRedraw();
+                }
+            );
+        }
+
+        public static Sprite GetPlayerFactionSprite(int playerId)
+        {
+            if (!_playerFactionPairs.ContainsKey(playerId)) return null;
+
+            var factionId = _playerFactionPairs[playerId];
+            return WorldMapFactionManager.GetFactionIconSprite(factionId, true);
+        }
+
+        private static void DisplayPlayerFactions(CrewEntity crewEntity)
+        {
+            for (int slotIndex = 0; slotIndex < 4; slotIndex++)
+            {
+                var slot = crewEntity.Slots[slotIndex];
+                var playerEntity = slot.PlayerEntity;
+                if (playerEntity == null) continue;
+
+                var playerId = playerEntity.Id;
+
+                if (_playerFactionPairs.ContainsKey(playerId)) return;
+
+                MuseLog.Info($"Fetching faction ID for player ID {playerId}...");
+                FetchPlayerFactionIdAndAddToPairs(playerId);
+            }
+        }
     }
 }

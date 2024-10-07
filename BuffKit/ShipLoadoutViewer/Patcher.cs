@@ -9,6 +9,7 @@ namespace BuffKit.ShipLoadoutViewer
     [HarmonyPatch(typeof(UIMatchLobby), "Awake")]
     class UIMatchLobby_Awake
     {
+        public static bool FactionIconsVisible = false;
         private static bool _firstPrepare = true;
         private static void Prepare()
         {
@@ -45,6 +46,7 @@ namespace BuffKit.ShipLoadoutViewer
                      {
                          UIShipLoadoutSlot.InfoDisplaySetting = (UIShipLoadoutSlot.UIShipLoadoutSlotInfoViewer)enumString.SelectedValue;
                      }, lobbyGunTooltipDisplay);
+                    Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout faction display", ShipLoadoutViewer.SetFactionIconVisibility, FactionIconsVisible);
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew loadout display separator", ShipLoadoutViewer.SetCrewLoadoutDisplaySeparator, false);
                     Settings.Settings.Instance.AddEntry("loadout viewer", "crew profile button visibility", ShipLoadoutViewer.SetCrewProfileButtonVisibility, true);
                 };

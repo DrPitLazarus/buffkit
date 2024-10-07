@@ -51,6 +51,11 @@ namespace BuffKit.ShipLoadoutViewer
                 subBarImages.Add(subImages);
             }
 
+            var factionIconObject = new GameObject("Faction Icon");
+            var factionIconImage = factionIconObject.AddComponent<Image>();
+            factionIconObject.AddComponent<LayoutElement>().preferredWidth = 21;
+            factionIconObject.transform.SetParent(obBar.transform, false);
+
             loadoutBar = obBar.AddComponent<UILobbyCrewLoadoutBar>();
             loadoutBar._loadoutBarObjects = subBars;
             loadoutBar._loadoutBarImages = subBarImages;
@@ -70,6 +75,8 @@ namespace BuffKit.ShipLoadoutViewer
             le.preferredHeight = 21;
             loadoutBar._spacer2.transform.SetParent(obBar.transform, false);
             loadoutBar._spacer2.transform.SetSiblingIndex(3);
+            loadoutBar._factionIconObject = factionIconObject;
+            loadoutBar._factionIconImage = factionIconImage;
 
             img = obBar.AddComponent<Image>();
             img.color = new Color32(0xD8, 0xC8, 0xB1, 0x3C);
@@ -95,6 +102,7 @@ namespace BuffKit.ShipLoadoutViewer
         {
             public List<List<int>> AllIds { get; private set; }
             public int PlayerClass { get; private set; }
+            public int PlayerId { get; private set; }
             public PlayerLoadoutData(UserAvatarEntity player)
             {
                 var pilotIds = new List<int>();
@@ -116,6 +124,8 @@ namespace BuffKit.ShipLoadoutViewer
                             PlayerClass = 2;
                             break;
                     }
+
+                    PlayerId = player.Id;
 
                     foreach (var skill in player.CurrentSkills)
                     {
@@ -152,6 +162,10 @@ namespace BuffKit.ShipLoadoutViewer
             gameObject.SetActive(isVisible);
         }
 
+        public void SetFactionIconVisibility(bool isVisible)
+        {
+            _factionIconObject.SetActive(isVisible);
+        }
 
         void Update()
         {
@@ -169,6 +183,8 @@ namespace BuffKit.ShipLoadoutViewer
         private List<GameObject> _loadoutBarObjects;
         private List<List<RawImage>> _loadoutBarImages;
         private PlayerLoadoutData _loadoutDataLast = new PlayerLoadoutData(null);
+        private GameObject _factionIconObject;
+        private Image _factionIconImage;
 
         public void DisplayItems(UserAvatarEntity player)
         {
@@ -200,6 +216,8 @@ namespace BuffKit.ShipLoadoutViewer
 
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
                 _spacer2.SetActive(showTools[2, column] && (showTools[0, column] || showTools[1, column]));
+
+                _factionIconImage.sprite = ShipLoadoutViewer.GetPlayerFactionSprite(data.PlayerId);
 
                 for (var i = 0; i < _numberOfToolTypes; i++)
                 {
