@@ -17,6 +17,8 @@ namespace BuffKit.ShipLoadoutViewer
             Image img;
             LayoutElement le;
 
+            var slotHeight = parent.GetComponent<RectTransform>().sizeDelta.y; // Default 21.
+
             var obBar = new GameObject("Loadout Bar");
 
             var hlg = obBar.AddComponent<HorizontalLayoutGroup>();
@@ -44,8 +46,8 @@ namespace BuffKit.ShipLoadoutViewer
                     var im = slot.AddComponent<RawImage>();
                     subImages.Add(im);
                     le = slot.AddComponent<LayoutElement>();
-                    le.preferredWidth = 21;
-                    le.preferredHeight = 21;
+                    le.preferredWidth = slotHeight;
+                    le.preferredHeight = slotHeight;
                     slot.transform.SetParent(obSubBar.transform, false);
                 }
                 subBarImages.Add(subImages);
@@ -53,7 +55,7 @@ namespace BuffKit.ShipLoadoutViewer
 
             var factionIconObject = new GameObject("Faction Icon");
             var factionIconImage = factionIconObject.AddComponent<Image>();
-            factionIconObject.AddComponent<LayoutElement>().preferredWidth = 21;
+            factionIconObject.AddComponent<LayoutElement>().preferredWidth = slotHeight;
             factionIconObject.transform.SetParent(obBar.transform, false);
 
             loadoutBar = obBar.AddComponent<UILobbyCrewLoadoutBar>();
@@ -64,7 +66,7 @@ namespace BuffKit.ShipLoadoutViewer
             loadoutBar._imSpacer1.color = new Color(0, 0, 0, 0);
             le = loadoutBar._spacer1.AddComponent<LayoutElement>();
             le.preferredWidth = 1;
-            le.preferredHeight = 21;
+            le.preferredHeight = slotHeight;
             loadoutBar._spacer1.transform.SetParent(obBar.transform, false);
             loadoutBar._spacer1.transform.SetSiblingIndex(1);
             loadoutBar._spacer2 = new GameObject("spacer");
@@ -72,7 +74,7 @@ namespace BuffKit.ShipLoadoutViewer
             loadoutBar._imSpacer2.color = new Color(0, 0, 0, 0);
             le = loadoutBar._spacer2.AddComponent<LayoutElement>();
             le.preferredWidth = 1;
-            le.preferredHeight = 21;
+            le.preferredHeight = slotHeight;
             loadoutBar._spacer2.transform.SetParent(obBar.transform, false);
             loadoutBar._spacer2.transform.SetSiblingIndex(3);
             loadoutBar._factionIconObject = factionIconObject;

@@ -14,6 +14,9 @@ namespace BuffKit.ShipLoadoutViewer
             // Edit the "Sample Crew" object to have a loadout panel
             var crewUI = uiml.sampleCrew;
             Object.Destroy(crewUI.GetComponent<LayoutElement>());                   // Instead of setting the LayoutElement preferredHeight just delete it
+            // Add min-width to class and profile icons so they don't squish.
+            crewUI.transform.GetChild(1).GetChild(0).GetComponent<LayoutElement>().minWidth = 25;
+            crewUI.transform.GetChild(1).GetChild(2).GetComponent<LayoutElement>().minWidth = 25;
         }
 
         class ShipLoadoutBars
