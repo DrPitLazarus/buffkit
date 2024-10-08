@@ -53,7 +53,7 @@ namespace BuffKit.SimpleFixes
             // When creating a match, scramble is on by default. Who wants that?
             __instance.scrambleCheck.Checked = false;
         }
-        
+
         [HarmonyPatch(typeof(UINotificationPanel), nameof(UINotificationPanel.ClearAll))]
         [HarmonyPostfix]
         private static void FixClearNotifications()
@@ -67,6 +67,36 @@ namespace BuffKit.SimpleFixes
             while (transform.childCount > 4) // Leave the 4 template gameObjects alone.
             {
                 UnityEngine.Object.DestroyImmediate(transform.GetChild(0).gameObject);
+            }
+        }
+
+        [HarmonyPatch(typeof(UILobbyChatPanel), nameof(UILobbyChatPanel.Awake))]
+        [HarmonyPostfix]
+        private static void AdjustChatPanelScrollSensitivity()
+        {
+            var scrollViewObject = GameObject.Find("/Menu UI/Standard Canvas/Menu Header Footer/Lobby Chat Panel/Scroll View");
+            if (scrollViewObject == null) return;
+            scrollViewObject.GetComponent<ScrollRect>().scrollSensitivity = 30; // Original 10.
+        }
+
+        [HarmonyPatch(typeof(UILibrary), nameof(UILibrary.Awake))]
+        [HarmonyPostfix]
+        private static void AdjustLibraryScrollSensitivity()
+        {
+            var parentObject = GameObject.Find("/Menu UI/Standard Canvas/Pages/Library");
+            if (parentObject == null) return;
+            var scrollRects = parentObject.GetComponentsInChildren<ScrollRect>(true);
+            if (scrollRects == null) return;
+
+            foreach (var scrollRect in scrollRects)
+            {
+                var newScrollSensitivity = 60; // Original 20. Some are 1 (lol).
+                // Keep 20 for the lore book.
+                if (scrollRect.name == "Selection Panel" || scrollRect.name == "Text Panel")
+                {
+                    newScrollSensitivity = 20;
+                }
+                scrollRect.scrollSensitivity = newScrollSensitivity;
             }
         }
     }

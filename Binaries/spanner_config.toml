@@ -75,3 +75,10 @@ fields = [
   "currentlyActiveObjectiveIndex",
   "lastActiveObjectiveIndex"
 ]
+
+[[classes]]
+name = "UILobbyChatPanel"
+fields = []
+[[classes]]
+name = "UILibrary"
+fields = []
