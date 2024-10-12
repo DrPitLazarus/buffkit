@@ -106,10 +106,6 @@ namespace BuffKit.ShipLoadoutViewer
                             loadoutBars[num][array[num]].DisplayShip(crewData);
                         if (_paintGunBars)
                             loadoutBars[num][array[num]].DisplayLoadouts(crewData);
-                        if (UIMatchLobby_Awake.FactionIconsVisible)
-                        {
-                            DisplayPlayerFactions(crewData);
-                        }
                         array[num]++;
                     }
                 }
@@ -199,17 +195,6 @@ namespace BuffKit.ShipLoadoutViewer
 
         private static readonly Dictionary<int, int> _playerFactionPairs = [];
 
-        private static void FetchPlayerFactionIdAndAddToPairs(int playerId)
-        {
-            AccountActions.GetUserProfile(playerId,
-                (Muse.Goi2.Entity.Vo.UserProfile userProfile) =>
-                {
-                    _playerFactionPairs[playerId] = userProfile.FactionId;
-                    MarkCrewBarsForRedraw();
-                }
-            );
-        }
-
         public static Sprite GetPlayerFactionSprite(int playerId)
         {
             if (!_playerFactionPairs.ContainsKey(playerId)) return null;
@@ -218,21 +203,26 @@ namespace BuffKit.ShipLoadoutViewer
             return WorldMapFactionManager.GetFactionIconSprite(factionId, true);
         }
 
-        private static void DisplayPlayerFactions(CrewEntity crewEntity)
+        /// <summary>
+        /// Takes a <c>playerId</c> and checks if it's already added to <c>_playerFactionPairs</c>. 
+        /// If not, call <c>GetUserProfile</c>, set the faction ID, and mark for redraw.
+        /// The value of the pair is -1 when waiting for the API call to complete.
+        /// </summary>
+        /// <param name="playerId"></param>
+        public static void DisplayPlayerFaction(int playerId)
         {
-            for (int slotIndex = 0; slotIndex < 4; slotIndex++)
-            {
-                var slot = crewEntity.Slots[slotIndex];
-                var playerEntity = slot.PlayerEntity;
-                if (playerEntity == null) continue;
+            if (_playerFactionPairs.ContainsKey(playerId)) return;
 
-                var playerId = playerEntity.Id;
+            MuseLog.Info($"Fetching faction ID for player ID {playerId}...");
+            _playerFactionPairs[playerId] = -1;
 
-                if (_playerFactionPairs.ContainsKey(playerId)) return;
-
-                MuseLog.Info($"Fetching faction ID for player ID {playerId}...");
-                FetchPlayerFactionIdAndAddToPairs(playerId);
-            }
+            AccountActions.GetUserProfile(playerId,
+                (Muse.Goi2.Entity.Vo.UserProfile userProfile) =>
+                {
+                    _playerFactionPairs[playerId] = userProfile.FactionId;
+                    MarkCrewBarsForRedraw();
+                }
+            );
         }
     }
 }
