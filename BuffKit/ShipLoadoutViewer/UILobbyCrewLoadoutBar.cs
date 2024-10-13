@@ -46,7 +46,7 @@ namespace BuffKit.ShipLoadoutViewer
                     var im = slot.AddComponent<RawImage>();
                     subImages.Add(im);
                     le = slot.AddComponent<LayoutElement>();
-                    le.preferredWidth = slotHeight;
+                    le.minWidth = slotHeight;
                     le.preferredHeight = slotHeight;
                     slot.transform.SetParent(obSubBar.transform, false);
                 }
@@ -55,7 +55,10 @@ namespace BuffKit.ShipLoadoutViewer
 
             var factionIconObject = new GameObject("Faction Icon");
             var factionIconImage = factionIconObject.AddComponent<Image>();
-            factionIconObject.AddComponent<LayoutElement>().preferredWidth = slotHeight;
+            le = factionIconObject.AddComponent<LayoutElement>();
+            // Need both to prevent squish and stretch width, I guess... :/
+            le.minWidth = slotHeight;
+            le.preferredWidth = slotHeight;
             factionIconObject.transform.SetParent(obBar.transform, false);
 
             loadoutBar = obBar.AddComponent<UILobbyCrewLoadoutBar>();
