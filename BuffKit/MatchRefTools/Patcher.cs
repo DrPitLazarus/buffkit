@@ -73,4 +73,56 @@ namespace BuffKit.MatchRefTools
             FirstKillAnnouncement.Instance.OnMatchUpdate(__instance);
         }
     }
+
+
+    /// <summary>
+    /// Adds a Force Start button in the lobby footer for players with mod privilege. There is a confirm prompt.
+    /// Enabled by default.
+    /// </summary>
+    [HarmonyPatch]
+    public class ForceStartModButton
+    {
+        private static bool _firstRun = true;
+        private static bool _enabled = true;
+
+        private static void Prepare()
+        {
+            if (!_firstRun) return;
+            _firstRun = false;
+            Settings.Settings.Instance.AddEntry("ref tools", "force start mod button", v => _enabled = v, _enabled);
+        }
+
+        [HarmonyPatch(typeof(UIManager.UINewMatchLobbyState), nameof(UIManager.UINewMatchLobbyState.PaintFooterButtons))]
+        [HarmonyPostfix]
+        private static void Postfix()
+        {
+            if (!_enabled) return;
+
+            var mlv = MatchLobbyView.Instance;
+            if (mlv == null || NetworkedPlayer.Local == null) return;
+            if (!Util.HasModPrivilege(mlv)) return;
+
+            var footer = UIPageFrame.Instance.footer;
+            footer.AddButton("Force Start", HandleClick);
+        }
+
+        private static void HandleClick()
+        {
+            var title = "Force Start Match";
+            var body = "Are you sure?";
+            UINewModalDialog.Confirm(title, body, (bool yes) =>
+            {
+                if (yes) { ActivateForceStart(); }
+            });
+        }
+
+        private static void ActivateForceStart()
+        {
+            var mlv = MatchLobbyView.Instance;
+            if (mlv == null) return;
+            // Index 4 is MatchForceStartAction.
+            MuseLog.Info("Activating!");
+            MatchModAction.MatchLobbyActions[4].Act(mlv);
+        }
+    }
 }

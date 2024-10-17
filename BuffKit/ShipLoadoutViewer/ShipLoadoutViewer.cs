@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BuffKit.Settings;
 using Muse.Goi2.Entity;
+using Muse.Icarus.Coop.WorldMap;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,9 @@ namespace BuffKit.ShipLoadoutViewer
             // Edit the "Sample Crew" object to have a loadout panel
             var crewUI = uiml.sampleCrew;
             Object.Destroy(crewUI.GetComponent<LayoutElement>());                   // Instead of setting the LayoutElement preferredHeight just delete it
+            // Add min-width to class and profile icons so they don't squish.
+            crewUI.transform.GetChild(1).GetChild(0).GetComponent<LayoutElement>().minWidth = 25;
+            crewUI.transform.GetChild(1).GetChild(2).GetComponent<LayoutElement>().minWidth = 25;
         }
 
         class ShipLoadoutBars
@@ -150,6 +154,23 @@ namespace BuffKit.ShipLoadoutViewer
             PaintLoadoutBars(MatchLobbyView.Instance);
         }
 
+        public static void SetFactionIconVisibility(bool isVisible)
+        {
+            UIMatchLobby_Awake.FactionIconsVisible = isVisible;
+            MuseLog.Info($"Setting faction icon visibility to {isVisible}.");
+            foreach (var barList in loadoutBars)
+            {
+                foreach (var bar in barList)
+                {
+                    foreach (var crewBar in bar.crewBars)
+                    {
+                        crewBar.SetFactionIconVisibility(isVisible);
+                    }
+                }
+            }
+            PaintLoadoutBars(MatchLobbyView.Instance);
+        }
+
         public static void SetCrewBarOptions(ToggleGrid value)
         {
             UILobbyCrewLoadoutBar.SetEnabledToolSlotCount(value.Values);
@@ -170,5 +191,38 @@ namespace BuffKit.ShipLoadoutViewer
                         crewBar.SetSeparatorVisibility(isVisible);
         }
 
+
+
+        private static readonly Dictionary<int, int> _playerFactionPairs = [];
+
+        public static Sprite GetPlayerFactionSprite(int playerId)
+        {
+            if (!_playerFactionPairs.ContainsKey(playerId)) return null;
+
+            var factionId = _playerFactionPairs[playerId];
+            return WorldMapFactionManager.GetFactionIconSprite(factionId, true);
+        }
+
+        /// <summary>
+        /// Takes a <c>playerId</c> and checks if it's already added to <c>_playerFactionPairs</c>. 
+        /// If not, call <c>GetUserProfile</c>, set the faction ID, and mark for redraw.
+        /// The value of the pair is -1 when waiting for the API call to complete.
+        /// </summary>
+        /// <param name="playerId"></param>
+        public static void DisplayPlayerFaction(int playerId)
+        {
+            if (_playerFactionPairs.ContainsKey(playerId)) return;
+
+            MuseLog.Info($"Fetching faction ID for player ID {playerId}...");
+            _playerFactionPairs[playerId] = -1;
+
+            AccountActions.GetUserProfile(playerId,
+                (Muse.Goi2.Entity.Vo.UserProfile userProfile) =>
+                {
+                    _playerFactionPairs[playerId] = userProfile.FactionId;
+                    MarkCrewBarsForRedraw();
+                }
+            );
+        }
     }
 }
