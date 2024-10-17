@@ -76,7 +76,7 @@ namespace BuffKit.MatchRefTools
 
 
     /// <summary>
-    /// Adds a Force Start button in the lobby footer for players with mod privilege. There is no confirm prompt.
+    /// Adds a Force Start button in the lobby footer for players with mod privilege. There is a confirm prompt.
     /// Enabled by default.
     /// </summary>
     [HarmonyPatch]
@@ -103,7 +103,17 @@ namespace BuffKit.MatchRefTools
             if (!Util.HasModPrivilege(mlv)) return;
 
             var footer = UIPageFrame.Instance.footer;
-            footer.AddButton("Force Start", ActivateForceStart);
+            footer.AddButton("Force Start", HandleClick);
+        }
+
+        private static void HandleClick()
+        {
+            var title = "Force Start Match";
+            var body = "Are you sure?";
+            UINewModalDialog.Confirm(title, body, (bool yes) =>
+            {
+                if (yes) { ActivateForceStart(); }
+            });
         }
 
         private static void ActivateForceStart()
