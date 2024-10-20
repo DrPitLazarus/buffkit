@@ -81,6 +81,8 @@ namespace BuffKit.ShipLoadoutViewer
                 }
                 loadoutBars.Add(currentCol);
             }
+            // Apply faction display setting on startup.
+            SetFactionIconVisibility(UIMatchLobby_Awake.FactionIconsVisible);
         }
 
         static bool _paintShipBars = true;

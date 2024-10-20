@@ -232,8 +232,11 @@ namespace BuffKit.ShipLoadoutViewer
                 _spacer1.SetActive(showTools[0, column] && showTools[1, column]);
                 _spacer2.SetActive(showTools[2, column] && (showTools[0, column] || showTools[1, column]));
 
-                ShipLoadoutViewer.DisplayPlayerFaction(data.PlayerId);
-                _factionIconImage.sprite = ShipLoadoutViewer.GetPlayerFactionSprite(data.PlayerId);
+                if (UIMatchLobby_Awake.FactionIconsVisible)
+                {
+                    ShipLoadoutViewer.DisplayPlayerFaction(data.PlayerId);
+                    _factionIconImage.sprite = ShipLoadoutViewer.GetPlayerFactionSprite(data.PlayerId);
+                }
 
                 for (var i = 0; i < _numberOfToolTypes; i++)
                 {
