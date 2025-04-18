@@ -25,6 +25,9 @@ Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
 3. Manual clean uninstall:
    - Delete folder `Guns of Icarus Online\BepInEx\plugins\BuffKit`.
    - If you want to backup the folder, the backup cannot live in the `Guns of Icarus Online\BepInEx\plugins` folder. The mod loader BepInEx will load any .dll files in there. I would right-click the `BuffKit` folder and compress to a .zip file.
+4. Manual complete mod loader uninstall:
+    - Delete folder: `Guns of Icarus Online\BepInEx`. Make a backup if there is any mod settings you want to keep.
+    - Delete files: `changelog.txt doorstop_config.ini version.dll` in `Guns of Icarus Online` folder.
 
 ## Features
 Popular features include:
