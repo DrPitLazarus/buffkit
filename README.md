@@ -1,6 +1,32 @@
 # BuffKit
-Guns of Icarus modding toolkit/moderation mod.
+The main Guns of Icarus mod.
 
+A collection of game modifications that feature:
+- Moderation/referee tools
+- Quality of Life enhancements and bug fixes
+- Misc. features
+
+Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
+
+### Install Options
+1. [BuffKit Mod Installer for Windows](BuffKitModInstaller/#readme)
+2. Manual install from .zip file.
+    1. Visit latest [release page](https://github.com/DrPitLazarus/buffkit/releases/latest) and download .zip file.
+    2. Open downloaded .zip file.
+    3. Open your `Guns of Icarus Online` folder.
+    4. Drag and drop .zip contents to your game folder, overwrite if prompted.
+    5. **Additional steps for Linux**: Use Proton and add to your launch options: `WINEDLLOVERRIDES="version=n,b" %command%`.
+
+## Features
+Popular features include:
+- Loadout Viewer: see ship and player loadouts all at once.
+- Auto accept loadout recommendations and sort by preference.
+- Skipping the Launcher and Intro movie.
+- Better gun info tooltips and ship stat panels.
+
+A complete description of all features will be added soon.
+
+# Developer Notes
 ## Building and installing
 Dr. Pit Lazarus is using Visual Studio 2022 as his IDE. 
 Any code editor should work if you can use build configs `Release to GameDir` and `Release to .zip`.
