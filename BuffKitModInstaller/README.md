@@ -3,6 +3,9 @@ Windows program to install, update, or uninstall BuffKit.
 
 ![image](https://github.com/user-attachments/assets/2a1b14a1-bb82-4a95-b9bf-3e50b9a5cb26)
 
+### Download
+Visit the [release page](https://github.com/DrPitLazarus/buffkit/releases/tag/Installer-SCS547). Current version is SCS 547.
+
 ### Features
 - Install Latest Version
   - One click install. Easy!
@@ -19,7 +22,7 @@ Windows program to install, update, or uninstall BuffKit.
   - Game Directory Check: If your game directory isn't in the default install on C:, you will be prompted to select it.
   - Game must not be running for actions to be successful. Status message will inform you.
 
-### More Screenshots
+### Screenshots
 Install other version window  
 ![image](https://github.com/user-attachments/assets/bda45b21-ee4b-4995-9e6c-e0cb62516f07)  
 ![image](https://github.com/user-attachments/assets/25c97d4e-6b33-4aec-bf77-fffd9f555803)
