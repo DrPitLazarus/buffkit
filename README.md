@@ -8,7 +8,7 @@ A collection of game modifications that feature:
 
 Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
 
-### Install Options
+## Install Options
 1. [BuffKit Mod Installer for Windows](BuffKitModInstaller/#readme)
 2. Manual install from .zip file.
     1. Visit latest [release page](https://github.com/DrPitLazarus/buffkit/releases/latest) and download .zip file.
@@ -24,7 +24,7 @@ Popular features include:
 - Skipping the Launcher and Intro movie.
 - Better gun info tooltips and ship stat panels.
 
-A complete description of all features will be added soon.
+A complete description of all features will be added soon. In the meantime, you can learn some of the features from reading the [release notes](https://github.com/DrPitLazarus/buffkit/releases).
 
 # Developer Notes
 ## Building and installing
