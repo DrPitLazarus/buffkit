@@ -17,6 +17,15 @@ Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
     4. Drag and drop .zip contents to your game folder, overwrite if prompted.
     5. **Additional steps for Linux**: Use Proton and add to your launch options: `WINEDLLOVERRIDES="version=n,b" %command%`.
 
+## Uninstall Options
+1. Use either uninstall option in [BuffKit Mod Installer for Windows](BuffKitModInstaller/#readme).
+2. Manual uninstall but keep mod settings:
+   - Delete file `Guns of Icarus Online\BepInEx\plugins\BuffKit\BuffKit.dll`.
+   - If you want to disable the mod, rename the file extension to not a .dll. For example: `BuffKit.dll.bk`
+3. Manual clean uninstall:
+   - Delete folder `Guns of Icarus Online\BepInEx\plugins\BuffKit`.
+   - If you want to backup the folder, the backup cannot live in the `Guns of Icarus Online\BepInEx\plugins` folder. The mod loader BepInEx will load any .dll files in there. I would right-click the `BuffKit` folder and compress to a .zip file.
+
 ## Features
 Popular features include:
 - Loadout Viewer: see ship and player loadouts all at once.
