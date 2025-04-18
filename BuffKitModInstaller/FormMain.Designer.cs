@@ -46,14 +46,14 @@
             this.linkLabelOpenGameDir = new System.Windows.Forms.LinkLabel();
             this.linkLabelOpenModDir = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.buttonInstallOlderVersion = new System.Windows.Forms.Button();
             this.labelStatusLog = new System.Windows.Forms.Label();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -159,7 +159,7 @@
             this.buttonInstall.Padding = new System.Windows.Forms.Padding(16, 0, 16, 0);
             this.buttonInstall.Size = new System.Drawing.Size(327, 35);
             this.buttonInstall.TabIndex = 0;
-            this.buttonInstall.Text = "Install Latest";
+            this.buttonInstall.Text = "Install Latest Version";
             this.buttonInstall.UseVisualStyleBackColor = false;
             this.buttonInstall.Click += new System.EventHandler(this.buttonInstall_Click);
             // 
@@ -332,6 +332,33 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(666, 152);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
+            // label8
+            // 
+            this.label8.BackColor = System.Drawing.Color.Transparent;
+            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
+            this.label8.Location = new System.Drawing.Point(333, 118);
+            this.label8.Margin = new System.Windows.Forms.Padding(0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(333, 34);
+            this.label8.TabIndex = 10;
+            this.label8.Text = "Uninstall will only remove the mod. It does not remove the mod loader BepInEx.";
+            // 
+            // label11
+            // 
+            this.label11.BackColor = System.Drawing.Color.Transparent;
+            this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
+            this.label11.Location = new System.Drawing.Point(0, 118);
+            this.label11.Margin = new System.Windows.Forms.Padding(0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(333, 34);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Install doesn\'t reset mod settings. If downgrading, make a backup of the mod dire" +
+    "ctory not in the plugins directory.";
+            // 
             // buttonInstallOlderVersion
             // 
             this.buttonInstallOlderVersion.AutoSize = true;
@@ -430,33 +457,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(666, 34);
             this.panel1.TabIndex = 3;
-            // 
-            // label11
-            // 
-            this.label11.BackColor = System.Drawing.Color.Transparent;
-            this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
-            this.label11.Location = new System.Drawing.Point(0, 118);
-            this.label11.Margin = new System.Windows.Forms.Padding(0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(333, 34);
-            this.label11.TabIndex = 14;
-            this.label11.Text = "Install doesn\'t reset mod settings. If downgrading, make a backup of the mod dire" +
-    "ctory not in the plugins directory.";
-            // 
-            // label8
-            // 
-            this.label8.BackColor = System.Drawing.Color.Transparent;
-            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
-            this.label8.Location = new System.Drawing.Point(333, 118);
-            this.label8.Margin = new System.Windows.Forms.Padding(0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(333, 34);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "Uninstall will only remove the mod. It does not remove the mod loader BepInEx.";
             // 
             // FormMain
             // 
