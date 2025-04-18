@@ -14,7 +14,6 @@ namespace BuffKitModInstaller
         public FormVersionSelect(FormMain formReference)
         {
             InitializeComponent();
-            StartPosition = FormStartPosition.CenterParent;
             _formReference = formReference;
         }
 

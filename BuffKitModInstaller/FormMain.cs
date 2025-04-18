@@ -54,6 +54,8 @@ namespace BuffKitModInstaller
         {
             InitializeComponent();
             Text = $"{Application.ProductName} {_applicationVersion}";
+            linkLabelOpenModDir.Text = _modRelativeDirectory;
+            SetStatusLabelText("");
         }
 
         async void FormMain_Shown(object sender, EventArgs e)

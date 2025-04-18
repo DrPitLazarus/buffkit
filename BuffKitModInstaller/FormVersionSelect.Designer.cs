@@ -129,6 +129,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormVersionSelect";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Select Mod Version to Install";
             this.Load += new System.EventHandler(this.FormVersionSelect_Load);
             this.tableLayoutPanel1.ResumeLayout(false);

@@ -39,9 +39,7 @@
             this.buttonInstall = new System.Windows.Forms.Button();
             this.buttonUninstallKeepSettings = new System.Windows.Forms.Button();
             this.buttonUninstallClean = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.linkLabelGitHub = new System.Windows.Forms.LinkLabel();
             this.label12 = new System.Windows.Forms.Label();
@@ -54,6 +52,8 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -159,7 +159,7 @@
             this.buttonInstall.Padding = new System.Windows.Forms.Padding(16, 0, 16, 0);
             this.buttonInstall.Size = new System.Drawing.Size(327, 35);
             this.buttonInstall.TabIndex = 0;
-            this.buttonInstall.Text = "Install Latest / Reinstall";
+            this.buttonInstall.Text = "Install Latest";
             this.buttonInstall.UseVisualStyleBackColor = false;
             this.buttonInstall.Click += new System.EventHandler(this.buttonInstall_Click);
             // 
@@ -207,20 +207,6 @@
             this.buttonUninstallClean.UseVisualStyleBackColor = false;
             this.buttonUninstallClean.Click += new System.EventHandler(this.buttonUninstallClean_Click);
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.BackColor = System.Drawing.Color.Transparent;
-            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
-            this.label8.Location = new System.Drawing.Point(333, 118);
-            this.label8.Margin = new System.Windows.Forms.Padding(0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(333, 34);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "Uninstall will only remove the mod. It will not remove the mod loader BepInEx.";
-            // 
             // label10
             // 
             this.label10.BackColor = System.Drawing.Color.Transparent;
@@ -233,20 +219,6 @@
             this.label10.Size = new System.Drawing.Size(166, 30);
             this.label10.TabIndex = 12;
             this.label10.Text = "Mod Directory:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.BackColor = System.Drawing.Color.Transparent;
-            this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label11.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
-            this.label11.Location = new System.Drawing.Point(0, 118);
-            this.label11.Margin = new System.Windows.Forms.Padding(0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(333, 34);
-            this.label11.TabIndex = 14;
-            this.label11.Text = "Install / Reinstall will not reset your mod settings.";
             // 
             // label14
             // 
@@ -384,11 +356,8 @@
             // 
             // labelStatusLog
             // 
-            this.labelStatusLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelStatusLog.AutoSize = true;
             this.labelStatusLog.BackColor = System.Drawing.Color.Transparent;
+            this.labelStatusLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelStatusLog.Font = new System.Drawing.Font("Segoe UI", 15.75F);
             this.labelStatusLog.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(181)))), ((int)(((byte)(153)))), ((int)(((byte)(79)))));
             this.labelStatusLog.Location = new System.Drawing.Point(0, 272);
@@ -397,6 +366,7 @@
             this.labelStatusLog.Padding = new System.Windows.Forms.Padding(0, 15, 0, 15);
             this.labelStatusLog.Size = new System.Drawing.Size(666, 60);
             this.labelStatusLog.TabIndex = 22;
+            this.labelStatusLog.Text = "STATUS: Ready";
             this.labelStatusLog.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // tableLayoutPanel2
@@ -461,6 +431,33 @@
             this.panel1.Size = new System.Drawing.Size(666, 34);
             this.panel1.TabIndex = 3;
             // 
+            // label11
+            // 
+            this.label11.BackColor = System.Drawing.Color.Transparent;
+            this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
+            this.label11.Location = new System.Drawing.Point(0, 118);
+            this.label11.Margin = new System.Windows.Forms.Padding(0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(333, 34);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Install doesn\'t reset mod settings. If downgrading, make a backup of the mod dire" +
+    "ctory not in the plugins directory.";
+            // 
+            // label8
+            // 
+            this.label8.BackColor = System.Drawing.Color.Transparent;
+            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(194)))), ((int)(((byte)(145)))));
+            this.label8.Location = new System.Drawing.Point(333, 118);
+            this.label8.Margin = new System.Windows.Forms.Padding(0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(333, 34);
+            this.label8.TabIndex = 10;
+            this.label8.Text = "Uninstall will only remove the mod. It does not remove the mod loader BepInEx.";
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -500,9 +497,7 @@
         private System.Windows.Forms.Button buttonInstall;
         private System.Windows.Forms.Button buttonUninstallKeepSettings;
         private System.Windows.Forms.Button buttonUninstallClean;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.LinkLabel linkLabelGitHub;
         private System.Windows.Forms.Label label12;
@@ -515,6 +510,8 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label11;
     }
 }
 
