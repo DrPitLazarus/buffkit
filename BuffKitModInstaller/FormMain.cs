@@ -38,6 +38,20 @@ namespace BuffKitModInstaller
         static string ModFullDirectory => Path.GetDirectoryName(ModFullFilePath);
         static bool GameIsRunning => Process.GetProcessesByName(_gameFileName.Replace(".exe", "")).Length > 0;
 
+        #region WhiteFlashFixDoubleBuffer
+        // Computers are amazing. Use this to prevent white flash when controls are painting.
+        // https://stackoverflow.com/a/3718648
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var createParams = base.CreateParams;
+                createParams.ExStyle |= 0x02000000;  // Turn on WS_EX_COMPOSITED
+                return createParams;
+            }
+        }
+        #endregion
+
         #region DarkTitleBar
         // Dark title bar: https://stackoverflow.com/a/64927217
         [DllImport("DwmApi")] // System.Runtime.InteropServices
