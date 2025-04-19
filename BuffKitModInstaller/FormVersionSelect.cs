@@ -31,14 +31,16 @@ namespace BuffKitModInstaller
 
         void FormVersionSelect_Load(object sender, EventArgs e)
         {
+            comboBoxVersions.BeginUpdate();
             foreach (var modVersion in FormMain.ModVersions)
             {
                 comboBoxVersions.Items.Add(modVersion.version);
             }
+            comboBoxVersions.EndUpdate();
             comboBoxVersions.SelectedIndex = 0;
         }
 
-        private void linkLabelReleasePage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        void linkLabelReleasePage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
@@ -50,7 +52,7 @@ namespace BuffKitModInstaller
             }
         }
 
-        private void buttonInstallThisVersion_Click(object sender, EventArgs e)
+        void buttonInstallThisVersion_Click(object sender, EventArgs e)
         {
             var downloadUrl = SelectedModVersionObject.downloadUrl;
             Task.Run(() => _formReference.InstallFromUrl(downloadUrl));

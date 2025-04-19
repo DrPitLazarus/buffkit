@@ -404,7 +404,7 @@ namespace BuffKitModInstaller
             }
         }
 
-        private void buttonInstallOtherVersion_Click(object sender, EventArgs e)
+        void buttonInstallOtherVersion_Click(object sender, EventArgs e)
         {
             var formVersionSelect = new FormVersionSelect(this);
             formVersionSelect.ShowDialog();
