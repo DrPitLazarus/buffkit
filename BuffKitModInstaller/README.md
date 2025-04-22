@@ -4,7 +4,7 @@ Windows program to install, update, or uninstall BuffKit.
 ![image](https://github.com/user-attachments/assets/2a1b14a1-bb82-4a95-b9bf-3e50b9a5cb26)
 
 ### Download
-Visit the [release page](https://github.com/DrPitLazarus/buffkit/releases/tag/Installer-SCS547). Current version is SCS 547.
+Visit the [release page](https://github.com/DrPitLazarus/buffkit/releases/tag/Installer-SCS548). Current version is SCS 548.
 
 ### Features
 - Install Latest Version
