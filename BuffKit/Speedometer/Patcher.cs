@@ -29,15 +29,15 @@ namespace BuffKit.Speedometer
             _firstPrepare = false;
         }
 
-        [HarmonyPatch(typeof(Mission), "RemoteInitialize")]
+        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))]
         [HarmonyPostfix]
-        private static void Mission_RemoteInitialize()
+        private static void UIManager_UIMatchBlockState_Exit()
         {
             if (!Enabled) return;
             Speedometer.Initialize();
         }
 
-        [HarmonyPatch(typeof(UIManager.UIGamePlayState), "ActivateHUDElements")]
+        [HarmonyPatch(typeof(UIManager.UIGamePlayState), nameof(UIManager.UIGamePlayState.ActivateHUDElements))]
         [HarmonyPostfix]
         private static void UIManager_ActivateHUDElements()
         {
@@ -45,7 +45,7 @@ namespace BuffKit.Speedometer
             Speedometer.SetActive(true);
         }
 
-        [HarmonyPatch(typeof(UIManager.UIGamePlayState), "DeactivateHUDElements")]
+        [HarmonyPatch(typeof(UIManager.UIGamePlayState), nameof(UIManager.UIGamePlayState.DeactivateHUDElements))]
         [HarmonyPostfix]
         private static void UIManager_DeactivateHUDElements()
         {
