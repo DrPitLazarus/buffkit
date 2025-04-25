@@ -202,6 +202,7 @@ namespace BuffKit.Settings
         public override void CreateUIElement(Transform parent, string entry)
         {
             LayoutElement le;
+            HorizontalLayoutGroup hlg;
 
             _toggles = new Toggle[_value.Rows, _value.Cols];
 
@@ -216,34 +217,38 @@ namespace BuffKit.Settings
             vlg.childForceExpandHeight = false;
             vlg.padding = new RectOffset(30, 0, 2, 0);
 
-            var obGridIconBar = new GameObject("icon bar");
-            obGridIconBar.transform.SetParent(obContent.transform, false);
-            var hlg = obGridIconBar.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 1;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = false;
-            foreach (var s in _value.Icons)
+            // Do not display icon row if there is only one and it is a blank icon.
+            if (!(_value.Icons.Count == 1 && _value.Icons[0] == UI.Resources.BlankIcon))
             {
-                var obIcon = new GameObject("icon");
-                obIcon.transform.SetParent(obGridIconBar.transform, false);
-                hlg = obIcon.AddComponent<HorizontalLayoutGroup>();
-                hlg.padding = new RectOffset(3, 3, 3, 3);
+                var obGridIconBar = new GameObject("icon bar");
+                obGridIconBar.transform.SetParent(obContent.transform, false);
+                hlg = obGridIconBar.AddComponent<HorizontalLayoutGroup>();
+                hlg.spacing = 1;
                 hlg.childForceExpandWidth = false;
                 hlg.childForceExpandHeight = false;
-                var obIconBox = new GameObject("box");
-                obIconBox.transform.SetParent(obIcon.transform, false);
-                var im = obIconBox.AddComponent<Image>();
-                im.sprite = s;
-                le = obIconBox.AddComponent<LayoutElement>();
-                le.minWidth = 25;
-                le.minHeight = 25;
-                le.preferredWidth = 25;
-                le.preferredHeight = 25;
+                foreach (var s in _value.Icons)
+                {
+                    var obIcon = new GameObject("icon");
+                    obIcon.transform.SetParent(obGridIconBar.transform, false);
+                    hlg = obIcon.AddComponent<HorizontalLayoutGroup>();
+                    hlg.padding = new RectOffset(3, 3, 3, 3);
+                    hlg.childForceExpandWidth = false;
+                    hlg.childForceExpandHeight = false;
+                    var obIconBox = new GameObject("box");
+                    obIconBox.transform.SetParent(obIcon.transform, false);
+                    var im = obIconBox.AddComponent<Image>();
+                    im.sprite = s;
+                    le = obIconBox.AddComponent<LayoutElement>();
+                    le.minWidth = 25;
+                    le.minHeight = 25;
+                    le.preferredWidth = 25;
+                    le.preferredHeight = 25;
+                }
+                var obSpacer = new GameObject("spacer");
+                obSpacer.transform.SetParent(obGridIconBar.transform, false);
+                le = obSpacer.AddComponent<LayoutElement>();
+                le.flexibleWidth = 1;
             }
-            var obSpacer = new GameObject("spacer");
-            obSpacer.transform.SetParent(obGridIconBar.transform, false);
-            le = obSpacer.AddComponent<LayoutElement>();
-            le.flexibleWidth = 1;
 
             for (var r = 0; r < _value.Rows; r++)
             {
