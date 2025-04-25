@@ -72,7 +72,12 @@ namespace BuffKit.Settings
         public override bool IsCompatible(object value) { return (value is bool); }
         public override void CreateUIElement(Transform parent, string entry)
         {
-            Builder.BuildMenuToggle(parent, out _toggle, entry, _value,
+            // Add ability to change display text from internal entry name. Use zero or one slash!
+            // Example: "feature one/enable" will display as "ENABLE"
+            // Example: "feature two enable" will display as "FEATURE TWO ENABLE"
+            var entrySplit = entry.Split('/');
+            var entryDisplay = entrySplit[entrySplit.Length - 1];
+            Builder.BuildMenuToggle(parent, out _toggle, entryDisplay, _value,
                 delegate (bool v) { Settings.Instance.SetEntry(entry, v); });
         }
     }
@@ -86,7 +91,12 @@ namespace BuffKit.Settings
         public override bool IsCompatible(object value) { return false; }
         public override void CreateUIElement(Transform parent, string entry)
         {
-            Builder.BuildMenuButton(parent, entry, entry,
+            // Add ability to change display text from internal entry name. Use zero or one slash!
+            // Example: "feature one/enable" will display as "ENABLE"
+            // Example: "feature two enable" will display as "FEATURE TWO ENABLE"
+            var entrySplit = entry.Split('/');
+            var entryDisplay = entrySplit[entrySplit.Length - 1];
+            Builder.BuildMenuButton(parent, entryDisplay, entryDisplay,
                 delegate { Settings.Instance.SetEntry<Dummy>(entry, null); });
         }
     }
@@ -195,7 +205,12 @@ namespace BuffKit.Settings
 
             _toggles = new Toggle[_value.Rows, _value.Cols];
 
-            Builder.BuildMenuDropdown(parent, entry, out var obContent);
+            // Add ability to change display text from internal entry name. Use zero or one slash!
+            // Example: "feature one/enable" will display as "ENABLE"
+            // Example: "feature two enable" will display as "FEATURE TWO ENABLE"
+            var entrySplit = entry.Split('/');
+            var entryDisplay = entrySplit[entrySplit.Length - 1];
+            Builder.BuildMenuDropdown(parent, entryDisplay, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 1;
             vlg.childForceExpandHeight = false;
@@ -340,7 +355,12 @@ namespace BuffKit.Settings
         {
             _toggles = new List<Toggle>();
 
-            Builder.BuildMenuDropdown(parent, entry, out var obContent);
+            // Add ability to change display text from internal entry name. Use zero or one slash!
+            // Example: "feature one/enable" will display as "ENABLE"
+            // Example: "feature two enable" will display as "FEATURE TWO ENABLE"
+            var entrySplit = entry.Split('/');
+            var entryDisplay = entrySplit[entrySplit.Length - 1];
+            Builder.BuildMenuDropdown(parent, entryDisplay, out var obContent);
             var vlg = obContent.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 3;
             vlg.childForceExpandHeight = false;
