@@ -20,7 +20,7 @@ namespace BuffKit.Speedometer
 
             Util.OnGameInitialize += delegate
             {
-                var gridIcons = new List<Sprite>() { Resources.PilotIcon/*, Resources.GunnerIcon, Resources.EngineerIcon */};
+                var gridIcons = new List<Sprite>() { Resources.BlankIcon/*, Resources.GunnerIcon, Resources.EngineerIcon */};
                 var gridLabels = new List<string> { "horizontal speed", "vertical speed", "rotation speed", "x position east/west", "y position altitude", "z position north/south" };
                 DisplaySettings = new ToggleGrid(gridIcons, gridLabels, true);
                 Settings.Settings.Instance.AddEntry("speedometer", "speedometer display", v => DisplaySettings = v, DisplaySettings);
