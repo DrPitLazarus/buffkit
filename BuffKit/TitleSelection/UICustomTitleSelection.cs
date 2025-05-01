@@ -18,7 +18,7 @@ namespace BuffKit.TitleSelection
         private GameObject _obContent;
         private InputField _searchField;
 
-        protected override void Awake()
+        public override void Awake()
         {
             base.Awake();
 

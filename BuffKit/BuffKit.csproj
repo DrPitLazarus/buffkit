@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" InitialTargets="CopyAssemblies">
 
 	<PropertyGroup>
 		<TargetFramework>net35</TargetFramework>
@@ -12,15 +12,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release to GameDir|AnyCPU'">
-	  <Optimize>True</Optimize>
+		<Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release to .zip|AnyCPU'">
-	  <Optimize>True</Optimize>
+		<Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="BepInEx.Core" Version="5.*" />
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.1.0" />
 	</ItemGroup>
@@ -39,6 +43,18 @@
 		<BepInExDownload>https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x86_5.4.22.0.zip</BepInExDownload>
 		<DownloadFileName>BepInEx_x86_5.4.22.0.zip</DownloadFileName>
 	</PropertyGroup>
+
+	<Target Name="CopyAssemblies">
+		<Message Text="***** CopyAssemblies *****" Importance="high" />
+		<ReadLinesFromFile File="$(ProjectDir)\GamePath.txt">
+			<Output TaskParameter="Lines" PropertyName="GamePath" />
+		</ReadLinesFromFile>
+		<Message Text="Copy assemblies from $(GamePath)\GunsOfIcarusOnline_Data\Managed\ to ..\Assemblies\." Importance="high" />
+		<ItemGroup>
+			<SourceGameDlls Include="$(GamePath)\GunsOfIcarusOnline_Data\Managed\*.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(SourceGameDlls)" DestinationFolder="$(ProjectDir)\..\Assemblies\" />
+	</Target>
 
 	<Target Name="StageModDir" AfterTargets="Build">
 		<Message Text="***** StageModDir *****" Importance="high" />
@@ -75,9 +91,10 @@
 		<Message Text="Delete .\bin\$(Configuration)\" Importance="high" />
 		<RemoveDir Directories="$(ProjectDir)bin\$(Configuration)\" />
 	</Target>
-	
+
 	<ItemGroup>
-		<Reference Include="Assembly-CSharp">
+		<!--Use Publicize="true" to make the assembly public. Thanks to BepInEx.AssemblyPublicizer.MSBuild. No need for Spanner now.-->
+		<Reference Include="Assembly-CSharp" Publicize="true">
 			<HintPath>..\Assemblies\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="Assembly-CSharp-firstpass">

@@ -12,7 +12,7 @@ namespace BuffKit.GunSelection
     public class UIGunSelection : UIBaseModalDialog
     {
 
-        protected override void Awake()
+        public override void Awake()
         {
             base.Awake();
             Instance = this;

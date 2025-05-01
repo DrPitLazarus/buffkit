@@ -26,8 +26,8 @@ Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
    - Delete folder `Guns of Icarus Online\BepInEx\plugins\BuffKit`.
    - If you want to backup the folder, the backup cannot live in the `Guns of Icarus Online\BepInEx\plugins` folder. The mod loader BepInEx will load any .dll files in there. I would right-click the `BuffKit` folder and compress to a .zip file.
 4. Manual complete mod loader uninstall:
-    - Delete folder: `Guns of Icarus Online\BepInEx`. Make a backup if there is any mod settings you want to keep.
-    - Delete files: `changelog.txt doorstop_config.ini version.dll` in `Guns of Icarus Online` folder.
+    - Delete folder `Guns of Icarus Online\BepInEx`. Make a backup if there is any mod settings you want to keep.
+    - Delete files `changelog.txt doorstop_config.ini version.dll` in `Guns of Icarus Online` folder.
 
 ## Features
 Popular features include:
@@ -45,27 +45,36 @@ Any code editor should work if you can use build configs `Release to GameDir` an
 
 Clone the repo and open up the BuffKit solution.
 
-Edit `./Binaries/spanner_config.toml` and `./BuffKit/GamePath.txt` to your game folder. 
-Example `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.
+Edit `.\BuffKit\GamePath.txt` to point to your game folder.  
+Example: `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.
 
-`./Binaries/Spanner.exe` is the tool that will copy the game assemblies to `./Assemblies/`. 
-It will deprivatize classes and methods so you can use them without needing to use reflection. 
-Run it with terminal or run it normally and check the `spanner_log.txt` for errors. 
-You need .NET 8 runtime to run it. 
-You should only need to run it once, unless you make changes to the spanner config.
+This project does not use reflection, but publicizes game assemblies with [BepInEx.AssemblyPublicizer.MSBuild](https://github.com/BepInEx/BepInEx.AssemblyPublicizer). Simply add `Publicize="true"` to the `Reference` tag in `BuffKit.csproj`.
 
 To build BuffKit, use these build configs: 
 
-`Release to GameDir`: Reads `./BuffKit/GamePath.txt` and copies it over.
+`Release to GameDir`: Reads `.\BuffKit\GamePath.txt` and copies it over.
 
-`Release to .zip`: Outputs `./BuffKit/bin/BuffKit_SCS_$(Version).zip`.
+`Release to .zip`: Outputs `.\BuffKit\bin\BuffKit_SCS_$(Version).zip`.
 
-All build configs will stage the mod directory in `./BuffKit/bin/temp/`. 
+You may see reference errors after cloning. Ensure `.\BuffKit\GamePath.txt` is correct and build the project. The InitialTarget `CopyAssemblies` will copy assembiles before the build process starts.  
+All build configs will stage the mod directory in `.\BuffKit\bin\temp\`. 
 It will download BepInEx core files, and copy BuffKit.dll and assets. 
-See `./BuffKit/BuffKit.csproj` for the exact steps.
+See `.\BuffKit\BuffKit.csproj` for the exact steps.
 
 **The BuffKit must grow.**
 
-## Spanner building
-Nothing much here. Open the Spanner solution and use publish to build the single file Spanner.exe. 
-Put the new .exe in `./Binaries/`.
+## Spanner
+> [!WARNING]
+> Deprecated. Replaced with [BepInEx.AssemblyPublicizer.MSBuild](https://github.com/BepInEx/BepInEx.AssemblyPublicizer).
+
+~~Edit `.\Binaries\spanner_config.toml` and `.\BuffKit\GamePath.txt` to your game folder. 
+Example `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.~~
+
+~~`./Binaries/Spanner.exe` is the tool that will copy the game assemblies to `.\Assemblies\`. 
+It will deprivatize classes and methods so you can use them without needing to use reflection. 
+Run it with terminal or run it normally and check the `spanner_log.txt` for errors. 
+You need .NET 8 runtime to run it. 
+You should only need to run it once, unless you make changes to the spanner config.~~
+
+~~Nothing much here. Open the Spanner solution and use publish to build the single file Spanner.exe. 
+Put the new .exe in `.\Binaries\`.~~

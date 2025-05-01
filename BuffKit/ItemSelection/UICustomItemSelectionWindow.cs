@@ -111,7 +111,7 @@ namespace BuffKit.ItemSelection
 
         private GameObject _obContent;
         private LayoutElement _leMenuPanel;
-        protected override void Awake()
+        public override void Awake()
         {
             base.Awake();
 
