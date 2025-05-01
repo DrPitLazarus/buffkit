@@ -514,6 +514,8 @@ namespace BuffKit.RepairCluster
                     if (!ActiveBuffBarRawImage.color.Equals(_colorYellow)) ActiveBuffBarRawImage.color = _colorYellow;
                     newPercentage = repairable.BuffDuration;
                 }
+                // No ActiveBuff.
+                else newPercentage = 0f;
                 newPreferredWidth = CalculatePreferredWidth(newPercentage);
                 if (ActiveBuffBarLayoutElement.preferredWidth != newPreferredWidth) ActiveBuffBarLayoutElement.preferredWidth = newPreferredWidth;
 
