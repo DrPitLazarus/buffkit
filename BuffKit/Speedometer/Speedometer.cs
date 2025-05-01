@@ -14,8 +14,6 @@ namespace BuffKit.Speedometer
 
         private static bool _shouldBeEnabled = false;
         private static bool _doUpdateShouldBeEnabled = false;
-        // Practice, Pirate Deathmatch 1 ship, Pirate Deathmatch 2+ ships.
-        private static readonly List<RegionGameMode> _practiceGameModes = [RegionGameMode.PRACTICE, RegionGameMode.NOVICE_DEATHMATCH, RegionGameMode.PRACTICE_NOVICE_DEATHMATCH];
         private static readonly List<GameObject> _meterObjects = [];
         private static GameObject _mainObject;
         private static TextMeshProUGUI _speedometerText;
@@ -117,7 +115,7 @@ namespace BuffKit.Speedometer
             var currentGameMode = Mission.Instance.Map.GameMode;
             var isNotSpectator = !NetworkedPlayer.Local.IsSpectator;
             var isCaptain = NetworkedPlayer.Local.IsCaptain;
-            var isPractice = _practiceGameModes.Contains(currentGameMode);
+            var isPractice = Util.PracticeGameModes.Contains(currentGameMode);
             var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
             var isJestersParade = Mission.Instance.Map.Name == "Test_Race_OblivionApproach_FFA";
             _shouldBeEnabled = isCaptain && isNotSpectator && (isPractice || isCoop || isJestersParade);
