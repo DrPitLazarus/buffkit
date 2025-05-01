@@ -19,6 +19,9 @@ namespace BuffKit
         public static event Notify OnGameInitialize;     // Called once before the launcher "Play" button can be pressed
         public static event Notify OnLobbyLoad;          // Called when the game loads to menu and after every match
 
+        // Practice, Pirate Deathmatch 1 ship, Pirate Deathmatch 2+ ships.
+        public static readonly List<RegionGameMode> PracticeGameModes = [RegionGameMode.PRACTICE, RegionGameMode.NOVICE_DEATHMATCH, RegionGameMode.PRACTICE_NOVICE_DEATHMATCH];
+
         public static bool HasModPrivilege(MatchLobbyView mlv)
         {
             try

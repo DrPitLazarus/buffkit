@@ -9,6 +9,7 @@ namespace BuffKit.RepairCluster
     [HarmonyPatch]
     public class RepairCluster : MonoBehaviour
     {
+        private static readonly int _armorKitBuffValue = 312;
         private static readonly int _bigFireStacksThreshold = 8;
         private static readonly int _numberOfGuns = 6;
         private static readonly int _numberOfEngines = 4;
@@ -18,19 +19,30 @@ namespace BuffKit.RepairCluster
         private static readonly Color _colorOrangeDamaged = new(1, 0.5f, 0, 0.7f);
         private static readonly Color _colorWhite = new(1, 1, 1, 0.5f);
         private static readonly Color _colorWhiteTransparent = new(1, 1, 1, 0.3f);
+        private static readonly Color _colorCyan = new(0, 1, 1, 0.5f);
+        private static readonly Color _colorYellow = new(1, 1, 0, 0.6f);
         private static readonly RectOffset _progressBarPadding = new(2, 2, 0, 0);
         private static readonly List<Indicator> _indicators = [];
 
         private static bool _enabled = false;
+        private static bool _showStatusFailsafe = true;
+        private static bool _showStatusFireproof = true;
+        private static bool _showBarRepairProgress = true;
+        private static bool _showBarActiveBuff = true;
         private static bool _shouldBeEnabled = false;
         private static bool _doUpdateShouldBeEnabled = false;
         private static bool _firstMainMenuState = true;
         private static GameObject _mainObject;
+        private static Texture2D _failsafeIconTexture;
+        private static Texture2D _fireproofIconTexture;
         private static int _indexBalloon = -1;
         private static int _indexArmor = -1;
         private static List<int> _indexGuns = [];
         private static List<int> _indexEngines = [];
 
+        /// <summary>
+        /// Feature initialization. Create settings and <see cref="GameObject"/>.
+        /// </summary>
         [HarmonyPatch(typeof(UIManager.UINewMainMenuState), nameof(UIManager.UINewMainMenuState.Enter))]
         [HarmonyPostfix]
         private static void Start()
@@ -38,11 +50,23 @@ namespace BuffKit.RepairCluster
             if (!_firstMainMenuState) return;
             _firstMainMenuState = false;
             Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster", v => _enabled = v, _enabled);
-            _mainObject = CreateUi();
-            _mainObject.SetActive(false);
+            Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster/show status failsafe", v => _showStatusFailsafe = v, _showStatusFailsafe);
+            Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster/show status fireproof", v => _showStatusFireproof = v, _showStatusFireproof);
+            Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster/show bar repair progress", v => _showBarRepairProgress = v, _showBarRepairProgress);
+            Settings.Settings.Instance.AddEntry("repair cluster", "repair cluster/show bar active buff", v => _showBarActiveBuff = v, _showBarActiveBuff);
+
+            if (_mainObject == null)
+            {
+                MuseLog.Info("GameObject created!");
+                _mainObject = CreateUi();
+                _mainObject.SetActive(false);
+            }
         }
 
-        [HarmonyPatch(typeof(Mission), "Start")]
+        /// <summary>
+        /// Activates the repair cluster.
+        /// </summary>
+        [HarmonyPatch(typeof(Mission), nameof(Mission.Start))]
         [HarmonyPostfix]
         private static void Mission_Start()
         {
@@ -51,14 +75,151 @@ namespace BuffKit.RepairCluster
             _mainObject.SetActive(true);
         }
 
-        [HarmonyPatch(typeof(Mission), "OnDisable")]
+        /// <summary>
+        /// Deactivates the repair cluster.
+        /// </summary>
+        [HarmonyPatch(typeof(Mission), nameof(Mission.OnDisable))]
         [HarmonyPostfix]
         private static void Mission_OnDisable()
         {
-            if (!_enabled) return;
-            if (_mainObject.activeSelf) _mainObject.SetActive(false);
+            if (_mainObject != null && _mainObject.activeSelf) _mainObject.SetActive(false);
         }
 
+        /// <summary>
+        /// Main <see cref="GameObject"/> update loop.
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (_doUpdateShouldBeEnabled && Mission.Instance != null)
+            {
+                _doUpdateShouldBeEnabled = false;
+                LoadIcons();
+                UpdateShouldBeEnabled();
+            }
+            if (!_doUpdateShouldBeEnabled && !_shouldBeEnabled)
+            {
+                _mainObject.SetActive(false);
+                return;
+            }
+
+            // Hide indicators if ship doesn't exist.
+            if (NetworkedPlayer.Local?.CurrentShip == null)
+            {
+                for (var index = 0; index < _indicators.Count; index++)
+                {
+                    _indicators[index].Active = false;
+                }
+                return;
+            }
+
+            UpdateIndicators();
+        }
+
+        /// <summary>
+        /// The game unloads resources when starting a match. Call this after the match starts to load and apply textures.
+        /// </summary>
+        private static void LoadIcons()
+        {
+            _failsafeIconTexture = Resources.Load<Texture2D>("goi_resource_icon_medicine");
+            _fireproofIconTexture = Resources.Load<Texture2D>("goi_resource_icon_water");
+            foreach (var indicator in _indicators)
+            {
+                indicator.FailsafeIconRawImage.texture = _failsafeIconTexture;
+                indicator.FireproofIconRawImage.texture = _fireproofIconTexture;
+            }
+        }
+
+        /// <summary>
+        /// Determines if the repair cluster should be active. Triggered by <see cref="_doUpdateShouldBeEnabled"/> flag in <see cref="LateUpdate"/>.
+        /// </summary>
+        private static void UpdateShouldBeEnabled()
+        {
+            if (Mission.Instance == null)
+            {
+                MuseLog.Info("UpdateShouldBeEnabled(): Mission.Instance is null!");
+                return;
+            }
+            var currentGameMode = Mission.Instance.Map.GameMode;
+            var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
+            var isPractice = Util.PracticeGameModes.Contains(currentGameMode);
+            var shouldBeEnabled = isCoop || isPractice;
+            MuseLog.Info($"_shouldBeEnabled: {shouldBeEnabled}, isCoop: {isCoop} || isPractice: {isPractice}");
+            _shouldBeEnabled = shouldBeEnabled;
+        }
+
+        /// <summary>
+        /// Finds the indexes of each component type and apply data to the indicators.
+        /// </summary>
+        private static void UpdateIndicators()
+        {
+            // Method assumes CurrentShip exists.
+            var repairables = NetworkedPlayer.Local.CurrentShip.Repairables;
+            // Reset indexes.
+            _indexBalloon = -1;
+            _indexArmor = -1;
+            _indexGuns = [];
+            _indexEngines = [];
+            // Find the indexes of each repairable type.
+            for (var index = 0; index < repairables.Count; index++)
+            {
+                var repairable = repairables[index];
+                if (repairable as Turret != null) { _indexGuns.Add(index); continue; }
+                if (repairable as Engine != null) { _indexEngines.Add(index); continue; }
+                if (repairable as Balloon != null) { _indexBalloon = index; continue; }
+                if (repairable as Hull != null) { _indexArmor = index; continue; }
+            }
+
+            var gunsDone = 0;
+            var enginesDone = 0;
+            // Update the indicators using the found indexes.
+            for (var index = 0; index < _indicators.Count; index++)
+            {
+                var indicator = _indicators[index];
+                var indicatorName = indicator.Name.ToLower();
+                var repairableIndex = -1;
+
+                if (indicatorName.Contains("gun") && _indexGuns.Count > gunsDone)
+                {
+                    repairableIndex = _indexGuns[gunsDone];
+                    gunsDone++;
+                }
+                else if (indicatorName.Contains("engine") && _indexEngines.Count > enginesDone)
+                {
+                    repairableIndex = _indexEngines[enginesDone];
+                    enginesDone++;
+                }
+                else if (indicatorName.Contains("balloon") && _indexBalloon > -1)
+                {
+                    repairableIndex = _indexBalloon;
+                }
+                else if (indicatorName.Contains("armor") && _indexArmor > -1)
+                {
+                    repairableIndex = _indexArmor;
+
+                }
+                // Apply data to indicator or deactivate it.
+                if (repairableIndex > -1)
+                {
+                    var repairable = repairables[repairableIndex];
+                    indicator.Active = true;
+                    indicator.SetFireStacks(repairable.FireCharges);
+                    indicator.SetHealth(repairable.NormalizedHealth);
+                    indicator.SetRepairable(repairable);
+                }
+                else
+                {
+                    indicator.Active = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Patched method to remove offscreen repair indicators. These are the ones the stick to the edge of the screen and move annoyingly.
+        /// The indicators that appear on components are unaffected.
+        /// </summary>
+        /// <param name="repairables"></param>
+        /// <param name="__instance"></param>
+        /// <returns></returns>
         [HarmonyPatch(typeof(UIRepairComponentView), nameof(UIRepairComponentView.DrawIndicators))]
         [HarmonyPrefix]
         private static bool UIRepairComponentView_DrawIndicators(IList<Repairable> repairables, UIRepairComponentView __instance)
@@ -122,108 +283,6 @@ namespace BuffKit.RepairCluster
             return false;
         }
 
-        private void LateUpdate()
-        {
-            if (_doUpdateShouldBeEnabled && Mission.Instance != null)
-            {
-                _doUpdateShouldBeEnabled = false;
-                UpdateShouldBeEnabled();
-            }
-            if (!_doUpdateShouldBeEnabled && !_shouldBeEnabled)
-            {
-                _mainObject.SetActive(false);
-                return;
-            }
-
-            // Hide indicators if ship doesn't exist.
-            if (NetworkedPlayer.Local?.CurrentShip == null)
-            {
-                for (var index = 0; index < _indicators.Count; index++)
-                {
-                    _indicators[index].Active = false;
-                }
-                return;
-            }
-
-            UpdateIndicators();
-        }
-
-        private static void UpdateIndicators()
-        {
-            // Method assumes CurrentShip exists.
-            var repairables = NetworkedPlayer.Local.CurrentShip.Repairables;
-            // Reset indexes.
-            _indexBalloon = -1;
-            _indexArmor = -1;
-            _indexGuns = [];
-            _indexEngines = [];
-            // Find the indexes of each repairable type.
-            for (var index = 0; index < repairables.Count; index++)
-            {
-                var repairable = repairables[index];
-                if (repairable as Turret != null) { _indexGuns.Add(index); continue; }
-                if (repairable as Engine != null) { _indexEngines.Add(index); continue; }
-                if (repairable as Balloon != null) { _indexBalloon = index; continue; }
-                if (repairable as Hull != null) { _indexArmor = index; continue; }
-            }
-
-            var gunsDone = 0;
-            var enginesDone = 0;
-            // Update the indicators using the found indexes.
-            for (var index = 0; index < _indicators.Count; index++)
-            {
-                var indicator = _indicators[index];
-                var indicatorName = indicator.Name.ToLower();
-                var repairableIndex = -1;
-
-                if (indicatorName.Contains("gun") && _indexGuns.Count > gunsDone)
-                {
-                    repairableIndex = _indexGuns[gunsDone];
-                    gunsDone++;
-                }
-                else if (indicatorName.Contains("engine") && _indexEngines.Count > enginesDone)
-                {
-                    repairableIndex = _indexEngines[enginesDone];
-                    enginesDone++;
-                }
-                else if (indicatorName.Contains("balloon") && _indexBalloon > -1)
-                {
-                    repairableIndex = _indexBalloon;
-                }
-                else if (indicatorName.Contains("armor") && _indexArmor > -1)
-                {
-                    repairableIndex = _indexArmor;
-
-                }
-
-                if (repairableIndex > -1)
-                {
-                    var repairable = repairables[repairableIndex];
-                    indicator.Active = true;
-                    indicator.SetFireStacks(repairable.FireCharges);
-                    indicator.SetHealth(repairable.NormalizedHealth);
-                }
-                else
-                {
-                    indicator.Active = false;
-                }
-            }
-        }
-
-        private static void UpdateShouldBeEnabled() // :c
-        {
-            if (Mission.Instance == null)
-            {
-                MuseLog.Info("UpdateShouldBeEnabled(): Mission.Instance is null!");
-                return;
-            }
-            var currentGameMode = Mission.Instance.Map.GameMode;
-            var isCoop = RegionGameModeUtil.IsCoop(currentGameMode);
-            var shouldBeEnabled = isCoop;
-            MuseLog.Info($"_shouldBeEnabled: {shouldBeEnabled}, isCoop: {isCoop}");
-            _shouldBeEnabled = shouldBeEnabled;
-        }
-
         private static GameObject CreateUi()
         {
             var parentObject = GameObject.Find("/Game UI/Match UI/UI HUD Canvas/UI HUD/UI Ship Health Display/Pilot Skill and Buff");
@@ -266,6 +325,7 @@ namespace BuffKit.RepairCluster
         private static GameObject CreateIndicator(string name, Texture2D componentTexture, Transform parentTransform)
         {
             LayoutElement le;
+            RectTransform rt;
             VerticalLayoutGroup vlg;
 
             var indicatorObject = new GameObject($"Indicator {name}");
@@ -283,11 +343,12 @@ namespace BuffKit.RepairCluster
             var mainIconRawImage = mainIconObject.AddComponent<RawImage>();
             mainIconRawImage.texture = componentTexture;
             mainIconRawImage.color = _colorWhite;
-
+            // I would have made these status icons in a grid layout group, but I
+            // don't feel like messing with that. Manual positioning works for now. -Pit
             var fireIconObject = new GameObject("Fire Icon");
             fireIconObject.transform.SetParent(indicatorObject.transform, false);
-            var rt = fireIconObject.AddComponent<RectTransform>();
-            rt.anchoredPosition = mainIconRt.anchoredPosition;
+            rt = fireIconObject.AddComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(0, 4); // Manual positioning...
             rt.sizeDelta = new Vector2(16, 16);
             rt.pivot = new Vector2(0, 0);
             le = fireIconObject.AddComponent<LayoutElement>();
@@ -295,6 +356,30 @@ namespace BuffKit.RepairCluster
             var fireRawImage = fireIconObject.AddComponent<RawImage>();
             fireRawImage.texture = UIRepairComponentView.instance.fireNormal;
             fireRawImage.color = _colorOrangeDamaged;
+
+            var failsafeIconObject = new GameObject("Failsafe Icon");
+            failsafeIconObject.transform.SetParent(indicatorObject.transform, false);
+            rt = failsafeIconObject.AddComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(-16, 4); // Manual positioning...
+            rt.sizeDelta = new Vector2(16, 16);
+            rt.pivot = new Vector2(0, 0);
+            le = failsafeIconObject.AddComponent<LayoutElement>();
+            le.ignoreLayout = true;
+            var failsafeIconRawImage = failsafeIconObject.AddComponent<RawImage>();
+            failsafeIconRawImage.texture = _failsafeIconTexture;
+            failsafeIconRawImage.color = _colorWhite;
+
+            var fireproofIconObject = new GameObject("Fireproof Icon");
+            fireproofIconObject.transform.SetParent(indicatorObject.transform, false);
+            rt = fireproofIconObject.AddComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(-16, 4 - 15); // Manual positioning...
+            rt.sizeDelta = new Vector2(16, 16);
+            rt.pivot = new Vector2(0, 0);
+            le = fireproofIconObject.AddComponent<LayoutElement>();
+            le.ignoreLayout = true;
+            var fireproofIconRawImage = fireproofIconObject.AddComponent<RawImage>();
+            fireproofIconRawImage.texture = _fireproofIconTexture;
+            fireproofIconRawImage.color = _colorWhite;
 
             var progressBarsObject = new GameObject("Progress Bars");
             progressBarsObject.transform.SetParent(indicatorObject.transform, false);
@@ -307,6 +392,8 @@ namespace BuffKit.RepairCluster
             vlg.padding = _progressBarPadding;
 
             CreateProgressBar("Health", 4, progressBarsObject.transform, out LayoutElement healthBarLe, out RawImage healthBarRawImage);
+            CreateProgressBar("Cooldown", 2, progressBarsObject.transform, out LayoutElement cooldownBarLe, out RawImage cooldownBarRawImage);
+            CreateProgressBar("ActiveBuff", 2, progressBarsObject.transform, out LayoutElement activeBuffBarLe, out RawImage activeBuffBarRawImage);
 
             var indicator = new Indicator
             {
@@ -316,8 +403,16 @@ namespace BuffKit.RepairCluster
                 IconRawImage = mainIconRawImage,
                 FireIconObject = fireIconObject,
                 FireIconRawImage = fireRawImage,
+                FailsafeIconObject = failsafeIconObject,
+                FailsafeIconRawImage = failsafeIconRawImage,
+                FireproofIconObject = fireproofIconObject,
+                FireproofIconRawImage = fireproofIconRawImage,
                 HealthBarLayoutElement = healthBarLe,
                 HealthBarRawImage = healthBarRawImage,
+                CooldownBarLayoutElement = cooldownBarLe,
+                CooldownBarRawImage = cooldownBarRawImage,
+                ActiveBuffBarLayoutElement = activeBuffBarLe,
+                ActiveBuffBarRawImage = activeBuffBarRawImage,
             };
             _indicators.Add(indicator);
             return indicatorObject;
@@ -343,8 +438,16 @@ namespace BuffKit.RepairCluster
             public RawImage IconRawImage;
             public GameObject FireIconObject;
             public RawImage FireIconRawImage;
+            public GameObject FailsafeIconObject;
+            public RawImage FailsafeIconRawImage;
+            public GameObject FireproofIconObject;
+            public RawImage FireproofIconRawImage;
             public LayoutElement HealthBarLayoutElement;
             public RawImage HealthBarRawImage;
+            public LayoutElement CooldownBarLayoutElement;
+            public RawImage CooldownBarRawImage;
+            public LayoutElement ActiveBuffBarLayoutElement;
+            public RawImage ActiveBuffBarRawImage;
 
             public bool Active { get => IndicatorObject.activeSelf; set { if (IndicatorObject.activeSelf != value) IndicatorObject.SetActive(value); } }
 
@@ -381,7 +484,66 @@ namespace BuffKit.RepairCluster
                 }
                 // Hide bar if health is full.
                 if (percentage == 1f) percentage = 0;
-                HealthBarLayoutElement.preferredWidth = percentage * (_gridWidth - _progressBarPadding.horizontal);
+                HealthBarLayoutElement.preferredWidth = CalculatePreferredWidth(percentage);
+            }
+
+            public void SetRepairable(Repairable repairable)
+            {
+                float newPercentage;
+                float newPreferredWidth;
+
+                // CooldownBar: Shows repair cooldown or rebuild progress if destroyed.
+                // Only display if setting enabled. Hide bar if cooldown is done.
+                if (!_showBarRepairProgress) newPercentage = 0f;
+                else if (repairable.RepairProgress == 1f) newPercentage = 0f;
+                else newPercentage = repairable.RepairProgress;
+                newPreferredWidth = CalculatePreferredWidth(newPercentage);
+                if (CooldownBarLayoutElement.preferredWidth != newPreferredWidth) CooldownBarLayoutElement.preferredWidth = newPreferredWidth;
+
+                // ActiveBuffBar. Only display if setting enabled.
+                if (!_showBarActiveBuff) newPercentage = 0f;
+                // ActiveBuffBar: Armor Kit.
+                else if (repairable.ActiveBuffType == Muse.Icarus.Common.SkillEffectType.AddBonusArmorBuff)
+                {
+                    if (!ActiveBuffBarRawImage.color.Equals(_colorCyan)) ActiveBuffBarRawImage.color = _colorCyan;
+                    newPercentage = (float)repairable.BuffStackCount / _armorKitBuffValue;
+                }
+                // ActiveBuffBar: DynaBuff.
+                else if (repairable.ActiveBuffType == Muse.Icarus.Common.SkillEffectType.BuffComponent)
+                {
+                    if (!ActiveBuffBarRawImage.color.Equals(_colorYellow)) ActiveBuffBarRawImage.color = _colorYellow;
+                    newPercentage = repairable.BuffDuration;
+                }
+                newPreferredWidth = CalculatePreferredWidth(newPercentage);
+                if (ActiveBuffBarLayoutElement.preferredWidth != newPreferredWidth) ActiveBuffBarLayoutElement.preferredWidth = newPreferredWidth;
+
+                // FailsafeIcon. Only display if setting enabled.
+                // This doesn't only detect failsafe applied. Any effect that heals over time will display the icon.
+                // if (repairable.Status.ActiveStatusEffects.Contains(Muse.Icarus.Common.SkillEffectType.HealPart))
+                // Never mind, found this:
+                if (_showStatusFailsafe && (bool)repairable.repairEffectControls?.spawnedAttachedEquipment)
+                {
+                    if (!FailsafeIconObject.activeSelf) FailsafeIconObject.SetActive(true);
+                }
+                else
+                {
+                    if (FailsafeIconObject.activeSelf) FailsafeIconObject.SetActive(false);
+                }
+
+                // ChemSprayIcon. Only display if setting enabled.
+                if (_showStatusFireproof && repairable.Status.ActiveStatusEffects.Contains(Muse.Icarus.Common.SkillEffectType.ModifyIgnitionChance))
+                {
+                    if (!FireproofIconObject.activeSelf) FireproofIconObject.SetActive(true);
+                }
+                else
+                {
+                    if (FireproofIconObject.activeSelf) FireproofIconObject.SetActive(false);
+                }
+            }
+
+            public static float CalculatePreferredWidth(float percentage)
+            {
+                return percentage * (_gridWidth - _progressBarPadding.horizontal);
             }
 
             public override string ToString()
