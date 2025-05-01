@@ -32,7 +32,7 @@ namespace BuffKit.AchievementScreenState
         private static void Prepare()
         {
             if (!_firstPrepare) return;
-            Settings.Settings.Instance.AddEntry("achievement screen state", "achievement screen state", v => _enabled = v, _enabled);
+            Settings.Settings.Instance.AddEntry("misc", "achievement screen state", v => _enabled = v, _enabled);
             _firstPrepare = false;
         }
 
