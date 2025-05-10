@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LitJson;
+﻿using LitJson;
 using Muse.Common;
 using Muse.Goi2.Entity;
 using Muse.Goi2.Entity.Vo;
+using MuseBase.Multiplayer;
 using MuseBase.Multiplayer.Photon;
 using MuseBase.Multiplayer.Unity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Resources = BuffKit.UI.Resources;
 
@@ -228,6 +229,29 @@ namespace BuffKit
             PilotSkillIds.Sort();
             GunnerSkillIds.Sort();
             EngineerSkillIds.Sort();
+        }
+
+        /// <summary>
+        /// Queue a toast notification in top-right with title "System Message" and specified message. Can log to the notification panel.
+        /// </summary>
+        /// <param name="message">Message string. Can use <c>\n</c> for new line.</param>
+        /// <param name="showInNotificationPanel">Log notification in the notification panel. Default <c>false</c>.</param>
+        public static void SendToastNotification(string message, bool showInNotificationPanel = false)
+        {
+            var notificationType = showInNotificationPanel ? NotificationType.ServerAlert : NotificationType.ConsoleAlert;
+            var messageDictionary = new Dictionary<string, object> {
+                { "content", message }
+            };
+            NotificationDispatch.RaiseNotification(notificationType, messageDictionary);
+        }
+
+        /// <summary>
+        /// Add a red console message to the chat. Only visible to the player.
+        /// </summary>
+        /// <param name="message">Message string. Can use <c>\n</c> for new line.</param>
+        public static void SendConsoleChatMessage(string message)
+        {
+            MuseWorldClient.Instance.ChatHandler.AddMessage(ChatMessage.Console(message));
         }
 
     }
