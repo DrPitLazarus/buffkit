@@ -14,7 +14,7 @@ namespace BuffKit.MapPicker
             
             OnGameInitialize += delegate
             {
-                Settings.Settings.Instance.AddEntry("map picker", "only show DM maps", delegate (bool v)
+                Settings.Settings.Instance.AddEntry("ref tools", "only show DM maps", delegate (bool v)
                 {
                     MapPicker.FilterNonDM = v;
                 }, MapPicker.FilterNonDM);

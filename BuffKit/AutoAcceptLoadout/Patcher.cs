@@ -8,6 +8,7 @@ namespace BuffKit.AutoAcceptLoadout
     class UINewAcceptLoadoutDialog_Show
     {
         private static bool enableAutoAccept = false;
+        private static bool showAutoAcceptNotification = true;
 
         private static bool firstPrepare = true;
         private static void Prepare()
@@ -15,6 +16,7 @@ namespace BuffKit.AutoAcceptLoadout
             if (firstPrepare)
             {
                 Settings.Settings.Instance.AddEntry("loadout manager", "auto accept loadouts", v => enableAutoAccept = v, enableAutoAccept);
+                Settings.Settings.Instance.AddEntry("loadout manager", "auto accept loadouts notification", v => showAutoAcceptNotification = v, showAutoAcceptNotification);
                 firstPrepare = false;
             }
         }
@@ -31,6 +33,11 @@ namespace BuffKit.AutoAcceptLoadout
 
             var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
             typeof(UINewAcceptLoadoutDialog).GetMethod("Accept", flags).Invoke(__instance, null);
+
+            if (showAutoAcceptNotification)
+            {
+                Util.SendToastNotification($"Auto accepted {clazz} loadout from {captainName}.");
+            }
 
             return false;
         }

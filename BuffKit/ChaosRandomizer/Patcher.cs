@@ -24,7 +24,7 @@ namespace BuffKit.ChaosRandomizer
                         if (!ChaosRandomizer.Enabled) return;
                         ChaosRandomizer.Instance.ExitLobby(mlv);
                     };
-                    Settings.Settings.Instance.AddEntry("misc", "chaos skirmish ref panel", delegate (bool v)
+                    Settings.Settings.Instance.AddEntry("ref tools", "chaos skirmish ref panel", delegate (bool v)
                     {
                         ChaosRandomizer.Enabled = v;
                         if (v && MatchLobbyView.Instance != null)

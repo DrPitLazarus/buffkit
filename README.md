@@ -8,14 +8,24 @@ A collection of game modifications that feature:
 
 Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
 
+## Features
+Popular features include:
+- Loadout Viewer: see ship and player loadouts all at once.
+- Auto accept loadout recommendations and sort by preference.
+- Skipping the Launcher and Intro movie.
+- Better gun info tooltips and ship stat panels.
+
+A complete description of all features will be added soon. In the meantime, you can learn some of the features from reading the [release notes](https://github.com/DrPitLazarus/buffkit/releases). Work-in-Progress [BuffKit Wiki](https://github.com/DrPitLazarus/buffkit/wiki).
+
 ## Install Options
 1. [BuffKit Mod Installer for Windows](BuffKitModInstaller/#readme)
 2. Manual install from .zip file.
-    1. Visit latest [release page](https://github.com/DrPitLazarus/buffkit/releases/latest) and download .zip file.
+    1. Visit latest [release page](https://github.com/DrPitLazarus/buffkit/releases/latest) and download .zip file. Or [view all releases](https://github.com/DrPitLazarus/buffkit/releases).
     2. Open downloaded .zip file.
     3. Open your `Guns of Icarus Online` folder.
     4. Drag and drop .zip contents to your game folder, overwrite if prompted.
-    5. **Additional steps for Linux**: Use Proton and add to your launch options: `WINEDLLOVERRIDES="version=n,b" %command%`.
+    5. **Additional steps for Linux**: Use Proton and add to your launch options:  
+    `WINEDLLOVERRIDES="version=n,b" %command%`.
 
 ## Uninstall Options
 1. Use either uninstall option in [BuffKit Mod Installer for Windows](BuffKitModInstaller/#readme).
@@ -28,15 +38,6 @@ Created by Trgk and Ightrril. Dr. Pit Lazarus is the current developer.
 4. Manual complete mod loader uninstall:
     - Delete folder `Guns of Icarus Online\BepInEx`. Make a backup if there is any mod settings you want to keep.
     - Delete files `changelog.txt doorstop_config.ini version.dll` in `Guns of Icarus Online` folder.
-
-## Features
-Popular features include:
-- Loadout Viewer: see ship and player loadouts all at once.
-- Auto accept loadout recommendations and sort by preference.
-- Skipping the Launcher and Intro movie.
-- Better gun info tooltips and ship stat panels.
-
-A complete description of all features will be added soon. In the meantime, you can learn some of the features from reading the [release notes](https://github.com/DrPitLazarus/buffkit/releases).
 
 # Developer Notes
 ## Building and installing
