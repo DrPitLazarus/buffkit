@@ -1,47 +1,78 @@
 ﻿using HarmonyLib;
 using MuseBase.Multiplayer;
-using MuseBase.Multiplayer.Unity;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.Networking;
 using Version = System.Version;
 
 namespace BuffKit.UpdateChecker
 {
     [HarmonyPatch]
-    public class UpdateChecker
+    public class UpdateChecker : MonoBehaviour
     {
+        private static readonly string _serverVersionUrl = "https://drpitlazarus.github.io/goi-mods/buffkit-version";
+        private static readonly string _latestReleasePageUrl = "https://github.com/DrPitLazarus/buffkit/releases/latest";
+        private static readonly string _chatCommandToOpenDownloadPage = "/buffkit update";
         private static bool _firstMainMenuState = true;
+        private static UpdateChecker _instance;
 
-        [HarmonyPatch(typeof(UIManager.UINewMainMenuState), "Enter")]
+        [HarmonyPatch(typeof(UIManager.UINewMainMenuState), nameof(UIManager.UINewMainMenuState.Enter))]
         [HarmonyPostfix]
-        private static void Start()
+        private static void Initialize()
         {
             if (!_firstMainMenuState) return;
             _firstMainMenuState = false;
-            CheckForUpdates();
+            _instance = BuffKit.GameObject.AddComponent<UpdateChecker>();
         }
 
-        private static void CheckForUpdates()
+        private void Start()
+        {
+            StartCoroutine(CheckForUpdates());
+        }
+
+        /// <summary>
+        /// Log current version in chat and check for updates. If outdated, log an update available message in chat.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator CheckForUpdates()
         {
             var currentVersion = PluginInfo.PLUGIN_VERSION;
-            MuseLog.Info("Current BuffKit version: " + currentVersion);
-            MuseWorldClient.Instance.ChatHandler.AddMessage(ChatMessage.Console($"BuffKit {currentVersion} loaded."));
+            MuseLog.Info($"Current BuffKit version: {currentVersion}.");
+            Util.SendConsoleChatMessage($"BuffKit {currentVersion} loaded.");
 
-            // Using unity's version, webclient/httpwebrequest fails to connect to https urls.
-            var request = UnityWebRequest.Get("https://drpitlazarus.github.io/goi-mods/buffkit-version");
-            request.Send();
-            while (!request.isDone) { } // Wait for request to finish. Didn't want to deal with coroutines.
+            // Using Unity's version since WebClient/HttpWebRequest fails to connect to https URLs.
+            var request = UnityWebRequest.Get(_serverVersionUrl);
+            yield return request.Send(); // Wait for the request to complete without blocking.
             if (request.isError || request.responseCode != 200)
             {
-                MuseLog.Info("Failed to check for update.");
-                return;
+                MuseLog.Info($"Failed to check for update. Error: {request.error}");
+                yield break; // Early return.
             }
 
             var versionFromServer = request.downloadHandler.text.Trim();
-            MuseLog.Info("Latest BuffKit version: " + versionFromServer);
+            MuseLog.Info($"Latest BuffKit version: {versionFromServer}.");
 
-            if (!(new Version(currentVersion).CompareTo(new Version(versionFromServer)) < 0)) return; // -1 means the server version is newer.
-            var message = $"BuffKit {versionFromServer} is available. Check the #buffkit channel in the COG discord server to download.";
-            MuseWorldClient.Instance.ChatHandler.AddMessage(ChatMessage.Console(message));
+            var isOutdated = new Version(currentVersion).CompareTo(new Version(versionFromServer)) < 0; // -1 means the server version is newer.
+            if (!isOutdated)
+            {
+                yield break; // Early return.
+            }
+            var message = $"BuffKit {versionFromServer} is available. Type \"{_chatCommandToOpenDownloadPage}\" to open download page.";
+            Util.SendConsoleChatMessage(message);
+        }
+
+        /// <summary>
+        /// Prefix patch to prevent sending chat command as a message and open the download page.
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        [HarmonyPatch(typeof(MessageClient), nameof(MessageClient.TrySendMessage))]
+        [HarmonyPrefix]
+        private static bool HandleChatCommandToOpenDownloadPage(string msg)
+        {
+            if (msg.ToLower().Trim() != _chatCommandToOpenDownloadPage) return true; // Allow other messages to be sent normally.
+            Application.OpenURL(_latestReleasePageUrl);
+            return false; // Prevent the message from being sent to the server.
         }
     }
 }
