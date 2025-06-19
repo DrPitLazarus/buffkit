@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
-using BuffKit.Settings;
+﻿using BuffKit.Settings;
+using HarmonyLib;
 using Muse.Goi2.Entity;
+using Muse.Goi2.Entity.Vo;
 using Muse.Icarus.Coop.WorldMap;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BuffKit.ShipLoadoutViewer
 {
+    [HarmonyPatch]
     class ShipLoadoutViewer
     {
         public static void LobbyUIPreBuild(UIMatchLobby uiml)
@@ -219,12 +222,33 @@ namespace BuffKit.ShipLoadoutViewer
             _playerFactionPairs[playerId] = -1;
 
             AccountActions.GetUserProfile(playerId,
-                (Muse.Goi2.Entity.Vo.UserProfile userProfile) =>
+                (UserProfile userProfile) =>
                 {
                     _playerFactionPairs[playerId] = userProfile.FactionId;
                     MarkCrewBarsForRedraw();
                 }
             );
+        }
+
+        /// <summary>
+        /// Updates the faction ID for a player when the profile panel is activated and mark for redraw if in a lobby.
+        /// </summary>
+        /// <param name="user"></param>
+        [HarmonyPatch(typeof(UIProfilePanel), nameof(UIProfilePanel.Instance.Activate))]
+        [HarmonyPostfix]
+        private static void UIProfilePanel_Activate_UpdateData(UserProfile user)
+        {
+            if (_playerFactionPairs.ContainsKey(user.Id) && _playerFactionPairs[user.Id] == user.FactionId)
+            {
+                return;
+            }
+
+            MuseLog.Info($"Player ID {user.Id} has a new faction {user.FactionId}!");
+            _playerFactionPairs[user.Id] = user.FactionId;
+            if (_paintGunBars && UIMatchLobby_Awake.FactionIconsVisible && MatchLobbyView.Instance != null)
+            {
+                MarkCrewBarsForRedraw();
+            }
         }
     }
 }
