@@ -68,14 +68,17 @@ See `.\BuffKit\BuffKit.csproj` for the exact steps.
 > [!WARNING]
 > Deprecated. Replaced with [BepInEx.AssemblyPublicizer.MSBuild](https://github.com/BepInEx/BepInEx.AssemblyPublicizer).
 
-~~Edit `.\Binaries\spanner_config.toml` and `.\BuffKit\GamePath.txt` to your game folder. 
-Example `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.~~
+<details><summary>Old description</summary>
+    
+Edit `.\Binaries\spanner_config.toml` and `.\BuffKit\GamePath.txt` to your game folder. 
+Example `C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online`.
 
-~~`./Binaries/Spanner.exe` is the tool that will copy the game assemblies to `.\Assemblies\`. 
+`./Binaries/Spanner.exe` is the tool that will copy the game assemblies to `.\Assemblies\`. 
 It will deprivatize classes and methods so you can use them without needing to use reflection. 
 Run it with terminal or run it normally and check the `spanner_log.txt` for errors. 
 You need .NET 8 runtime to run it. 
-You should only need to run it once, unless you make changes to the spanner config.~~
+You should only need to run it once, unless you make changes to the spanner config.
 
-~~Nothing much here. Open the Spanner solution and use publish to build the single file Spanner.exe. 
-Put the new .exe in `.\Binaries\`.~~
+Nothing much here. Open the Spanner solution and use publish to build the single file Spanner.exe. 
+Put the new .exe in `.\Binaries\`.
+</details>

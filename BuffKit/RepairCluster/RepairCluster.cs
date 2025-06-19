@@ -66,9 +66,10 @@ namespace BuffKit.RepairCluster
         /// <summary>
         /// Activates the repair cluster.
         /// </summary>
-        [HarmonyPatch(typeof(Mission), nameof(Mission.Start))]
+        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
+        [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
         [HarmonyPostfix]
-        private static void Mission_Start()
+        private static void UIManager_UIMatchBlockState_Exit()
         {
             if (!_enabled) return;
             _doUpdateShouldBeEnabled = true;
@@ -144,7 +145,7 @@ namespace BuffKit.RepairCluster
             var isPractice = Util.PracticeGameModes.Contains(currentGameMode);
             var shouldBeEnabled = isCoop || isPractice;
             MuseLog.Info($"_shouldBeEnabled: {shouldBeEnabled}, isCoop: {isCoop} || isPractice: {isPractice}");
-            _shouldBeEnabled = shouldBeEnabled;
+            _shouldBeEnabled = shouldBeEnabled = true;
         }
 
         /// <summary>

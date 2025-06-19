@@ -29,7 +29,8 @@ namespace BuffKit.Speedometer
             _firstPrepare = false;
         }
 
-        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))]
+        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
+        [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
         [HarmonyPostfix]
         private static void UIManager_UIMatchBlockState_Exit()
         {
