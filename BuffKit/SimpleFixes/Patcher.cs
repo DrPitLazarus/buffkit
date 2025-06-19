@@ -181,7 +181,7 @@ namespace BuffKit.SimpleFixes
             UnityEngine.Object.Destroy(buttonGroupObject.transform.GetChild(1).gameObject); // Don't need 2nd button.
             var resetAudioButtonObject = buttonGroupObject.transform.GetChild(0).gameObject;
             resetAudioButtonObject.name = "Reset Audio Button";
-            resetAudioButtonObject.GetComponentInChildren<Text>().text = "Reset Audio";
+            resetAudioButtonObject.GetComponentInChildren<Text>().text = "Update Audio Device";
             resetAudioButtonObject.GetComponentInChildren<Button>().onClick.AddListener(ResetAudio);
         }
 
