@@ -127,6 +127,26 @@ namespace BuffKit.SimpleFixes
             // Only replace the number in the string.
             resetText.text = Regex.Replace(resetText.text, @"\d+", days.ToString());
         }
+
+        /// <summary>
+        /// In UIFactionPanel stats tab, some ScrollRects are not scrolled to the top when initialized.
+        /// </summary>
+        [HarmonyPatch(typeof(UIFactionPanel), nameof(UIFactionPanel.Awake))]
+        [HarmonyPostfix]
+        private static void FixMyFactionStatsScrollRects()
+        {
+            var scrollRects = UIFactionPanel.Instance?.myStatsPanel?.GetComponentsInChildren<ScrollRect>();
+            if (scrollRects?.Length == 0)
+            {
+                MuseLog.Info("scrollRects is zero!");
+                return;
+            }
+            foreach (var scrollRect in scrollRects)
+            {
+                // Reset scroll position to the top.
+                scrollRect.verticalNormalizedPosition = 1f;
+            }
+        }
     }
 
 
