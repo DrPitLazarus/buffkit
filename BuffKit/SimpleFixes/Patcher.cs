@@ -1,7 +1,10 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
+using Muse.Goi2.Entity;
+using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
+using Text = UnityEngine.UI.Text;
 
 namespace BuffKit.SimpleFixes
 {
@@ -98,6 +101,31 @@ namespace BuffKit.SimpleFixes
                 }
                 scrollRect.scrollSensitivity = newScrollSensitivity;
             }
+        }
+
+        /// <summary>
+        /// Updates the faction leaderboard display to use <c>faction_leaderboard_days</c> from the server instead of the hardcoded value.
+        /// </summary>
+        [HarmonyPatch(typeof(UIFactionPanel), nameof(UIFactionPanel.Awake))]
+        [HarmonyPostfix]
+        private static void UpdateFactionLeaderboardDays()
+        {
+            var days = SystemConfiguration.TryGetInt("faction_leaderboard_days");
+            MuseLog.Info($"Faction leaderboard days: {days}.");
+            var candidatePanelObject = UIFactionPanel.Instance?.candidatePanel;
+            if (candidatePanelObject == null)
+            {
+                MuseLog.Info("candidatePanelObject is null!");
+                return;
+            }
+            var resetText = candidatePanelObject.transform.Find("Candidate Panel/Container/Information Group/Information Description Label")?.GetComponent<Text>();
+            if (resetText == null)
+            {
+                MuseLog.Info("resetText is null!");
+                return;
+            }
+            // Only replace the number in the string.
+            resetText.text = Regex.Replace(resetText.text, @"\d+", days.ToString());
         }
     }
 
