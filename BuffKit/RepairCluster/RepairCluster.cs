@@ -66,9 +66,10 @@ namespace BuffKit.RepairCluster
         /// <summary>
         /// Activates the repair cluster.
         /// </summary>
-        [HarmonyPatch(typeof(Mission), nameof(Mission.Start))]
+        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
+        [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
         [HarmonyPostfix]
-        private static void Mission_Start()
+        private static void UIManager_UIMatchBlockState_Exit()
         {
             if (!_enabled) return;
             _doUpdateShouldBeEnabled = true;
