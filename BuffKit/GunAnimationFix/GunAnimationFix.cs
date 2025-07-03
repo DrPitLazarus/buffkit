@@ -42,7 +42,7 @@ namespace BuffKit.GunAnimationFix
                     // Gaze doesn't have it, so I added its type to the check.
                     // Single fire animation highly not recommended. If curious: Gaze and Coil have maximum screen shake.
                     // Gatling and Flamer play trigger down animation repeatedly. Hwacha and Laser trigger down animation doesn't play.
-                    if (__instance.AirshipGunFX.stopTriggerDownEffectSystem != null ||
+                    if (__instance.AirshipGunFX?.stopTriggerDownEffectSystem != null ||
                         __instance.AirshipGunFX is ChargeReleaseFireGunEffectControls /* Gaze and Coil */ )
                     {
                         __instance.PlayContinousFireFX(__instance.localController != null, 1f); // Unmodified.
