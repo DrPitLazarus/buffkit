@@ -9,6 +9,7 @@ namespace BuffKit.GunAnimationFix
     {
         private static bool _enabled = true;
         private static bool _firstMainMenuState = true;
+        //private static bool _testSendSingleFireInput = false;
 
         /// <summary>
         /// Feature initialization. Create settings.
@@ -42,7 +43,7 @@ namespace BuffKit.GunAnimationFix
                     // Gaze doesn't have it, so I added its type to the check.
                     // Single fire animation highly not recommended. If curious: Gaze and Coil have maximum screen shake.
                     // Gatling and Flamer play trigger down animation repeatedly. Hwacha and Laser trigger down animation doesn't play.
-                    if (__instance.AirshipGunFX.stopTriggerDownEffectSystem != null ||
+                    if (__instance.AirshipGunFX?.stopTriggerDownEffectSystem != null ||
                         __instance.AirshipGunFX is ChargeReleaseFireGunEffectControls /* Gaze and Coil */ )
                     {
                         __instance.PlayContinousFireFX(__instance.localController != null, 1f); // Unmodified.
@@ -127,14 +128,14 @@ namespace BuffKit.GunAnimationFix
                     {
                         __instance.shot.transform.rotation = __instance.barrels[__instance.currentBarrel].rotation;
                     }
-                    catch (ArgumentOutOfRangeException ex)
+                    catch (ArgumentOutOfRangeException)
                     {
-                        MuseLog.Error("Out of range happened on {0}. Too many barrels in the data__instance or not enough on the object (index:{1} >= count:{2})".F(new object[]
-                        {
+                        MuseLog.Error("Out of range happened on {0}. Too many barrels in the data__instance or not enough on the object (index:{1} >= count:{2})".F(
+                        [
                     __instance.gameObject.name,
                     __instance.currentBarrel,
                     __instance.barrels != null ? __instance.barrels.Count : 0
-                        }), __instance.gameObject);
+                        ]), __instance.gameObject);
                         if (__instance.barrels != null && __instance.barrels.Count != 0 && __instance.barrels[0] != null)
                         {
                             for (int i = 0; i < __instance.barrels.Count - (__instance.currentBarrel + 1); i++)
@@ -157,7 +158,7 @@ namespace BuffKit.GunAnimationFix
                             RayCastAmmoEffectControls rayCastAmmoEffectControls = __instance.AmmoFX as RayCastAmmoEffectControls;
                             if (rayCastAmmoEffectControls != null)
                             {
-                                Vector3 vector = new Vector3(__instance.cachedTransform.position.x - __instance.Ship.Position.x, 0f, __instance.cachedTransform.position.z - __instance.Ship.Position.z);
+                                Vector3 vector = new(__instance.cachedTransform.position.x - __instance.Ship.Position.x, 0f, __instance.cachedTransform.position.z - __instance.Ship.Position.z);
                                 float num2 = __instance.Ship.AngularVelocity * vector.magnitude;
                                 Vector3 vector2 = Vector3.Cross(Vector3.up, vector.normalized);
                                 rayCastAmmoEffectControls.SetWorldVelocity(__instance.Ship.WorldVelocity + num2 * vector2);
@@ -173,14 +174,14 @@ namespace BuffKit.GunAnimationFix
                                 // END MODIFIED SECTION.
                                 __instance.AmmoFX.PlayMuzzleFlash(__instance.transform, __instance.barrels[__instance.currentBarrel]);
                             }
-                            catch (ArgumentOutOfRangeException ex2)
+                            catch (ArgumentOutOfRangeException)
                             {
-                                MuseLog.Error("Out of range happened on {0}. Too many barrels in the data__instance or not enough on the object (index:{1} >= count:{2})".F(new object[]
-                                {
+                                MuseLog.Error("Out of range happened on {0}. Too many barrels in the data__instance or not enough on the object (index:{1} >= count:{2})".F(
+                                [
                                     __instance.gameObject.name,
                                     __instance.currentBarrel,
                                     __instance.barrels != null ? __instance.barrels.Count : 0
-                                }), __instance.gameObject);
+                                ]), __instance.gameObject);
                                 if (__instance.barrels != null && __instance.barrels.Count != 0 && __instance.barrels[0] != null)
                                 {
                                     for (int j = 0; j < __instance.barrels.Count - (__instance.currentBarrel + 1); j++)
@@ -221,19 +222,28 @@ namespace BuffKit.GunAnimationFix
             return true; // Run original method.
         }
 
+        // Testing method. Do not use. Sends single fire input to actually fire gun on the server.
+        //[HarmonyPatch(typeof(UIManager.UIGunState), nameof(UIManager.UIGunState.ContinuousFireGun))]
+        //[HarmonyPostfix]
+        //private static void UIGunState_ContinuousFireGun(UIManager.UIContext uiContext, UIManager.UIGunState __instance)
+        //{
+        //    if (!_testSendSingleFireInput) return;
+        //    __instance.FireGun(uiContext);
+        //}
+
         // Testing method. Do not use.
-        private static void TestSetContinuousForCurrentGuns(bool enabled)
-        {
-            if (NetworkedPlayer.Local?.CurrentShip == null) return;
-            var guns = NetworkedPlayer.Local.CurrentShip.GetComponentsInChildren<Turret>(true);
-            foreach (var gun in guns)
-            {
-                if (gun == null) continue;
-                if (gun.Continuous != enabled)
-                {
-                    gun.Continuous = enabled;
-                }
-            }
-        }
+        //private static void TestSetContinuousForCurrentGuns(bool enabled)
+        //{
+        //    if (NetworkedPlayer.Local?.CurrentShip == null) return;
+        //    var guns = NetworkedPlayer.Local.CurrentShip.GetComponentsInChildren<Turret>(true);
+        //    foreach (var gun in guns)
+        //    {
+        //        if (gun == null) continue;
+        //        if (gun.Continuous != enabled)
+        //        {
+        //            gun.Continuous = enabled;
+        //        }
+        //    }
+        //}
     }
 }
