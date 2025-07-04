@@ -11,8 +11,11 @@ using UnityEngine.UI;
 
 namespace BuffKit.ShipLoadoutNotes
 {
-    public class ShipLoadoutNotes : MonoBehaviour
+    internal class ShipLoadoutNotes : MonoBehaviour
     {
+        public static bool Initialized => _shipLoadoutNotesObject is not null;
+        public static bool InputFieldFocused => _noteInputField?.isFocused ?? false;
+
         private static readonly string _name = "Ship Loadout Notes";
         private static readonly string _announceButtonText = "Announce to Crew";
         private static readonly string _saveButtonText = "Save";
@@ -21,9 +24,6 @@ namespace BuffKit.ShipLoadoutNotes
         private static readonly int _maxNoteLength = 1000;
         private static readonly TimeSpan _announceToCrewCooldown = TimeSpan.FromSeconds(15);
 
-        public static bool Initialized { get { return _shipLoadoutNotesObject != null; } }
-        public static bool InputFieldFocused { get { return _noteInputField?.isFocused ?? false; } }
-
         private static TMP_InputField _noteInputField;
         private static GameObject _shipLoadoutNotesObject;
         private static GameObject _announceToCrewButtonObject;
@@ -31,21 +31,15 @@ namespace BuffKit.ShipLoadoutNotes
         private static List<ShipLoadoutNoteData> _allNotes = [];
         private static int _currentNoteIndex = -1;
         private static DateTime? _announcedTime;
-        private static bool _isCaptain { get { return NetworkedPlayer.Local.IsCaptain; } }
+        private static bool _isCaptain => NetworkedPlayer.Local?.IsCaptain ?? false;
 
-        private static ShipLoadoutNoteData _currentGameData
+        private static ShipLoadoutNoteData _currentGameData => new()
         {
-            get
-            {
-                return new ShipLoadoutNoteData
-                {
-                    gameType = NetworkedPlayer.Local.GameType,
-                    shipModelId = UIShipCustomizationScreen.Instance.currentShip.ModelId,
-                    presetIndex = UIShipCustomizationScreen.Instance.currentShip.CurrentPresetIndex,
-                    note = _noteInputField.text
-                };
-            }
-        }
+            gameType = NetworkedPlayer.Local.GameType,
+            shipModelId = UIShipCustomizationScreen.Instance.currentShip.ModelId,
+            presetIndex = UIShipCustomizationScreen.Instance.currentShip.CurrentPresetIndex,
+            note = _noteInputField.text
+        };
 
         [Serializable]
         private struct ShipLoadoutNoteData
@@ -192,7 +186,7 @@ namespace BuffKit.ShipLoadoutNotes
             // Cap length of note. Add length to reserve for player names.
             if (note.Length >= _maxNoteLength + 100) note = note.Substring(0, _maxNoteLength + 100);
             // Split at double newline.
-            var noteParts = note.Split(new string[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var noteParts = note.Split(["\n\n"], StringSplitOptions.RemoveEmptyEntries);
             // Cap at 4 separate chat messages.
             foreach (var notePart in noteParts.Take(4))
             {
