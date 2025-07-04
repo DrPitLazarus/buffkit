@@ -5,33 +5,49 @@ using UnityEngine;
 
 namespace BuffKit.ToggleMatchUI
 {
-    /// <summary>
-    /// Initializes the ToggleUIController when mission starts. Gets destroyed when the mission ends.
-    /// </summary>
-    [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
-    [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
-    class Mission_Start
+    [HarmonyPatch]
+    internal class ToggleMatchUIPatcher
     {
-        private static void Postfix()
+        public static bool EnableKeyBind = true;
+        private static bool _firstPrepare = true;
+
+        private static void Prepare()
         {
-            if (!ToggleUIController.Initialized)
+            if (!_firstPrepare) return;
+            Util.OnGameInitialize += () =>
             {
-                Mission.Instance.gameObject.AddComponent<ToggleUIController>();
+                Settings.Settings.Instance.AddEntry("toggle match ui", "toggle match ui/enable f6 key bind", v => EnableKeyBind = v, EnableKeyBind);
+            };
+            _firstPrepare = false;
+        }
+
+        /// <summary>
+        /// Initializes the ToggleUIController when mission starts. Gets destroyed when the mission ends.
+        /// </summary>
+        [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
+        [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
+        [HarmonyPostfix]
+        private static void Initialize()
+        {
+            if (!ToggleMatchUIController.Initialized)
+            {
+                Mission.Instance.gameObject.AddComponent<ToggleMatchUIController>();
             }
         }
     }
+
 
     // Following patches hide various UI elements when ShowUI is off.
 
     // Hide hit markers(?)
     [HarmonyPatch(typeof(UIOverlayHitIndicator), nameof(UIOverlayHitIndicator.Refresh))]
-    class UIOverlayHitIndicator_Refresh
+    internal class UIOverlayHitIndicator_Refresh
     {
         private static bool Prefix(UIOverlayHitIndicator __instance)
         {
             if (__instance.gameObject.activeSelf)
             {
-                if (ToggleUIController.Initialized && ToggleUIController.ShowUI)
+                if (ToggleMatchUIController.Initialized && ToggleMatchUIController.ShowUI)
                     return true;
                 __instance.gameObject.SetActive(false);
                 return false;
@@ -42,22 +58,22 @@ namespace BuffKit.ToggleMatchUI
 
     // Hide hit markers
     [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHitPoint))]
-    class UIOverlayManager_UpdateHitPoint
+    internal class UIOverlayManager_UpdateHitPoint
     {
         private static void Postfix(UITransform uiTransform, HitPoint hit)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return;
+            if (!ToggleMatchUIController.Initialized || ToggleMatchUIController.ShowUI) return;
             uiTransform.DeactivateIfActivated(0f);
         }
     }
 
     // Hide Alliance spotted ship
     [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHighlightSpotting))]
-    class UIOverlayManager_UpdateHighlightSpotting
+    internal class UIOverlayManager_UpdateHighlightSpotting
     {
         private static bool Prefix(UITransform[] ___radarBlips, UIGenericHealthBar[] ___shipHealth)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
+            if (!ToggleMatchUIController.Initialized || ToggleMatchUIController.ShowUI) return true;
             foreach (var blip in ___radarBlips)
                 blip.Deactivate(0f);
             foreach (var health in ___shipHealth)
@@ -67,11 +83,11 @@ namespace BuffKit.ToggleMatchUI
     }
     // Hide Skirmish spotted ship
     [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateBracketSpotting))]
-    class UIOverlayManager_UpdateBracketSpotting
+    internal class UIOverlayManager_UpdateBracketSpotting
     {
         private static bool Prefix(UITransform[] ___radarBlips, UIGenericHealthBar[] ___shipHealth)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
+            if (!ToggleMatchUIController.Initialized || ToggleMatchUIController.ShowUI) return true;
             foreach (var blip in ___radarBlips)
                 blip.Deactivate(0f);
             foreach (var health in ___shipHealth)
@@ -81,11 +97,11 @@ namespace BuffKit.ToggleMatchUI
     }
     // Hide Alliance captain-marked ship
     [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHealthBar))]
-    class UIOverlayManager_UpdateHealthBar
+    internal class UIOverlayManager_UpdateHealthBar
     {
         private static bool Prefix(Ship ship, UIGenericHealthBar shipHealth, Color highlightColor)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
+            if (!ToggleMatchUIController.Initialized || ToggleMatchUIController.ShowUI) return true;
             shipHealth.Deactivate();
             return false;
         }
@@ -93,23 +109,23 @@ namespace BuffKit.ToggleMatchUI
 
     // Prevents error spam when on gun
     [HarmonyPatch(typeof(UIReticle), nameof(UIReticle.SetPosition))]
-    class UIReticle_SetPosition
+    internal class UIReticle_SetPosition
     {
         private static bool Prefix(Vector3 worldPoint)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
+            if (!ToggleMatchUIController.Initialized || ToggleMatchUIController.ShowUI) return true;
             return false;
         }
     }
 
     [HarmonyPatch(typeof(UIRepairComponentView), nameof(UIRepairComponentView.LateUpdate))]
-    class UIRepairComponentView_LateUpdate
+    internal class UIRepairComponentView_LateUpdate
     {
         private static bool Prefix(UIRepairComponentView __instance)
         {
             if (!UIRepairComponentView.instance.root.Activated || NetworkedPlayer.Local == null || NetworkedPlayer.Local.CurrentShip == null || LocalCharacterMotion.Instance == null ||
                 // MODIFIED SECTION.
-                !ToggleUIController.ShowUI
+                !ToggleMatchUIController.ShowUI
                 // END MODIFIED SECTION.
                 )
             {
@@ -119,7 +135,7 @@ namespace BuffKit.ToggleMatchUI
                 __instance.inRangeHelm = null;
                 __instance.hullComponent = null;
                 // MODIFIED SECTION.
-                if (!ToggleUIController.ShowUI)
+                if (!ToggleMatchUIController.ShowUI)
                 {
                     // Hide all repair indicators.
                     __instance.DrawIndicators([]);
@@ -181,11 +197,11 @@ namespace BuffKit.ToggleMatchUI
     }
 
     [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.DrawComponentIndicators))]
-    class UIShipDetailsView_DrawComponentIndicators
+    internal class UIShipDetailsView_DrawComponentIndicators
     {
         private static bool Prefix()
         {
-            if (!ToggleUIController.ShowUI)
+            if (!ToggleMatchUIController.ShowUI)
             {
                 UIShipDetailsView.HideComponentIndicators(0);
                 return false;
@@ -194,11 +210,11 @@ namespace BuffKit.ToggleMatchUI
         }
     }
     [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.DrawCrewToolInspectors))]
-    class UIShipDetailsView_DrawCrewToolInspectors
+    internal class UIShipDetailsView_DrawCrewToolInspectors
     {
         private static bool Prefix(IList<NetworkedPlayer> players, CrewToolInspector[] ___inspectorCache)
         {
-            if (!ToggleUIController.ShowUI)
+            if (!ToggleMatchUIController.ShowUI)
             {
                 for (int i = 0; i < ___inspectorCache.Length; i++)
                 {
@@ -216,20 +232,20 @@ namespace BuffKit.ToggleMatchUI
         }
     }
     [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.Activate))]
-    class UIShipDetailsView_Activate
+    internal class UIShipDetailsView_Activate
     {
         private static bool Prefix()
         {
-            return ToggleUIController.ShowUI;
+            return ToggleMatchUIController.ShowUI;
         }
     }
 
     [HarmonyPatch(typeof(UIShipProfileView), nameof(UIShipProfileView.UpdateSideIndicators))]
-    class UIShipProfileView_UpdateSideIndicators
+    internal class UIShipProfileView_UpdateSideIndicators
     {
         private static bool Prefix(ShipProfileIndicator[] indicators, IEnumerable<Ship> ships)
         {
-            if (ToggleUIController.ShowUI)
+            if (ToggleMatchUIController.ShowUI)
                 return true;
             var i = 0;
             while (i < indicators.Length)

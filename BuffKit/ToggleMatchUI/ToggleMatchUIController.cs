@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace BuffKit.ToggleMatchUI
 {
-    public class ToggleUIController : MonoBehaviour
+    internal class ToggleMatchUIController : MonoBehaviour
     {
-        public static ToggleUIController Instance;
+        public static ToggleMatchUIController Instance;
         public static bool Initialized { get; private set; }
         public static bool ShowUI { get; set; }
 
@@ -49,7 +49,7 @@ namespace BuffKit.ToggleMatchUI
 
         private void LateUpdate()
         {
-            if (_kb.GetDown())
+            if (ToggleMatchUIPatcher.EnableKeyBind && _kb.GetDown())
             {
                 ShowUI = !ShowUI;
                 MuseLog.Info($"Setting match UI display to {ShowUI}...");
