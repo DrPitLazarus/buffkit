@@ -1,41 +1,37 @@
 ﻿using HarmonyLib;
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using UnityEngine;
 
 namespace BuffKit.ToggleMatchUI
 {
-    // Create component
-    [HarmonyPatch(typeof(Mission), "Start")]
+    /// <summary>
+    /// Initializes the ToggleUIController when mission starts. Gets destroyed when the mission ends.
+    /// </summary>
+    [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
+    [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
     class Mission_Start
     {
         private static void Postfix()
         {
-            Mission.Instance.gameObject.AddComponent<ToggleUIController>();
+            if (!ToggleUIController.Initialized)
+            {
+                Mission.Instance.gameObject.AddComponent<ToggleUIController>();
+            }
         }
     }
 
-    // Destroy component
-    [HarmonyPatch(typeof(Mission), "OnDisable")]
-    class Mission_OnDisable
-    {
-        private static void Postfix()
-        {
-            if (ToggleUIController.Initialized)
-                Object.Destroy(ToggleUIController.Instance);
-        }
-    }
+    // Following patches hide various UI elements when ShowUI is off.
 
-    // Hide hitmarkers(?)
-    [HarmonyPatch(typeof(UIOverlayHitIndicator), "Refresh")]
+    // Hide hit markers(?)
+    [HarmonyPatch(typeof(UIOverlayHitIndicator), nameof(UIOverlayHitIndicator.Refresh))]
     class UIOverlayHitIndicator_Refresh
     {
         private static bool Prefix(UIOverlayHitIndicator __instance)
         {
             if (__instance.gameObject.activeSelf)
             {
-                if (ToggleUIController.Initialized && ToggleUIController.Instance.ShowUI)
+                if (ToggleUIController.Initialized && ToggleUIController.ShowUI)
                     return true;
                 __instance.gameObject.SetActive(false);
                 return false;
@@ -44,24 +40,24 @@ namespace BuffKit.ToggleMatchUI
         }
     }
 
-    // Hide hitmarkers
-    [HarmonyPatch(typeof(UIOverlayManager), "UpdateHitPoint")]
+    // Hide hit markers
+    [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHitPoint))]
     class UIOverlayManager_UpdateHitPoint
     {
         private static void Postfix(UITransform uiTransform, HitPoint hit)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.Instance.ShowUI) return;
+            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return;
             uiTransform.DeactivateIfActivated(0f);
         }
     }
 
     // Hide Alliance spotted ship
-    [HarmonyPatch(typeof(UIOverlayManager), "UpdateHighlightSpotting")]
+    [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHighlightSpotting))]
     class UIOverlayManager_UpdateHighlightSpotting
     {
         private static bool Prefix(UITransform[] ___radarBlips, UIGenericHealthBar[] ___shipHealth)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.Instance.ShowUI) return true;
+            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
             foreach (var blip in ___radarBlips)
                 blip.Deactivate(0f);
             foreach (var health in ___shipHealth)
@@ -70,12 +66,12 @@ namespace BuffKit.ToggleMatchUI
         }
     }
     // Hide Skirmish spotted ship
-    [HarmonyPatch(typeof(UIOverlayManager), "UpdateBracketSpotting")]
+    [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateBracketSpotting))]
     class UIOverlayManager_UpdateBracketSpotting
     {
         private static bool Prefix(UITransform[] ___radarBlips, UIGenericHealthBar[] ___shipHealth)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.Instance.ShowUI) return true;
+            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
             foreach (var blip in ___radarBlips)
                 blip.Deactivate(0f);
             foreach (var health in ___shipHealth)
@@ -84,61 +80,68 @@ namespace BuffKit.ToggleMatchUI
         }
     }
     // Hide Alliance captain-marked ship
-    [HarmonyPatch(typeof(UIOverlayManager), "UpdateHealthBar")]
+    [HarmonyPatch(typeof(UIOverlayManager), nameof(UIOverlayManager.UpdateHealthBar))]
     class UIOverlayManager_UpdateHealthBar
     {
         private static bool Prefix(Ship ship, UIGenericHealthBar shipHealth, Color highlightColor)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.Instance.ShowUI) return true;
+            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
             shipHealth.Deactivate();
             return false;
         }
     }
 
     // Prevents error spam when on gun
-    [HarmonyPatch(typeof(UIReticle), "SetPosition")]
+    [HarmonyPatch(typeof(UIReticle), nameof(UIReticle.SetPosition))]
     class UIReticle_SetPosition
     {
         private static bool Prefix(Vector3 worldPoint)
         {
-            if (!ToggleUIController.Initialized || ToggleUIController.Instance.ShowUI) return true;
+            if (!ToggleUIController.Initialized || ToggleUIController.ShowUI) return true;
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(UIRepairComponentView), "LateUpdate")]
+    [HarmonyPatch(typeof(UIRepairComponentView), nameof(UIRepairComponentView.LateUpdate))]
     class UIRepairComponentView_LateUpdate
     {
-        private static bool Prefix(UIRepairComponentView __instance, UITransform ___root, ref Repairable ___lastInRangeRepairable, ref Repairable ___inRangeRepairable,
-            ref UsablePart ___inRangeHelm, ref Hull ___hullComponent, ref bool ___reAcquireHull)
+        private static bool Prefix(UIRepairComponentView __instance)
         {
-            var privateMethodBindingFlag = BindingFlags.NonPublic | BindingFlags.Instance;
-
-            if (!___root.Activated || NetworkedPlayer.Local == null || NetworkedPlayer.Local.CurrentShip == null || LocalCharacterMotion.Instance == null || !ToggleUIController.Instance.ShowUI)
+            if (!UIRepairComponentView.instance.root.Activated || NetworkedPlayer.Local == null || NetworkedPlayer.Local.CurrentShip == null || LocalCharacterMotion.Instance == null ||
+                // MODIFIED SECTION.
+                !ToggleUIController.ShowUI
+                // END MODIFIED SECTION.
+                )
             {
-                var methodHideInspector = __instance.GetType().GetMethod("HideInspector", privateMethodBindingFlag);
-                methodHideInspector.Invoke(__instance, new object[] { });
-                ___lastInRangeRepairable = null;
-                ___inRangeRepairable = null;
-                ___inRangeHelm = null;
-                ___hullComponent = null;
+                __instance.HideInspector();
+                __instance.lastInRangeRepairable = null;
+                __instance.inRangeRepairable = null;
+                __instance.inRangeHelm = null;
+                __instance.hullComponent = null;
+                // MODIFIED SECTION.
+                if (!ToggleUIController.ShowUI)
+                {
+                    // Hide all repair indicators.
+                    __instance.DrawIndicators([]);
+                }
+                // END MODIFIED SECTION.
                 return false;
             }
-            if (___hullComponent == null || !___hullComponent.enabled || !___hullComponent.gameObject.activeInHierarchy)
+            if (__instance.hullComponent == null || !__instance.hullComponent.enabled || !__instance.hullComponent.gameObject.activeInHierarchy)
             {
-                ___reAcquireHull = true;
+                __instance.reAcquireHull = true;
             }
-            if (___reAcquireHull)
+            if (__instance.reAcquireHull)
             {
                 IList<Repairable> repairables = NetworkedPlayer.Local.CurrentShip.Repairables;
                 for (int i = 0; i < repairables.Count; i++)
                 {
                     if (repairables[i].Type == LocalShipPartType.Hull)
                     {
-                        ___hullComponent = (repairables[i] as Hull);
-                        if (___hullComponent != null)
+                        __instance.hullComponent = repairables[i] as Hull;
+                        if (__instance.hullComponent != null)
                         {
-                            ___reAcquireHull = false;
+                            __instance.reAcquireHull = false;
                             break;
                         }
                     }
@@ -146,51 +149,43 @@ namespace BuffKit.ToggleMatchUI
             }
             if (LocalCharacterMotion.Instance.OnRepair != null)
             {
-                ___inRangeRepairable = LocalCharacterMotion.Instance.OnRepair.GetComponent<Repairable>();
+                __instance.inRangeRepairable = LocalCharacterMotion.Instance.OnRepair.GetComponent<Repairable>();
             }
             else
             {
-                ___inRangeRepairable = null;
+                __instance.inRangeRepairable = null;
                 if (LocalCharacterMotion.Instance.OnHelm != null)
                 {
-                    ___inRangeHelm = LocalCharacterMotion.Instance.OnHelm.GetComponent<UsablePart>();
+                    __instance.inRangeHelm = LocalCharacterMotion.Instance.OnHelm.GetComponent<UsablePart>();
                 }
                 else
                 {
-                    ___inRangeHelm = null;
+                    __instance.inRangeHelm = null;
                 }
             }
-            var rep = ___inRangeRepairable;
             IList<Repairable> repairables2 = NetworkedPlayer.Local.CurrentShip.Repairables;
-            IEnumerable<Repairable> source = (!(___inRangeRepairable == null)) ? (from r in repairables2
-                                                                                  where r != rep
-                                                                                  select r) : repairables2;
-            var methodDrawIndicators = __instance.GetType().GetMethod("DrawIndicators", privateMethodBindingFlag);
-            methodDrawIndicators.Invoke(__instance, new object[] { (from r in source
-                                 where r.NormalizedHealth < RepairComponentView.DISPLAY_THRESHOLD
-                                 select r).ToList<Repairable>() });
+            IEnumerable<Repairable> enumerable = ((!(__instance.inRangeRepairable == null)) ? repairables2.Where((Repairable r) => r != __instance.inRangeRepairable) : repairables2);
+            __instance.DrawIndicators(enumerable.Where((Repairable r) => r.NormalizedHealth < RepairComponentView.DISPLAY_THRESHOLD).ToList<Repairable>());
             if (UIManager.CharacterInputMode == CharacterInputMode.Player)
             {
-                var methodDrawInspector = __instance.GetType().GetMethod("DrawInspector", privateMethodBindingFlag);
-                methodDrawInspector.Invoke(__instance, new object[] { ___inRangeRepairable ?? ___inRangeHelm });
+                __instance.DrawInspector(__instance.inRangeRepairable ?? __instance.inRangeHelm);
             }
             else
             {
-                var methodHideInspector = __instance.GetType().GetMethod("HideInspector", privateMethodBindingFlag);
-                methodHideInspector.Invoke(__instance, new object[] { });
+                __instance.HideInspector();
             }
-            ___lastInRangeRepairable = ___inRangeRepairable;
+            __instance.lastInRangeRepairable = __instance.inRangeRepairable;
 
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(UIShipDetailsView), "DrawComponentIndicators")]
+    [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.DrawComponentIndicators))]
     class UIShipDetailsView_DrawComponentIndicators
     {
         private static bool Prefix()
         {
-            if (!ToggleUIController.Instance.ShowUI)
+            if (!ToggleUIController.ShowUI)
             {
                 UIShipDetailsView.HideComponentIndicators(0);
                 return false;
@@ -198,12 +193,12 @@ namespace BuffKit.ToggleMatchUI
             return true;
         }
     }
-    [HarmonyPatch(typeof(UIShipDetailsView), "DrawCrewToolInspectors")]
+    [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.DrawCrewToolInspectors))]
     class UIShipDetailsView_DrawCrewToolInspectors
     {
         private static bool Prefix(IList<NetworkedPlayer> players, CrewToolInspector[] ___inspectorCache)
         {
-            if (!ToggleUIController.Instance.ShowUI)
+            if (!ToggleUIController.ShowUI)
             {
                 for (int i = 0; i < ___inspectorCache.Length; i++)
                 {
@@ -220,21 +215,21 @@ namespace BuffKit.ToggleMatchUI
             return true;
         }
     }
-    [HarmonyPatch(typeof(UIShipDetailsView), "Activate")]
+    [HarmonyPatch(typeof(UIShipDetailsView), nameof(UIShipDetailsView.Activate))]
     class UIShipDetailsView_Activate
     {
         private static bool Prefix()
         {
-            return ToggleUIController.Instance.ShowUI;
+            return ToggleUIController.ShowUI;
         }
     }
 
-    [HarmonyPatch(typeof(UIShipProfileView), "UpdateSideIndicators")]
+    [HarmonyPatch(typeof(UIShipProfileView), nameof(UIShipProfileView.UpdateSideIndicators))]
     class UIShipProfileView_UpdateSideIndicators
     {
         private static bool Prefix(ShipProfileIndicator[] indicators, IEnumerable<Ship> ships)
         {
-            if (ToggleUIController.Instance.ShowUI)
+            if (ToggleUIController.ShowUI)
                 return true;
             var i = 0;
             while (i < indicators.Length)
