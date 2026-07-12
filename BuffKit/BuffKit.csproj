@@ -40,8 +40,8 @@
 	<PropertyGroup>
 		<ZipDir>$(ProjectDir)bin\temp\</ZipDir>
 		<PluginPath>BepInEx\plugins\$(SolutionName)\</PluginPath>
-		<BepInExDownload>https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x86_5.4.22.0.zip</BepInExDownload>
-		<DownloadFileName>BepInEx_x86_5.4.22.0.zip</DownloadFileName>
+    <DownloadFileName>BepInEx_win_x86_5.4.23.5.zip</DownloadFileName>
+    <BepInExDownload>https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/$(DownloadFileName)</BepInExDownload>
 	</PropertyGroup>
 
 	<Target Name="CopyAssemblies">
