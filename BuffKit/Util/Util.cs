@@ -254,5 +254,19 @@ namespace BuffKit
             MuseWorldClient.Instance.ChatHandler.AddMessage(ChatMessage.Console(message));
         }
 
+        /// <summary>
+        /// Available after a match starts. Used to control features that should not be enabled in PvP modes.
+        /// </summary>
+        public static bool MissionIsNotPvP()
+        {
+            var currentGameMode = Mission.Instance?.Map?.GameMode;
+            if (currentGameMode == null) return false;
+            // Pirate Deathmatch 1 ship = RegionGameMode.NOVICE_DEATHMATCH. Jester's Parade is not a serious mode.
+            if (currentGameMode == RegionGameMode.NOVICE_DEATHMATCH
+                || Mission.Instance.Map.Name == "Test_Race_OblivionApproach_FFA")
+                return true;
+            var isPvP = RegionGameModeUtil.IsSkirmish((RegionGameMode)currentGameMode);
+            return !isPvP;
+        }
     }
 }
