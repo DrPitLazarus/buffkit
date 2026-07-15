@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using BuffKit.UI;
 using Newtonsoft.Json;
@@ -309,6 +310,17 @@ namespace BuffKit.Settings
                         enumName = enumNames[vAsInt];
                     }
                 }
+                //// Add feature to use [Description()] attribute to set custom display text in an enum.
+                var field = enumType.GetField(v.ToString());
+                if (field != null)
+                {
+                    var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+                    if (attributes.Length > 0 && attributes[0] is DescriptionAttribute attr)
+                    {
+                        enumName = attr.Description;
+                    }
+                }
+                //// End [Description()] attribute.
                 _enumNames.Add(enumName);
                 if (vAsInt == value)
                     valueValid = true;
