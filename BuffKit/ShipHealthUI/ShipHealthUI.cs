@@ -40,7 +40,7 @@ internal class ShipHealthUI : MonoBehaviour
     /// </summary>
     [HarmonyPatch(typeof(UIManager.UINewMainMenuState), nameof(UIManager.UINewMainMenuState.Enter))]
     [HarmonyPostfix]
-    private static void Start()
+    private static void Initialize()
     {
         if (!_firstMainMenuState) return;
         _firstMainMenuState = false;
@@ -83,15 +83,27 @@ internal class ShipHealthUI : MonoBehaviour
 
     /// <summary>
     /// Any time a ship adds a hull, check if the calling ship is the player's and update the UI.
+    /// Sometimes does not work... It is always something...
     /// </summary>
-    [HarmonyPatch(typeof(Ship), nameof(Ship.AddHull))]
+    //[HarmonyPatch(typeof(Ship), nameof(Ship.AddHull))]
+    //[HarmonyPostfix]
+    //private static void Ship_AddHull(Ship __instance)
+    //{
+    //    var playerShip = _currentShip;
+    //    if (playerShip == null) return;
+    //    var callingShipIsPlayers = ReferenceEquals(__instance, playerShip);
+    //    if (!callingShipIsPlayers) return;
+    //    UpdateUI();
+    //}
+
+    /// <summary>
+    /// Any time a player's parent is changed, update the UI. Change occurs on ship death and spawn.
+    /// Should run less often than polling frequently.
+    /// </summary>
+    [HarmonyPatch(typeof(NetworkedPlayer), nameof(NetworkedPlayer.OnParentChange))]
     [HarmonyPostfix]
-    private static void Ship_AddHull(Ship __instance)
+    private static void NetworkedPlayer_OnParentChange()
     {
-        var playerShip = _currentShip;
-        if (playerShip == null) return;
-        var callingShipIsPlayers = ReferenceEquals(__instance, playerShip);
-        if (!callingShipIsPlayers) return;
         UpdateUI();
     }
 
@@ -110,6 +122,16 @@ internal class ShipHealthUI : MonoBehaviour
     }
 
     /// <summary>
+    /// Clear UI on ship death so it does not briefly appear on next spawn.
+    /// </summary>
+    [HarmonyPatch(typeof(NetworkedPlayer), nameof(NetworkedPlayer.OnShipDeath))]
+    [HarmonyPostfix]
+    private static void NetworkedPlayer_OnShipDeath()
+    {
+        _textMeshProUGUI.text = "";
+    }
+
+    /// <summary>
     /// Updates and sets the text for the UI.
     /// </summary>
     private static void UpdateUI()
@@ -120,6 +142,9 @@ internal class ShipHealthUI : MonoBehaviour
         if (newText != _textMeshProUGUI.text) _textMeshProUGUI.text = newText;
     }
 
+    /// <summary>
+    /// Activate feature.
+    /// </summary>
     [HarmonyPatch(typeof(UIManager.UIMatchBlockState), nameof(UIManager.UIMatchBlockState.Exit))] // Normal match start.
     [HarmonyPatch(typeof(UIManager.UILoadingBlockState), nameof(UIManager.UILoadingBlockState.Exit))] // Join running match.
     [HarmonyPostfix]
@@ -133,6 +158,9 @@ internal class ShipHealthUI : MonoBehaviour
         _mainObject.SetActive(true);
     }
 
+    /// <summary>
+    /// Deactivate feature.
+    /// </summary>
     [HarmonyPatch(typeof(Mission), nameof(Mission.OnDisable))]
     [HarmonyPostfix]
     private static void Mission_OnDisable()
