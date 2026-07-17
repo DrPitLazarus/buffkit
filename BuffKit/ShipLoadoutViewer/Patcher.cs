@@ -81,4 +81,19 @@ namespace BuffKit.ShipLoadoutViewer
             ShipLoadoutViewer.PaintLoadoutBars(___mlv);
         }
     }
+
+    /// <summary>
+    /// Fix display of crew slot player names when the name is too long or squished by loadout/faction icons.
+    /// </summary>
+    [HarmonyPatch]
+    internal class FixPlayerNameWordWrap
+    {
+        [HarmonyPatch(typeof(UILobbyCrewSlot), nameof(UILobbyCrewSlot.Initialize))]
+        [HarmonyPostfix]
+        private static void Initialize(UILobbyCrewSlot __instance)
+        {
+            __instance.playerLevelText.resizeTextForBestFit = true;
+            __instance.playerNameText.resizeTextForBestFit = true;
+        }
+    }
 }
