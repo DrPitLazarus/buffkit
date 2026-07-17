@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,12 +21,12 @@ namespace BuffKitModInstaller
         static readonly string _gameFileName = "GunsOfIcarusOnline.exe";
         static readonly string _modRelativeFilePath = @"BepInEx\plugins\BuffKit\BuffKit.dll";
         static readonly string _modRelativeDirectory = Path.GetDirectoryName(_modRelativeFilePath);
-        // Source: https://github.com/DrPitLazarus/goi-mods/blob/gh-pages/docs/buffkit-mod-installer-versions.json
-        static readonly string _installerVersionsUrl = "https://drpitlazarus.github.io/goi-mods/buffkit-mod-installer-versions.json";
-        // Source: https://github.com/DrPitLazarus/goi-mods/blob/gh-pages/docs/buffkit-versions.json
-        static readonly string _versionsUrl = "https://drpitlazarus.github.io/goi-mods/buffkit-versions.json";
+        static readonly string _installerReleaseTag = "Installer-SCS";
+        static readonly string _modReleaseTag = "SCS";
+        static readonly string _versionsUrl = "https://api.github.com/repos/drpitlazarus/buffkit/releases";
         static readonly string _githubUrl = "https://github.com/DrPitLazarus/buffkit";
         static string _gameDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\Guns of Icarus Online";
+        static JsonArray _releasesJson;
         public static ModVersion[] ModVersions = [];
 
         public struct ModVersion
@@ -70,6 +72,8 @@ namespace BuffKitModInstaller
             Text = $"{Application.ProductName} {_applicationVersion}";
             linkLabelOpenModDir.Text = _modRelativeDirectory;
             SetStatusLabelText("");
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("BuffKitModInstaller");
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
         }
 
         async void FormMain_Shown(object sender, EventArgs e)
@@ -89,23 +93,39 @@ namespace BuffKitModInstaller
         {
             try
             {
-                using HttpResponseMessage response = await _httpClient.GetAsync(_installerVersionsUrl);
+                using HttpResponseMessage response = await _httpClient.GetAsync(_versionsUrl);
                 response.EnsureSuccessStatusCode();
-                var jsonString = (await response.Content.ReadAsStringAsync()).ToString().Trim();
-                var versions = JsonSerializer.Deserialize<ModVersion[]>(jsonString);
-                var latestVersion = versions[0];
-                if (!VersionIsOutdated(_applicationVersion, latestVersion.version))
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var jsonRoot = JsonNode.Parse(jsonString) as JsonArray;
+                _releasesJson = jsonRoot;
+                var serverVersionString = "";
+                var releaseUrl = "";
+                foreach (var release in jsonRoot)
+                {
+                    if (release["tag_name"].ToString().StartsWith(_installerReleaseTag))
+                    {
+                        releaseUrl = release["html_url"].ToString();
+                        serverVersionString = release["tag_name"].ToString().Replace(_installerReleaseTag, "");
+                        var parts = serverVersionString.Split('.').Length;
+                        if (parts == 1)
+                            serverVersionString += ".0.0";
+                        else if (parts == 2)
+                            serverVersionString += ".0";
+                        break;
+                    }
+                }
+                if (!VersionIsOutdated(_applicationVersion, serverVersionString))
                 {
                     return;
                 }
-                var message = $"Latest Version: {latestVersion.version}\n" +
+                var message = $"Latest Version: {serverVersionString}\n" +
                     $"Current Version: {_applicationVersion}\n\n" +
                     $"Press OK to open the release page in your web browser and exit.\n" +
                     $"Press Cancel to continue without updating.";
                 var result = MessageBox.Show(message, $"{Application.ProductName} Update Available", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.OK)
                 {
-                    Process.Start(latestVersion.releaseUrl);
+                    Process.Start(releaseUrl);
                     Environment.Exit(0);
                 }
             }
@@ -160,10 +180,41 @@ namespace BuffKitModInstaller
         {
             try
             {
-                using HttpResponseMessage response = await _httpClient.GetAsync(_versionsUrl);
-                response.EnsureSuccessStatusCode();
-                var jsonString = (await response.Content.ReadAsStringAsync()).ToString().Trim();
-                ModVersions = JsonSerializer.Deserialize<ModVersion[]>(jsonString);
+                if (_releasesJson == null)
+                {
+                    using HttpResponseMessage response = await _httpClient.GetAsync(_versionsUrl);
+                    response.EnsureSuccessStatusCode();
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    var jsonRoot = JsonNode.Parse(jsonString) as JsonArray;
+                    _releasesJson = jsonRoot;
+                }
+                List<ModVersion> modVersions = [];
+                foreach (var release in _releasesJson)
+                {
+                    if (release["tag_name"].ToString().StartsWith(_modReleaseTag))
+                    {
+                        var releaseUrl = release["html_url"].ToString();
+                        var downloadUrl = release["assets"]![0]!["browser_download_url"].ToString();
+                        var versionString = release["tag_name"].ToString().Replace(_modReleaseTag, "");
+                        var parts = versionString.Split('.').Length;
+                        if (parts == 1)
+                        {
+                            // Limit supported versions for the installer. Fails because .zip structure is different.
+                            if (int.TryParse(versionString, out int versionInt) && versionInt < 486)
+                                break;
+                            versionString += ".0.0";
+                        }
+                        else if (parts == 2)
+                            versionString += ".0";
+                        modVersions.Add(new ModVersion
+                        {
+                            version = versionString,
+                            downloadUrl = downloadUrl,
+                            releaseUrl = releaseUrl,
+                        });
+                    }
+                }
+                ModVersions = [.. modVersions];
                 labelLatestVersion.Text = ModVersions[0].version;
             }
             catch (Exception ex)
