@@ -11,10 +11,12 @@ namespace BuffKit.ShipHealthUI;
 internal class ShipHealthUI : MonoBehaviour
 {
     private static bool _firstMainMenuState = true;
-    private static readonly int _fontSize = 12;
+    private static bool _shouldBeEnabled = false;
+    private static bool _doLateUpdateUI = false;
     private static GameObject _mainObject;
     private static TextMeshProUGUI _textMeshProUGUI;
     private static ShipHealthDisplayOption _shipHealthDisplayOption = ShipHealthDisplayOption.Disabled;
+    private static readonly int _fontSize = 12;
     private static readonly string[] _displayOptionTextFormat =
     [
         "",
@@ -25,6 +27,7 @@ internal class ShipHealthUI : MonoBehaviour
     private static string _selectedTextFormat => _displayOptionTextFormat[(int)_shipHealthDisplayOption];
     private static Ship _currentShip => NetworkedPlayer.Local?.CurrentShip;
     private static Hull _currentShipHull => NetworkedPlayer.Local?.CurrentShip?.ActiveHull;
+    private static bool _mainObjectIsActive => _mainObject?.activeSelf ?? false;
 
     private enum ShipHealthDisplayOption
     {
@@ -75,11 +78,17 @@ internal class ShipHealthUI : MonoBehaviour
         return mainObject;
     }
 
-    // Old update method, moved to event based updates instead of every frame.
-    //private void LateUpdate()
-    //{
-    //    UpdateUI();
-    //}
+    /// <summary>
+    /// Seems to be the only reliable way to update UI after ship spawn.
+    /// </summary>
+    private void LateUpdate()
+    {
+        if (_doLateUpdateUI && _currentShipHull != null)
+        {
+            UpdateUI();
+            _doLateUpdateUI = false;
+        }
+    }
 
     /// <summary>
     /// Any time a ship adds a hull, check if the calling ship is the player's and update the UI.
@@ -96,16 +105,6 @@ internal class ShipHealthUI : MonoBehaviour
     //    UpdateUI();
     //}
 
-    /// <summary>
-    /// Any time a player's parent is changed, update the UI. Change occurs on ship death and spawn.
-    /// Should run less often than polling frequently.
-    /// </summary>
-    [HarmonyPatch(typeof(NetworkedPlayer), nameof(NetworkedPlayer.OnParentChange))]
-    [HarmonyPostfix]
-    private static void NetworkedPlayer_OnParentChange()
-    {
-        UpdateUI();
-    }
 
     /// <summary>
     /// Any time a hull is remotely updated, check if the calling hull is the player's and update the UI.
@@ -114,6 +113,7 @@ internal class ShipHealthUI : MonoBehaviour
     [HarmonyPostfix]
     private static void Hull_OnRemoteUpdate(Hull __instance)
     {
+        if (!_shouldBeEnabled) return;
         var playerHull = _currentShipHull;
         if (playerHull == null) return;
         var callingHullIsPlayers = ReferenceEquals(__instance, playerHull);
@@ -128,7 +128,9 @@ internal class ShipHealthUI : MonoBehaviour
     [HarmonyPostfix]
     private static void NetworkedPlayer_OnShipDeath()
     {
-        _textMeshProUGUI.text = "";
+        if (!_shouldBeEnabled) return;
+        _textMeshProUGUI?.text = "";
+        _doLateUpdateUI = true;
     }
 
     /// <summary>
@@ -139,7 +141,7 @@ internal class ShipHealthUI : MonoBehaviour
         var hull = _currentShipHull;
         if (hull == null) return;
         var newText = _selectedTextFormat.F([hull.CoreHealth, hull.MaxCoreHealth, hull.PercentCoreHealth]);
-        if (newText != _textMeshProUGUI.text) _textMeshProUGUI.text = newText;
+        _textMeshProUGUI?.text = newText;
     }
 
     /// <summary>
@@ -151,11 +153,18 @@ internal class ShipHealthUI : MonoBehaviour
     private static void UIManager_UIMatchBlockState_Exit()
     {
         if (_shipHealthDisplayOption == ShipHealthDisplayOption.Disabled) return;
-        var shouldBeEnabled = Util.MissionIsNotPvP();
-        MuseLog.Info($"shouldBeEnabled: {shouldBeEnabled}");
-        if (!shouldBeEnabled) return;
+        _shouldBeEnabled = Util.MissionIsNotPvP();
+        MuseLog.Info($"_shouldBeEnabled: {_shouldBeEnabled}");
+        if (!_shouldBeEnabled) return;
         MuseLog.Info($"Activating with display option: {_shipHealthDisplayOption}.");
-        _mainObject.SetActive(true);
+        if (_mainObject == null)
+        {
+            MuseLog.Info("GameObject created!");
+            _mainObject = CreateUi();
+        }
+        _textMeshProUGUI?.text = "";
+        _mainObject?.SetActive(true);
+        UpdateUI();
     }
 
     /// <summary>
@@ -165,6 +174,7 @@ internal class ShipHealthUI : MonoBehaviour
     [HarmonyPostfix]
     private static void Mission_OnDisable()
     {
-        if (_mainObject != null && _mainObject.activeSelf) _mainObject.SetActive(false);
+        _mainObject?.SetActive(false);
+        _shouldBeEnabled = false;
     }
 }

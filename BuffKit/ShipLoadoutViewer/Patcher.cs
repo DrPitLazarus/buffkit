@@ -92,6 +92,8 @@ namespace BuffKit.ShipLoadoutViewer
         [HarmonyPostfix]
         private static void Initialize(UILobbyCrewSlot __instance)
         {
+            __instance.playerLevelText.resizeTextMaxSize = __instance.playerLevelText.fontSize;
+            __instance.playerNameText.resizeTextMaxSize = __instance.playerNameText.fontSize;
             __instance.playerLevelText.resizeTextForBestFit = true;
             __instance.playerNameText.resizeTextForBestFit = true;
         }
